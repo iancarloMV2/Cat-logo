@@ -3,23 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nobile Perfumes — Mayoreo</title>
+  <title>IanCarloMV — Mayoreo</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { padding-bottom: 130px; background: #f8f7ff; }
+    :root { --blue: #1d4ed8; --blue-dark: #1e3a8a; --blue-light: #dbeafe; }
+    body { padding-bottom: 130px; background: #f0f4ff; }
     .filter-btn {
       white-space: nowrap; padding: 4px 12px; border-radius: 999px;
-      font-size: 11px; font-weight: 600; border: 1.5px solid #e5e7eb;
-      background: white; color: #6b7280; cursor: pointer; transition: all 0.15s;
+      font-size: 11px; font-weight: 600; border: 1.5px solid #bfdbfe;
+      background: white; color: #3b82f6; cursor: pointer; transition: all 0.15s;
     }
-    .filter-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; }
-    .card-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #f3f4f6; }
+    .filter-btn.active { background: #1d4ed8; color: white; border-color: #1d4ed8; }
+    .card-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #eff6ff; }
     .sticky-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
-      background: white; border-top: 1px solid #e5e7eb;
-      padding: 10px 14px 14px;
-      box-shadow: 0 -4px 20px rgba(124,58,237,0.12); z-index: 50;
+      background: white; border-top: 2px solid #dbeafe;
+      padding: 8px 14px 14px;
+      box-shadow: 0 -6px 24px rgba(29,78,216,0.15); z-index: 50;
     }
+    @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.15)} 100%{transform:scale(1)} }
+    .pop { animation: pop 0.35s ease; }
+    @keyframes pulse-green { 0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,0.4)} 50%{box-shadow:0 0 0 8px rgba(22,163,74,0)} }
+    .pulse-green { animation: pulse-green 1.5s infinite; }
     .tier-pill {
       padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 700;
       border: 1.5px solid; cursor: pointer; transition: all 0.15s; white-space: nowrap;
@@ -30,83 +35,80 @@
       background: #16a34a; color: white;
       font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px;
     }
+    .low-stock-badge {
+      position: absolute; bottom: 4px; right: 4px;
+      background: #ef4444; color: white;
+      font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px;
+    }
     .agotado-overlay {
-      position: absolute; inset: 0; background: rgba(0,0,0,0.35);
+      position: absolute; inset: 0; background: rgba(0,0,0,0.4);
       display: flex; align-items: center; justify-content: center;
     }
     .tipo-badge {
       position: absolute; top: 4px; right: 4px;
-      background: rgba(255,255,255,0.9); font-size: 9px;
-      padding: 1px 5px; border-radius: 999px; color: #374151; font-weight: 600;
+      background: rgba(255,255,255,0.92); font-size: 9px;
+      padding: 1px 5px; border-radius: 999px; color: #1e3a8a; font-weight: 700;
     }
+    .btn-plus { background: #1d4ed8; }
+    .btn-plus:active { background: #1e3a8a; }
+    .btn-plus:disabled { background: #93c5fd; cursor: not-allowed; }
   </style>
 </head>
 <body>
 
-  <!-- HERO — lo primero que ve el cliente -->
-  <div class="bg-gradient-to-br from-purple-700 to-purple-900 text-white px-4 pt-5 pb-4">
-    <div class="flex items-center gap-2 mb-1">
-      <span class="text-2xl">🌸</span>
+  <!-- HERO -->
+  <div style="background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #3b82f6 100%);" class="text-white px-4 pt-5 pb-4">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">🌸</div>
       <div>
-        <h1 class="text-lg font-black leading-tight">Nobile Perfumes</h1>
-        <p class="text-purple-200 text-xs">Catálogo Mayoreo — Precios por volumen</p>
+        <h1 class="text-xl font-black leading-tight tracking-tight">IanCarloMV</h1>
+        <p class="text-blue-200 text-xs font-semibold tracking-widest uppercase">Mayoreo · Perfumería Original</p>
       </div>
     </div>
-    <p class="text-xs text-purple-100 mt-2 mb-3">Selecciona tus productos y obtén automáticamente el mejor precio según tu cantidad total.</p>
+    <p class="text-sm text-blue-100 mb-3">Selecciona tus productos — el precio baja automáticamente según tu cantidad total.</p>
 
-    <!-- Tabla de tiers — ancla visual clave -->
-    <div class="grid grid-cols-3 gap-1.5 text-center">
-      <div class="bg-white/10 rounded-xl py-2 px-1">
-        <p class="text-[10px] text-purple-200">1 pieza</p>
+    <!-- Tiers -->
+    <div class="grid grid-cols-3 gap-1.5 text-center mb-1.5">
+      <div class="bg-white/10 rounded-xl py-2 px-1 border border-white/20">
+        <p class="text-[9px] text-blue-200 font-medium">1 pieza</p>
         <p class="text-xs font-black">Público</p>
       </div>
-      <div class="bg-white/10 rounded-xl py-2 px-1">
-        <p class="text-[10px] text-purple-200">5–14 pzas</p>
+      <div class="bg-white/10 rounded-xl py-2 px-1 border border-white/20">
+        <p class="text-[9px] text-blue-200 font-medium">5–14 pzas</p>
         <p class="text-xs font-black text-green-300">Mayoreo</p>
       </div>
-      <div class="bg-white/10 rounded-xl py-2 px-1">
-        <p class="text-[10px] text-purple-200">15–24 pzas</p>
-        <p class="text-xs font-black text-green-300">Mayoreo+</p>
+      <div class="bg-white/10 rounded-xl py-2 px-1 border border-white/20">
+        <p class="text-[9px] text-blue-200 font-medium">15–24 pzas</p>
+        <p class="text-xs font-black text-green-300">Mayoreo +</p>
       </div>
     </div>
-    <div class="grid grid-cols-3 gap-1.5 text-center mt-1.5">
-      <div class="bg-yellow-400/20 border border-yellow-400/40 rounded-xl py-2 px-1">
-        <p class="text-[10px] text-yellow-200">25–49 pzas</p>
+    <div class="grid grid-cols-3 gap-1.5 text-center">
+      <div class="bg-yellow-400/20 rounded-xl py-2 px-1 border border-yellow-400/50">
+        <p class="text-[9px] text-yellow-200 font-medium">25–49 pzas</p>
         <p class="text-xs font-black text-yellow-300">⭐ Popular</p>
       </div>
-      <div class="bg-white/10 rounded-xl py-2 px-1">
-        <p class="text-[10px] text-purple-200">50–99 pzas</p>
+      <div class="bg-white/10 rounded-xl py-2 px-1 border border-white/20">
+        <p class="text-[9px] text-blue-200 font-medium">50–99 pzas</p>
         <p class="text-xs font-black text-green-300">Gran Mayoreo</p>
       </div>
-      <div class="bg-green-400/20 border border-green-400/40 rounded-xl py-2 px-1">
-        <p class="text-[10px] text-green-200">100+ pzas</p>
-        <p class="text-xs font-black text-green-300">💎 Mejor precio</p>
+      <div class="bg-green-400/20 rounded-xl py-2 px-1 border border-green-400/50">
+        <p class="text-[9px] text-green-200 font-medium">100+ pzas</p>
+        <p class="text-xs font-black text-green-300">💎 Mejor</p>
       </div>
     </div>
   </div>
 
   <!-- HEADER STICKY -->
-  <div class="bg-white shadow-sm sticky top-0 z-40 px-3 pt-2 pb-2">
-    <input id="search" type="text" placeholder="🔍 Buscar perfume o marca..."
-      class="w-full border border-gray-200 rounded-full px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-purple-300 mb-1.5">
+  <div class="bg-white shadow-md sticky top-0 z-40 px-3 pt-3 pb-2 border-b-2 border-blue-100">
+    <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">🔍 Encuentra tu perfume</p>
+    <input id="search" type="text" placeholder="Buscar por nombre o marca..."
+      class="w-full border-2 border-blue-300 rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 bg-white mb-2 shadow-sm">
     <div class="flex gap-1.5 overflow-x-auto pb-0.5">
       <button class="filter-btn active" data-filter="Todos">Todos</button>
       <button class="filter-btn" data-filter="Mujer">Mujer</button>
       <button class="filter-btn" data-filter="Hombre">Hombre</button>
       <button class="filter-btn" data-filter="Unisex">Unisex</button>
     </div>
-  </div>
-
-  <!-- PROGRESO AL SIGUIENTE TIER -->
-  <div id="progress-box" class="mx-2 mt-2 bg-white border border-purple-100 rounded-xl px-3 py-2.5 shadow-sm hidden">
-    <div class="flex justify-between items-center mb-1.5">
-      <p id="progress-label" class="text-xs font-bold text-purple-700"></p>
-      <p id="progress-saving" class="text-xs font-bold text-green-600"></p>
-    </div>
-    <div class="w-full bg-gray-100 rounded-full h-2">
-      <div id="progress-bar" class="progress-bar-inner bg-gradient-to-r from-purple-500 to-purple-700 h-2 rounded-full" style="width:0%"></div>
-    </div>
-    <p id="progress-sub" class="text-[10px] text-gray-400 mt-1"></p>
   </div>
 
   <!-- Loading / Empty -->
@@ -120,25 +122,45 @@
   <!-- GRID -->
   <div id="grid" class="grid grid-cols-3 gap-1.5 p-2 hidden"></div>
 
-  <!-- STICKY BOTTOM BAR -->
+  <!-- STICKY BOTTOM — psicología de conversión -->
   <div class="sticky-bar">
-    <!-- Tier actual -->
-    <div id="tier-bar" class="flex gap-1 overflow-x-auto pb-1.5 mb-2 scrollbar-hide">
-      <!-- generado por JS -->
+
+    <!-- Tiers activos -->
+    <div id="tier-bar" class="flex gap-1 overflow-x-auto pb-1.5 mb-2"></div>
+
+    <!-- Ahorro destacado — verde, grande, con animación -->
+    <div id="savings-box" class="hidden mb-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2 flex items-center justify-between">
+      <div>
+        <p class="text-[10px] text-green-600 font-bold uppercase tracking-wide">💰 Tu ahorro total</p>
+        <p id="savings-total" class="text-2xl font-black text-green-600 leading-tight">$0</p>
+        <p id="savings-sub" class="text-[10px] text-green-500"></p>
+      </div>
+      <div class="text-3xl">🎉</div>
     </div>
+
+    <!-- Progreso al siguiente tier dentro de la barra -->
+    <div id="progress-mini" class="hidden mb-2">
+      <div class="flex justify-between text-[10px] font-semibold mb-1">
+        <span id="progress-mini-label" class="text-orange-500"></span>
+        <span id="progress-mini-save" class="text-green-600"></span>
+      </div>
+      <div class="w-full bg-gray-100 rounded-full h-1.5">
+        <div id="progress-mini-bar" class="h-1.5 rounded-full transition-all duration-500" style="width:0%; background: linear-gradient(90deg,#f97316,#eab308)"></div>
+      </div>
+    </div>
+
+    <!-- Total + botón -->
     <div class="flex items-center justify-between">
       <div>
-        <div class="flex items-center gap-2">
-          <p id="cart-total" class="text-lg font-black text-gray-900">$0</p>
-          <p id="savings-total" class="text-xs font-bold text-green-600 hidden"></p>
-        </div>
-        <p id="cart-count" class="text-xs text-gray-400">0 piezas · toca + para agregar</p>
+        <p class="text-[10px] text-gray-400 font-medium">Total de tu pedido</p>
+        <p id="cart-total" class="text-2xl font-black text-gray-900 leading-tight">$0</p>
+        <p id="cart-count" class="text-[10px] text-gray-400">0 piezas</p>
       </div>
       <button id="wa-btn" onclick="sendWhatsApp()"
-        class="bg-green-500 text-white px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-green-200"
+        class="bg-green-500 text-white px-5 py-3 rounded-2xl font-black text-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shadow-xl shadow-green-200 pulse-green"
         disabled>
-        <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 shrink-0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.847L.057 23.882l6.207-1.456A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.853 0-3.587-.5-5.084-1.37l-.363-.214-3.767.884.933-3.667-.235-.375A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-        Enviar pedido por WhatsApp
+        <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 shrink-0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.847L.057 23.882l6.207-1.456A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.853 0-3.587-.5-5.084-1.37l-.363-.214-3.767.884.933-3.667-.235-.375A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Enviar pedido
       </button>
     </div>
   </div>
@@ -148,12 +170,12 @@
     const WA_NUMBER = '524761604759';
 
     const TIERS = [
-      { min: 1,   max: 4,   key: 'p1',   label: '1 pz',     color: 'border-gray-300 text-gray-600' },
-      { min: 5,   max: 14,  key: 'p5',   label: '5–14 pz',  color: 'border-purple-300 text-purple-600' },
-      { min: 15,  max: 24,  key: 'p15',  label: '15–24 pz', color: 'border-purple-400 text-purple-700' },
-      { min: 25,  max: 49,  key: 'p25',  label: '25–49 pz', color: 'border-yellow-400 text-yellow-700', star: '⭐' },
-      { min: 50,  max: 99,  key: 'p50',  label: '50–99 pz', color: 'border-green-400 text-green-700' },
-      { min: 100, max: 9999,key: 'p100', label: '100+ pz',  color: 'border-green-500 text-green-800', star: '💎' },
+      { min: 1,   max: 4,    key: 'p1',   label: '1 pz',     color: 'border-gray-300 text-gray-600' },
+      { min: 5,   max: 14,   key: 'p5',   label: '5–14 pz',  color: 'border-blue-300 text-blue-600' },
+      { min: 15,  max: 24,   key: 'p15',  label: '15–24 pz', color: 'border-blue-400 text-blue-700' },
+      { min: 25,  max: 49,   key: 'p25',  label: '25–49 pz', color: 'border-yellow-400 text-yellow-700', star: '⭐ ' },
+      { min: 50,  max: 99,   key: 'p50',  label: '50–99 pz', color: 'border-green-400 text-green-700' },
+      { min: 100, max: 9999, key: 'p100', label: '100+ pz',  color: 'border-green-500 text-green-800', star: '💎 ' },
     ];
 
     let allProducts = [];
@@ -169,7 +191,7 @@
 
     async function loadData() {
       try {
-        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MASTER`;
+        const url  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MASTER`;
         const res  = await fetch(url);
         const text = await res.text();
         const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
@@ -186,6 +208,7 @@
             tamano:  r.c[ci('TAMAÑO')]?.v || '',
             tipo:    r.c[ci('TIPO')]?.v || '',
             notas:   r.c[ci('NOTAS')]?.v || '',
+            stock:   parseInt(r.c[ci('STOCK')]?.v) || 0,
             disp:    r.c[ci('DISPONIBILIDAD')]?.v || '',
             p1:   parseFloat(r.c[ci('PRECIO_PUBLICO')]?.v)  || 0,
             p5:   parseFloat(r.c[ci('MAY_5_NUEVO')]?.v)     || 0,
@@ -211,24 +234,21 @@
 
     function currentTier() {
       const q = totalQty();
-      for (let i = TIERS.length - 1; i >= 0; i--) {
+      for (let i = TIERS.length - 1; i >= 0; i--)
         if (q >= TIERS[i].min) return TIERS[i];
-      }
       return TIERS[0];
     }
 
-    function getPrice(p) {
-      const t = currentTier();
-      return p[t.key] || p.p1;
-    }
+    function getPrice(p) { return p[currentTier().key] || p.p1; }
 
     function renderTierBar() {
       const qty = totalQty();
-      const bar = document.getElementById('tier-bar');
-      bar.innerHTML = TIERS.map(t => {
-        const active = qty >= t.min && qty <= t.max;
+      document.getElementById('tier-bar').innerHTML = TIERS.map(t => {
+        const active  = qty >= t.min && qty <= t.max;
         const reached = qty >= t.min;
-        const bg = active ? 'bg-purple-600 text-white border-purple-600' : reached ? 'bg-purple-50 ' + t.color : t.color + ' bg-white opacity-50';
+        const bg = active  ? 'bg-blue-700 text-white border-blue-700'
+                 : reached ? 'bg-blue-50 ' + t.color
+                 : t.color + ' bg-white opacity-40';
         return `<span class="tier-pill ${bg}">${t.star||''}${t.label}</span>`;
       }).join('');
     }
@@ -236,34 +256,29 @@
     function renderProgress() {
       const qty = totalQty();
       const box = document.getElementById('progress-box');
-
       if (qty === 0) { box.classList.add('hidden'); return; }
       box.classList.remove('hidden');
 
       const tierIdx = TIERS.findIndex(t => qty >= t.min && qty <= t.max);
-      const next = TIERS[tierIdx + 1];
+      const next    = TIERS[tierIdx + 1];
 
       if (!next) {
         document.getElementById('progress-label').textContent = '💎 Tienes el mejor precio disponible';
         document.getElementById('progress-saving').textContent = '';
         document.getElementById('progress-bar').style.width = '100%';
-        document.getElementById('progress-sub').textContent = '100+ piezas — precio máximo de mayoreo aplicado';
+        document.getElementById('progress-sub').textContent = '100+ piezas — precio máximo aplicado';
         return;
       }
 
-      const curr = TIERS[tierIdx];
-      const pct  = Math.round(((qty - curr.min) / (next.min - curr.min)) * 100);
-      const need = next.min - qty;
-
-      // Calcular ahorro promedio por pieza al subir de tier
-      const avgSaving = allProducts.slice(0,20).reduce((sum, p) => {
-        const diff = (p[curr.key] || p.p1) - (p[next.key] || p[curr.key] || p.p1);
-        return sum + diff;
-      }, 0) / 20;
+      const curr    = TIERS[tierIdx];
+      const pct     = Math.round(((qty - curr.min) / (next.min - curr.min)) * 100);
+      const need    = next.min - qty;
+      const sample  = allProducts.slice(0, 20);
+      const avgSave = sample.reduce((s, p) => s + ((p[curr.key]||p.p1) - (p[next.key]||p[curr.key]||p.p1)), 0) / sample.length;
 
       document.getElementById('progress-label').textContent = `Agrega ${need} pieza${need!==1?'s':''} más → ${next.label}`;
-      document.getElementById('progress-saving').textContent = avgSaving > 0 ? `~$${Math.round(avgSaving)}/pz más barato` : '';
-      document.getElementById('progress-bar').style.width = `${Math.min(pct, 100)}%`;
+      document.getElementById('progress-saving').textContent = avgSave > 1 ? `~$${Math.round(avgSave)}/pz más barato` : '';
+      document.getElementById('progress-bar').style.width = `${Math.min(pct,100)}%`;
       document.getElementById('progress-sub').textContent = `Tier actual: ${curr.label} · Siguiente: ${next.label}`;
     }
 
@@ -278,32 +293,35 @@
         return mf && ms;
       });
 
-      if (!filtered.length) {
-        grid.classList.add('hidden'); empty.classList.remove('hidden'); return;
-      }
+      if (!filtered.length) { grid.classList.add('hidden'); empty.classList.remove('hidden'); return; }
       empty.classList.add('hidden'); grid.classList.remove('hidden');
 
-      const tier = currentTier();
+      const tier    = currentTier();
+      const agotado = p => p.disp === 'Agotado' || p.stock <= 0;
 
       grid.innerHTML = filtered.map(p => {
-        const qty   = cart[p.id] || 0;
-        const price = getPrice(p);
-        const img   = p.foto || `https://placehold.co/300x300/f3f4f6/9ca3af?text=${encodeURIComponent(p.marca[0]||'?')}`;
-        const savePct = p.p1 > 0 && price < p.p1 ? Math.round((1 - price/p.p1)*100) : 0;
-        const agotado = p.disp === 'Agotado';
+        const qty      = cart[p.id] || 0;
+        const price    = getPrice(p);
+        const img      = p.foto || `https://placehold.co/300x300/eff6ff/93c5fd?text=${encodeURIComponent(p.marca[0]||'?')}`;
+        const savePct  = p.p1 > 0 && price < p.p1 ? Math.round((1 - price/p.p1)*100) : 0;
+        const isOut    = agotado(p);
+        const maxQty   = p.stock;
+        const atMax    = qty >= maxQty && !isOut;
+        const lowStock = !isOut && p.stock > 0 && p.stock <= 3;
 
         return `
-        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col ${agotado?'opacity-60':''}">
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-blue-50 flex flex-col ${isOut?'opacity-60':''}">
           <div class="relative">
             <img src="${img}" alt="${p.perfume}" class="card-img"
-                 onerror="this.src='https://placehold.co/300x300/f3f4f6/9ca3af?text=📷'">
+                 onerror="this.src='https://placehold.co/300x300/eff6ff/93c5fd?text=📷'">
             ${savePct > 0 ? `<span class="savings-badge">-${savePct}%</span>` : ''}
             ${p.tipo ? `<span class="tipo-badge">${p.tipo}</span>` : ''}
-            ${agotado ? `<div class="agotado-overlay"><span class="bg-black/70 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">Agotado</span></div>` : ''}
-            ${qty > 0 ? `<div class="absolute bottom-1 left-1 bg-purple-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">${qty}</div>` : ''}
+            ${lowStock ? `<span class="low-stock-badge">¡${p.stock} left!</span>` : ''}
+            ${isOut ? `<div class="agotado-overlay"><span class="bg-black/70 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">Agotado</span></div>` : ''}
+            ${qty > 0 ? `<div class="absolute bottom-1 left-1 bg-blue-700 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">${qty}</div>` : ''}
           </div>
           <div class="p-1.5 flex flex-col flex-1">
-            <p class="text-[10px] font-semibold text-purple-600 truncate leading-tight">${p.marca}</p>
+            <p class="text-[10px] font-semibold text-blue-600 truncate leading-tight">${p.marca}</p>
             <p class="text-[11px] font-bold text-gray-800 leading-snug line-clamp-2">${p.perfume}</p>
             <p class="text-[9px] text-gray-400 truncate">${p.tamano}ml · ${p.notas}</p>
             <div class="mt-auto pt-1">
@@ -311,19 +329,23 @@
               <p class="text-xs font-black text-gray-900">$${price.toLocaleString()}</p>
             </div>
             <div class="flex items-center justify-between mt-1 gap-1">
-              <button onclick="updateQty('${p.id}',-1)" ${agotado?'disabled':''}
+              <button onclick="updateQty('${p.id}',-1)" ${isOut?'disabled':''}
                 class="flex-1 h-6 rounded-lg bg-gray-100 text-gray-600 font-bold text-base flex items-center justify-center active:bg-gray-200 disabled:opacity-30">−</button>
               <span class="font-bold text-gray-800 w-4 text-center text-xs">${qty}</span>
-              <button onclick="updateQty('${p.id}',1)" ${agotado?'disabled':''}
-                class="flex-1 h-6 rounded-lg bg-purple-600 text-white font-bold text-base flex items-center justify-center active:bg-purple-700 disabled:opacity-30">+</button>
+              <button onclick="updateQty('${p.id}',1)" ${isOut||atMax?'disabled':''}
+                class="flex-1 h-6 rounded-lg btn-plus text-white font-bold text-base flex items-center justify-center disabled:opacity-30">+</button>
             </div>
+            ${atMax ? `<p class="text-[9px] text-red-400 text-center mt-0.5 font-semibold">Máx. disponible</p>` : ''}
           </div>
         </div>`;
       }).join('');
     }
 
     function updateQty(id, delta) {
-      cart[id] = Math.max(0, (cart[id] || 0) + delta);
+      const p = allProducts.find(p => p.id === id);
+      if (!p) return;
+      const newQty = Math.max(0, (cart[id] || 0) + delta);
+      cart[id] = Math.min(newQty, p.stock);
       if (!cart[id]) delete cart[id];
       updateCart();
       renderTierBar();
@@ -333,55 +355,70 @@
 
     function updateCart() {
       const qty = totalQty();
-      let total = 0, savedVsPublic = 0;
-
+      let total = 0, saved = 0;
       for (const [id, q] of Object.entries(cart)) {
         const p = allProducts.find(p => p.id === id);
         if (!p) continue;
         const price = getPrice(p);
         total += q * price;
-        savedVsPublic += q * (p.p1 - price);
+        saved += q * (p.p1 - price);
       }
+      const tier = currentTier();
 
-      document.getElementById('cart-count').textContent = `${qty} pieza${qty!==1?'s':''} · ${currentTier().label}`;
-      document.getElementById('cart-total').textContent  = `$${total.toLocaleString()}`;
+      document.getElementById('cart-count').textContent = `${qty} pieza${qty!==1?'s':''}`;
+      document.getElementById('cart-total').textContent = `$${total.toLocaleString()}`;
       document.getElementById('wa-btn').disabled = qty === 0;
 
-      const savEl = document.getElementById('savings-total');
-      if (savedVsPublic > 0) {
-        savEl.textContent = `Ahorrando $${Math.round(savedVsPublic).toLocaleString()}`;
-        savEl.classList.remove('hidden');
+      // Ahorro en verde grande
+      const savBox = document.getElementById('savings-box');
+      const savEl  = document.getElementById('savings-total');
+      const savSub = document.getElementById('savings-sub');
+      if (saved > 0) {
+        savBox.classList.remove('hidden');
+        savEl.textContent = `$${Math.round(saved).toLocaleString()}`;
+        savEl.classList.add('pop');
+        setTimeout(() => savEl.classList.remove('pop'), 400);
+        const savPct = total > 0 ? Math.round((saved/(total+saved))*100) : 0;
+        savSub.textContent = `${savPct}% menos vs precio público — ¡buen negocio!`;
       } else {
-        savEl.classList.add('hidden');
+        savBox.classList.add('hidden');
+      }
+
+      // Mini progreso al siguiente tier
+      const tierIdx = TIERS.findIndex(t => qty >= t.min && qty <= t.max);
+      const next = TIERS[tierIdx + 1];
+      const miniBox = document.getElementById('progress-mini');
+      if (qty > 0 && next) {
+        miniBox.classList.remove('hidden');
+        const curr = TIERS[tierIdx];
+        const pct  = Math.round(((qty - curr.min) / (next.min - curr.min)) * 100);
+        const need = next.min - qty;
+        const sample = allProducts.slice(0,20);
+        const avgSave = sample.reduce((s,p) => s + ((p[curr.key]||p.p1)-(p[next.key]||p[curr.key]||p.p1)),0) / sample.length;
+        document.getElementById('progress-mini-label').textContent = `🔥 ¡Agrega ${need} más y desbloqueas ${next.label}!`;
+        document.getElementById('progress-mini-save').textContent  = avgSave > 1 ? `~$${Math.round(avgSave)}/pz más barato` : '';
+        document.getElementById('progress-mini-bar').style.width   = `${Math.min(pct,100)}%`;
+      } else {
+        miniBox.classList.add('hidden');
       }
     }
 
     function sendWhatsApp() {
       const qty = totalQty();
       const tier = currentTier();
-      let total = 0, savedVsPublic = 0;
-      const lines = [
-        `🛍️ *Pedido Mayoreo — Nobile Perfumes*`,
-        `📦 Tier: ${tier.label}`,
-        `─────────────────`
-      ];
-
+      let total = 0, saved = 0;
+      const lines = [`🛍️ *Pedido Mayoreo — IanCarloMV*`, `📦 Tier: ${tier.label}`, `─────────────────`];
       for (const [id, q] of Object.entries(cart)) {
         const p = allProducts.find(p => p.id === id);
         if (!p) continue;
-        const price = getPrice(p);
-        const sub = q * price;
-        total += sub;
-        savedVsPublic += q * (p.p1 - price);
+        const price = getPrice(p); const sub = q * price;
+        total += sub; saved += q * (p.p1 - price);
         lines.push(`• *${p.marca} ${p.perfume}* ${p.tamano}ml`);
         lines.push(`  ${q} pz × $${price.toLocaleString()} = $${sub.toLocaleString()}`);
       }
-
       lines.push('─────────────────');
       lines.push(`*Total: $${total.toLocaleString()} (${qty} pzas)*`);
-      if (savedVsPublic > 0)
-        lines.push(`✅ Ahorro vs precio público: $${Math.round(savedVsPublic).toLocaleString()}`);
-
+      if (saved > 0) lines.push(`✅ Ahorro vs precio público: $${Math.round(saved).toLocaleString()}`);
       window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
     }
 
@@ -393,11 +430,7 @@
         renderGrid();
       });
     });
-
-    document.getElementById('search').addEventListener('input', e => {
-      currentSearch = e.target.value;
-      renderGrid();
-    });
+    document.getElementById('search').addEventListener('input', e => { currentSearch = e.target.value; renderGrid(); });
 
     loadData();
   </script>
