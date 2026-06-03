@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nobile Perfumes — Catálogo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { padding-bottom: 90px; background: #f9fafb; }
+    .filter-btn {
+      white-space: nowrap;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1.5px solid #e5e7eb;
+      background: white;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+    .sticky-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; border-top: 1px solid #e5e7eb;
+      padding: 12px 16px; display: flex;
+      align-items: center; justify-content: space-between;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.08); z-index: 50;
+    }
+    .card-img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+    .badge {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(4px);
+      font-size: 11px; padding: 2px 8px;
+      border-radius: 999px; color: #374151; font-weight: 500;
+    }
+    .tier-badge {
+      font-size: 11px; padding: 2px 8px;
+      border-radius: 999px; font-weight: 600;
+      background: #ede9fe; color: #7c3aed;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="bg-white shadow-sm sticky top-0 z-40 px-4 pt-4 pb-2">
+    <div class="flex items-center justify-between mb-2">
+      <div>
+        <h1 class="text-lg font-bold text-gray-800">Nobile Perfumes 🌸</h1>
+        <p class="text-xs text-gray-400">Selecciona tus productos</p>
+      </div>
+      <span id="tier-label" class="tier-badge hidden">Precio público</span>
+    </div>
+    <input id="search" type="text" placeholder="🔍 Buscar perfume o marca..."
+      class="w-full border border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 mb-2">
+    <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <button class="filter-btn active" data-filter="Todos">Todos</button>
+      <button class="filter-btn" data-filter="Mujer">👩 Mujer</button>
+      <button class="filter-btn" data-filter="Hombre">👨 Hombre</button>
+      <button class="filter-btn" data-filter="Unisex">✨ Unisex</button>
+    </div>
+  </div>
+
+  <!-- Info tier -->
+  <div id="tier-info" class="mx-3 mt-3 mb-1 bg-purple-50 border border-purple-100 rounded-xl px-4 py-2.5 text-sm text-purple-700 hidden">
+    <span id="tier-text"></span>
+  </div>
+
+  <!-- Loading -->
+  <div id="loading" class="text-center py-24 text-gray-400 text-sm">
+    <div class="text-4xl mb-3">🌸</div>
+    Cargando catálogo...
+  </div>
+
+  <!-- Empty -->
+  <div id="empty" class="text-center py-24 text-gray-400 text-sm hidden">
+    <div class="text-4xl mb-3">🔍</div>
+    No encontramos ese perfume
+  </div>
+
+  <!-- Grid -->
+  <div id="grid" class="grid grid-cols-2 gap-3 p-3 hidden"></div>
+
+  <!-- Sticky bottom bar -->
+  <div class="sticky-bar">
+    <div>
+      <p id="cart-count" class="text-xs text-gray-500">0 piezas</p>
+      <p id="cart-total" class="text-xl font-bold text-gray-900">$0</p>
+    </div>
+    <button id="wa-btn" onclick="sendWhatsApp()"
+      class="bg-green-500 hover:bg-green-600 active:bg-green-700 text-white px-5 py-2.5 rounded-full font-semibold text-sm flex items-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+      disabled>
+      <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.847L.057 23.882l6.207-1.456A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.853 0-3.587-.5-5.084-1.37l-.363-.214-3.767.884.933-3.667-.235-.375A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      Enviar pedido
+    </button>
+  </div>
+
+  <script>
+    const SHEET_ID = '19R5QP8YlFsJujsyJaUVIjaMQxzQRbsMPMNA5IvDl92M';
+    const WA_NUMBER = '524761604759';
+
+    let allProducts = [];
+    let cart = {};
+    let currentFilter = 'Todos';
+    let currentSearch = '';
+
+    async function loadData() {
+      try {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MASTER`;
+        const res = await fetch(url);
+        const text = await res.text();
+        const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+
+        const cols = json.table.cols.map(c => c.label);
+        const idx = name => cols.findIndex(c => c.toLowerCase().includes(name.toLowerCase()));
+
+        const iID     = idx('ID');
+        const iFOTO   = idx('FOTO');
+        const iMARCA  = idx('MARCA');
+        const iPERF   = idx('PERFUME');
+        const iTAM    = idx('TAMAÑO');
+        const iTIPO   = idx('TIPO');
+        const iNOTAS  = idx('NOTAS');
+        const iPUB    = idx('PRECIO_PUBLICO');
+        const iMAY5   = idx('PRECIO_MAYOREO_5');
+        const iMAY15  = idx('PRECIO_MAYOREO_15');
+        const iDISP   = idx('DISPONIBILIDAD');
+
+        allProducts = json.table.rows
+          .filter(r => r.c[iID]?.v)
+          .map(r => ({
+            id:       String(r.c[iID]?.v || ''),
+            foto:     r.c[iFOTO]?.v || '',
+            marca:    r.c[iMARCA]?.v || '',
+            perfume:  r.c[iPERF]?.v || '',
+            tamano:   r.c[iTAM]?.v || '',
+            tipo:     r.c[iTIPO]?.v || '',
+            notas:    r.c[iNOTAS]?.v || '',
+            p1:       parseFloat(r.c[iPUB]?.v)   || 0,
+            p5:       parseFloat(r.c[iMAY5]?.v)  || 0,
+            p15:      parseFloat(r.c[iMAY15]?.v) || 0,
+            disp:     r.c[iDISP]?.v || '',
+          }))
+          .filter(p => p.disp !== 'Agotado' && p.p1 > 0);
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('grid').classList.remove('hidden');
+        renderGrid();
+      } catch(e) {
+        document.getElementById('loading').innerHTML = '<div class="text-4xl mb-3">⚠️</div>Error cargando catálogo.<br>Intenta de nuevo.';
+        console.error(e);
+      }
+    }
+
+    function totalQty() {
+      return Object.values(cart).reduce((a, b) => a + b, 0);
+    }
+
+    function getPrice(p) {
+      const q = totalQty();
+      if (q >= 15) return p.p15 || p.p5 || p.p1;
+      if (q >= 5)  return p.p5  || p.p1;
+      return p.p1;
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+      const search = currentSearch.toLowerCase().trim();
+
+      const filtered = allProducts.filter(p => {
+        const matchFilter = currentFilter === 'Todos' || p.tipo === currentFilter;
+        const matchSearch = !search ||
+          p.perfume.toLowerCase().includes(search) ||
+          p.marca.toLowerCase().includes(search) ||
+          p.notas.toLowerCase().includes(search);
+        return matchFilter && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.classList.add('hidden');
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      grid.classList.remove('hidden');
+
+      grid.innerHTML = filtered.map(p => {
+        const qty = cart[p.id] || 0;
+        const price = getPrice(p);
+        const img = p.foto
+          ? p.foto
+          : `https://placehold.co/300x300/f3f4f6/9ca3af?text=${encodeURIComponent(p.marca)}`;
+
+        const tipoColor = p.tipo === 'Mujer' ? 'bg-pink-50 text-pink-600'
+                        : p.tipo === 'Hombre' ? 'bg-blue-50 text-blue-600'
+                        : 'bg-gray-100 text-gray-500';
+
+        return `
+          <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col">
+            <div class="relative">
+              <img src="${img}" alt="${p.perfume}"
+                   class="card-img bg-gray-50"
+                   onerror="this.src='https://placehold.co/300x300/f3f4f6/9ca3af?text=📷'">
+              ${p.tipo ? `<span class="badge ${tipoColor}">${p.tipo}</span>` : ''}
+              ${qty > 0 ? `<div class="absolute bottom-2 left-2 bg-purple-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">${qty}</div>` : ''}
+            </div>
+            <div class="p-2.5 flex flex-col flex-1">
+              <p class="text-xs font-semibold text-purple-600 truncate">${p.marca}</p>
+              <p class="text-sm font-bold text-gray-800 leading-snug">${p.perfume}</p>
+              <p class="text-xs text-gray-400 mt-0.5">${p.tamano}ml · ${p.notas}</p>
+              <p class="text-base font-bold text-gray-900 mt-auto pt-2">$${price.toLocaleString()}</p>
+              <div class="flex items-center justify-between mt-1.5 gap-2">
+                <button onclick="updateQty('${p.id}', -1)"
+                  class="flex-1 h-8 rounded-xl bg-gray-100 text-gray-600 font-bold text-lg flex items-center justify-center active:bg-gray-200">−</button>
+                <span class="font-bold text-gray-800 w-5 text-center text-sm">${qty}</span>
+                <button onclick="updateQty('${p.id}', 1)"
+                  class="flex-1 h-8 rounded-xl bg-purple-600 text-white font-bold text-lg flex items-center justify-center active:bg-purple-700">+</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function updateQty(id, delta) {
+      cart[id] = Math.max(0, (cart[id] || 0) + delta);
+      if (cart[id] === 0) delete cart[id];
+      updateCart();
+      renderGrid();
+    }
+
+    function updateCart() {
+      const qty = totalQty();
+      let total = 0;
+      for (const [id, q] of Object.entries(cart)) {
+        const p = allProducts.find(p => p.id === id);
+        if (p) total += q * getPrice(p);
+      }
+
+      document.getElementById('cart-count').textContent = `${qty} pieza${qty !== 1 ? 's' : ''}`;
+      document.getElementById('cart-total').textContent = `$${total.toLocaleString()}`;
+      document.getElementById('wa-btn').disabled = qty === 0;
+
+      // Tier badge
+      const tierInfo = document.getElementById('tier-info');
+      const tierText = document.getElementById('tier-text');
+      const tierLabel = document.getElementById('tier-label');
+
+      if (qty >= 15) {
+        tierInfo.classList.remove('hidden');
+        tierText.textContent = '🎉 Precio mayoreo 15 piezas aplicado en todos los productos';
+        tierLabel.textContent = 'Mayoreo 15+';
+        tierLabel.classList.remove('hidden');
+      } else if (qty >= 5) {
+        tierInfo.classList.remove('hidden');
+        tierText.textContent = `✅ Precio mayoreo 5 piezas aplicado · Agrega ${15 - qty} más para mejor precio`;
+        tierLabel.textContent = 'Mayoreo 5+';
+        tierLabel.classList.remove('hidden');
+      } else if (qty > 0) {
+        tierInfo.classList.remove('hidden');
+        tierText.textContent = `💡 Agrega ${5 - qty} pieza${5 - qty !== 1 ? 's' : ''} más para precio mayoreo`;
+        tierLabel.classList.add('hidden');
+      } else {
+        tierInfo.classList.add('hidden');
+        tierLabel.classList.add('hidden');
+      }
+    }
+
+    function sendWhatsApp() {
+      const qty = totalQty();
+      let total = 0;
+      const lines = ['🛍️ *Mi pedido — Nobile Perfumes*', '─────────────────'];
+
+      for (const [id, q] of Object.entries(cart)) {
+        const p = allProducts.find(p => p.id === id);
+        if (!p) continue;
+        const price = getPrice(p);
+        const sub = q * price;
+        total += sub;
+        lines.push(`• *${p.marca} ${p.perfume}* ${p.tamano}ml`);
+        lines.push(`  ${q} pz × $${price.toLocaleString()} = $${sub.toLocaleString()}`);
+      }
+
+      lines.push('─────────────────');
+      lines.push(`*Total: $${total.toLocaleString()} (${qty} pzas)*`);
+
+      const tier = qty >= 15 ? '✅ Precio mayoreo 15 piezas'
+                 : qty >= 5  ? '✅ Precio mayoreo 5 piezas'
+                 : '📌 Precio público';
+      lines.push(tier);
+
+      const msg = encodeURIComponent(lines.join('\n'));
+      window.open(`https://wa.me/${WA_NUMBER}?text=${msg}`, '_blank');
+    }
+
+    // Event listeners
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderGrid();
+      });
+    });
+
+    document.getElementById('search').addEventListener('input', e => {
+      currentSearch = e.target.value;
+      renderGrid();
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
