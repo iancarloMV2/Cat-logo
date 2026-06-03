@@ -3,58 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nobile Perfumes — Catálogo</title>
+  <title>Nobile Perfumes — Mayoreo</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { padding-bottom: 80px; background: #f9fafb; }
+    body { padding-bottom: 130px; background: #f8f7ff; }
     .filter-btn {
-      white-space: nowrap;
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 500;
-      border: 1.5px solid #e5e7eb;
-      background: white;
-      color: #6b7280;
-      cursor: pointer;
-      transition: all 0.15s;
+      white-space: nowrap; padding: 4px 12px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; border: 1.5px solid #e5e7eb;
+      background: white; color: #6b7280; cursor: pointer; transition: all 0.15s;
     }
     .filter-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+    .card-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #f3f4f6; }
     .sticky-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: white; border-top: 1px solid #e5e7eb;
-      padding: 10px 14px; display: flex;
-      align-items: center; justify-content: space-between;
-      box-shadow: 0 -4px 12px rgba(0,0,0,0.08); z-index: 50;
+      padding: 10px 14px 14px;
+      box-shadow: 0 -4px 20px rgba(124,58,237,0.12); z-index: 50;
     }
-    .card-img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #f3f4f6; }
-    .badge {
+    .tier-pill {
+      padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 700;
+      border: 1.5px solid; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .progress-bar-inner { transition: width 0.4s ease; }
+    .savings-badge {
+      position: absolute; top: 4px; left: 4px;
+      background: #16a34a; color: white;
+      font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px;
+    }
+    .agotado-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.35);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tipo-badge {
       position: absolute; top: 4px; right: 4px;
-      background: rgba(255,255,255,0.9);
-      font-size: 9px; padding: 1px 5px;
-      border-radius: 999px; color: #374151; font-weight: 600;
-    }
-    .tier-badge {
-      font-size: 11px; padding: 2px 8px;
-      border-radius: 999px; font-weight: 600;
-      background: #ede9fe; color: #7c3aed;
+      background: rgba(255,255,255,0.9); font-size: 9px;
+      padding: 1px 5px; border-radius: 999px; color: #374151; font-weight: 600;
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="bg-white shadow-sm sticky top-0 z-40 px-3 pt-3 pb-2">
-    <div class="flex items-center justify-between mb-1.5">
+  <!-- HERO — lo primero que ve el cliente -->
+  <div class="bg-gradient-to-br from-purple-700 to-purple-900 text-white px-4 pt-5 pb-4">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="text-2xl">🌸</span>
       <div>
-        <h1 class="text-base font-bold text-gray-800">Nobile Perfumes 🌸</h1>
-        <p class="text-xs text-gray-400">Selecciona tus productos</p>
+        <h1 class="text-lg font-black leading-tight">Nobile Perfumes</h1>
+        <p class="text-purple-200 text-xs">Catálogo Mayoreo — Precios por volumen</p>
       </div>
-      <span id="tier-label" class="tier-badge hidden">Precio público</span>
     </div>
+    <p class="text-xs text-purple-100 mt-2 mb-3">Selecciona tus productos y obtén automáticamente el mejor precio según tu cantidad total.</p>
+
+    <!-- Tabla de tiers — ancla visual clave -->
+    <div class="grid grid-cols-3 gap-1.5 text-center">
+      <div class="bg-white/10 rounded-xl py-2 px-1">
+        <p class="text-[10px] text-purple-200">1 pieza</p>
+        <p class="text-xs font-black">Público</p>
+      </div>
+      <div class="bg-white/10 rounded-xl py-2 px-1">
+        <p class="text-[10px] text-purple-200">5–14 pzas</p>
+        <p class="text-xs font-black text-green-300">Mayoreo</p>
+      </div>
+      <div class="bg-white/10 rounded-xl py-2 px-1">
+        <p class="text-[10px] text-purple-200">15–24 pzas</p>
+        <p class="text-xs font-black text-green-300">Mayoreo+</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 text-center mt-1.5">
+      <div class="bg-yellow-400/20 border border-yellow-400/40 rounded-xl py-2 px-1">
+        <p class="text-[10px] text-yellow-200">25–49 pzas</p>
+        <p class="text-xs font-black text-yellow-300">⭐ Popular</p>
+      </div>
+      <div class="bg-white/10 rounded-xl py-2 px-1">
+        <p class="text-[10px] text-purple-200">50–99 pzas</p>
+        <p class="text-xs font-black text-green-300">Gran Mayoreo</p>
+      </div>
+      <div class="bg-green-400/20 border border-green-400/40 rounded-xl py-2 px-1">
+        <p class="text-[10px] text-green-200">100+ pzas</p>
+        <p class="text-xs font-black text-green-300">💎 Mejor precio</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER STICKY -->
+  <div class="bg-white shadow-sm sticky top-0 z-40 px-3 pt-2 pb-2">
     <input id="search" type="text" placeholder="🔍 Buscar perfume o marca..."
       class="w-full border border-gray-200 rounded-full px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-purple-300 mb-1.5">
-    <div class="flex gap-1.5 overflow-x-auto pb-1">
+    <div class="flex gap-1.5 overflow-x-auto pb-0.5">
       <button class="filter-btn active" data-filter="Todos">Todos</button>
       <button class="filter-btn" data-filter="Mujer">Mujer</button>
       <button class="filter-btn" data-filter="Hombre">Hombre</button>
@@ -62,111 +97,174 @@
     </div>
   </div>
 
-  <!-- Tier info -->
-  <div id="tier-info" class="mx-2 mt-2 mb-0 bg-purple-50 border border-purple-100 rounded-xl px-3 py-2 text-xs text-purple-700 hidden">
-    <span id="tier-text"></span>
+  <!-- PROGRESO AL SIGUIENTE TIER -->
+  <div id="progress-box" class="mx-2 mt-2 bg-white border border-purple-100 rounded-xl px-3 py-2.5 shadow-sm hidden">
+    <div class="flex justify-between items-center mb-1.5">
+      <p id="progress-label" class="text-xs font-bold text-purple-700"></p>
+      <p id="progress-saving" class="text-xs font-bold text-green-600"></p>
+    </div>
+    <div class="w-full bg-gray-100 rounded-full h-2">
+      <div id="progress-bar" class="progress-bar-inner bg-gradient-to-r from-purple-500 to-purple-700 h-2 rounded-full" style="width:0%"></div>
+    </div>
+    <p id="progress-sub" class="text-[10px] text-gray-400 mt-1"></p>
   </div>
 
-  <!-- Loading -->
-  <div id="loading" class="text-center py-20 text-gray-400 text-sm">
+  <!-- Loading / Empty -->
+  <div id="loading" class="text-center py-16 text-gray-400 text-sm">
     <div class="text-3xl mb-2">🌸</div>Cargando catálogo...
   </div>
-
-  <!-- Empty -->
-  <div id="empty" class="text-center py-20 text-gray-400 text-sm hidden">
+  <div id="empty" class="text-center py-16 text-gray-400 text-sm hidden">
     <div class="text-3xl mb-2">🔍</div>No encontramos ese perfume
   </div>
 
-  <!-- Grid: 3 columnas en móvil -->
+  <!-- GRID -->
   <div id="grid" class="grid grid-cols-3 gap-1.5 p-2 hidden"></div>
 
-  <!-- Sticky bottom bar -->
+  <!-- STICKY BOTTOM BAR -->
   <div class="sticky-bar">
-    <div>
-      <p id="cart-count" class="text-xs text-gray-500">0 piezas</p>
-      <p id="cart-total" class="text-lg font-bold text-gray-900">$0</p>
+    <!-- Tier actual -->
+    <div id="tier-bar" class="flex gap-1 overflow-x-auto pb-1.5 mb-2 scrollbar-hide">
+      <!-- generado por JS -->
     </div>
-    <button id="wa-btn" onclick="sendWhatsApp()"
-      class="bg-green-500 text-white px-4 py-2 rounded-full font-semibold text-xs flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
-      disabled>
-      <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.847L.057 23.882l6.207-1.456A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.853 0-3.587-.5-5.084-1.37l-.363-.214-3.767.884.933-3.667-.235-.375A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-      Enviar pedido
-    </button>
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-2">
+          <p id="cart-total" class="text-lg font-black text-gray-900">$0</p>
+          <p id="savings-total" class="text-xs font-bold text-green-600 hidden"></p>
+        </div>
+        <p id="cart-count" class="text-xs text-gray-400">0 piezas · toca + para agregar</p>
+      </div>
+      <button id="wa-btn" onclick="sendWhatsApp()"
+        class="bg-green-500 text-white px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-green-200"
+        disabled>
+        <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 shrink-0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.847L.057 23.882l6.207-1.456A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.853 0-3.587-.5-5.084-1.37l-.363-.214-3.767.884.933-3.667-.235-.375A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Enviar pedido por WhatsApp
+      </button>
+    </div>
   </div>
 
   <script>
     const SHEET_ID  = '19R5QP8YlFsJujsyJaUVIjaMQxzQRbsMPMNA5IvDl92M';
     const WA_NUMBER = '524761604759';
 
+    const TIERS = [
+      { min: 1,   max: 4,   key: 'p1',   label: '1 pz',     color: 'border-gray-300 text-gray-600' },
+      { min: 5,   max: 14,  key: 'p5',   label: '5–14 pz',  color: 'border-purple-300 text-purple-600' },
+      { min: 15,  max: 24,  key: 'p15',  label: '15–24 pz', color: 'border-purple-400 text-purple-700' },
+      { min: 25,  max: 49,  key: 'p25',  label: '25–49 pz', color: 'border-yellow-400 text-yellow-700', star: '⭐' },
+      { min: 50,  max: 99,  key: 'p50',  label: '50–99 pz', color: 'border-green-400 text-green-700' },
+      { min: 100, max: 9999,key: 'p100', label: '100+ pz',  color: 'border-green-500 text-green-800', star: '💎' },
+    ];
+
     let allProducts = [];
     let cart = {};
     let currentFilter = 'Todos';
     let currentSearch = '';
 
-    // Convierte URL de Drive a thumbnail directo
     function driveThumb(url) {
       if (!url) return '';
       const m = url.match(/id=([^&]+)/) || url.match(/\/d\/([^/]+)/);
-      if (!m) return url;
-      return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w300`;
+      return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w300` : url;
     }
 
     async function loadData() {
       try {
         const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MASTER`;
-        const res = await fetch(url);
+        const res  = await fetch(url);
         const text = await res.text();
         const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-
         const cols = json.table.cols.map(c => c.label);
-        const idx = name => cols.findIndex(c => c.toLowerCase().replace(/[^a-z0-9]/g,'').includes(name.toLowerCase().replace(/[^a-z0-9]/g,'')));
-
-        const iID   = idx('ID');
-        const iFOTO = idx('FOTO');
-        const iMARC = idx('MARCA');
-        const iPERF = idx('PERFUME');
-        const iTAM  = idx('TAMAÑO');
-        const iTIPO = idx('TIPO');
-        const iNOT  = idx('NOTAS');
-        const iPUB  = idx('PRECIOPUBLICO');
-        const iM5   = idx('PRECIOMAYOR');
-        const iM15  = cols.findIndex(c => c.toLowerCase().includes('mayoreo_15') || c.toLowerCase().includes('mayoreo15'));
-        const iDISP = idx('DISPONIBILIDAD');
+        const ci   = name => cols.findIndex(c => c === name);
 
         allProducts = json.table.rows
-          .filter(r => r.c[iID]?.v)
+          .filter(r => r.c[ci('ID')]?.v)
           .map(r => ({
-            id:      String(r.c[iID]?.v || ''),
-            foto:    driveThumb(r.c[iFOTO]?.v || ''),
-            marca:   r.c[iMARC]?.v || '',
-            perfume: r.c[iPERF]?.v || '',
-            tamano:  r.c[iTAM]?.v || '',
-            tipo:    r.c[iTIPO]?.v || '',
-            notas:   r.c[iNOT]?.v || '',
-            p1:      parseFloat(r.c[iPUB]?.v)  || 0,
-            p5:      parseFloat(r.c[iM5]?.v)   || 0,
-            p15:     parseFloat(r.c[iM15]?.v)  || 0,
-            disp:    r.c[iDISP]?.v || '',
+            id:      String(r.c[ci('ID')]?.v || ''),
+            foto:    driveThumb(r.c[ci('FOTO')]?.v || ''),
+            marca:   r.c[ci('MARCA')]?.v || '',
+            perfume: r.c[ci('PERFUME')]?.v || '',
+            tamano:  r.c[ci('TAMAÑO')]?.v || '',
+            tipo:    r.c[ci('TIPO')]?.v || '',
+            notas:   r.c[ci('NOTAS')]?.v || '',
+            disp:    r.c[ci('DISPONIBILIDAD')]?.v || '',
+            p1:   parseFloat(r.c[ci('PRECIO_PUBLICO')]?.v)  || 0,
+            p5:   parseFloat(r.c[ci('MAY_5_NUEVO')]?.v)     || 0,
+            p15:  parseFloat(r.c[ci('MAY_15_NUEVO')]?.v)    || 0,
+            p25:  parseFloat(r.c[ci('MAY_25_NUEVO')]?.v)    || 0,
+            p50:  parseFloat(r.c[ci('MAY_50_NUEVO')]?.v)    || 0,
+            p100: parseFloat(r.c[ci('MAY_100_NUEVO')]?.v)   || 0,
           }))
-          .filter(p => p.disp !== 'Agotado' && p.p1 > 0)
+          .filter(p => p.p1 > 0)
           .sort((a, b) => a.marca.localeCompare(b.marca) || a.perfume.localeCompare(b.perfume));
 
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('grid').classList.remove('hidden');
+        renderTierBar();
         renderGrid();
       } catch(e) {
-        document.getElementById('loading').innerHTML = '<div class="text-3xl mb-2">⚠️</div>Error cargando catálogo.<br>Intenta de nuevo.';
+        document.getElementById('loading').innerHTML = '<div class="text-3xl mb-2">⚠️</div>Error al cargar. Intenta de nuevo.';
         console.error(e);
       }
     }
 
     function totalQty() { return Object.values(cart).reduce((a,b)=>a+b,0); }
 
-    function getPrice(p) {
+    function currentTier() {
       const q = totalQty();
-      if (q >= 15) return p.p15 || p.p5 || p.p1;
-      if (q >= 5)  return p.p5  || p.p1;
-      return p.p1;
+      for (let i = TIERS.length - 1; i >= 0; i--) {
+        if (q >= TIERS[i].min) return TIERS[i];
+      }
+      return TIERS[0];
+    }
+
+    function getPrice(p) {
+      const t = currentTier();
+      return p[t.key] || p.p1;
+    }
+
+    function renderTierBar() {
+      const qty = totalQty();
+      const bar = document.getElementById('tier-bar');
+      bar.innerHTML = TIERS.map(t => {
+        const active = qty >= t.min && qty <= t.max;
+        const reached = qty >= t.min;
+        const bg = active ? 'bg-purple-600 text-white border-purple-600' : reached ? 'bg-purple-50 ' + t.color : t.color + ' bg-white opacity-50';
+        return `<span class="tier-pill ${bg}">${t.star||''}${t.label}</span>`;
+      }).join('');
+    }
+
+    function renderProgress() {
+      const qty = totalQty();
+      const box = document.getElementById('progress-box');
+
+      if (qty === 0) { box.classList.add('hidden'); return; }
+      box.classList.remove('hidden');
+
+      const tierIdx = TIERS.findIndex(t => qty >= t.min && qty <= t.max);
+      const next = TIERS[tierIdx + 1];
+
+      if (!next) {
+        document.getElementById('progress-label').textContent = '💎 Tienes el mejor precio disponible';
+        document.getElementById('progress-saving').textContent = '';
+        document.getElementById('progress-bar').style.width = '100%';
+        document.getElementById('progress-sub').textContent = '100+ piezas — precio máximo de mayoreo aplicado';
+        return;
+      }
+
+      const curr = TIERS[tierIdx];
+      const pct  = Math.round(((qty - curr.min) / (next.min - curr.min)) * 100);
+      const need = next.min - qty;
+
+      // Calcular ahorro promedio por pieza al subir de tier
+      const avgSaving = allProducts.slice(0,20).reduce((sum, p) => {
+        const diff = (p[curr.key] || p.p1) - (p[next.key] || p[curr.key] || p.p1);
+        return sum + diff;
+      }, 0) / 20;
+
+      document.getElementById('progress-label').textContent = `Agrega ${need} pieza${need!==1?'s':''} más → ${next.label}`;
+      document.getElementById('progress-saving').textContent = avgSaving > 0 ? `~$${Math.round(avgSaving)}/pz más barato` : '';
+      document.getElementById('progress-bar').style.width = `${Math.min(pct, 100)}%`;
+      document.getElementById('progress-sub').textContent = `Tier actual: ${curr.label} · Siguiente: ${next.label}`;
     }
 
     function renderGrid() {
@@ -181,37 +279,43 @@
       });
 
       if (!filtered.length) {
-        grid.classList.add('hidden');
-        empty.classList.remove('hidden');
-        return;
+        grid.classList.add('hidden'); empty.classList.remove('hidden'); return;
       }
-      empty.classList.add('hidden');
-      grid.classList.remove('hidden');
+      empty.classList.add('hidden'); grid.classList.remove('hidden');
+
+      const tier = currentTier();
 
       grid.innerHTML = filtered.map(p => {
         const qty   = cart[p.id] || 0;
         const price = getPrice(p);
         const img   = p.foto || `https://placehold.co/300x300/f3f4f6/9ca3af?text=${encodeURIComponent(p.marca[0]||'?')}`;
+        const savePct = p.p1 > 0 && price < p.p1 ? Math.round((1 - price/p.p1)*100) : 0;
+        const agotado = p.disp === 'Agotado';
 
         return `
-        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col">
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col ${agotado?'opacity-60':''}">
           <div class="relative">
             <img src="${img}" alt="${p.perfume}" class="card-img"
                  onerror="this.src='https://placehold.co/300x300/f3f4f6/9ca3af?text=📷'">
-            ${p.tipo ? `<span class="badge">${p.tipo}</span>` : ''}
-            ${qty > 0 ? `<div class="absolute bottom-1 left-1 bg-purple-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center leading-none">${qty}</div>` : ''}
+            ${savePct > 0 ? `<span class="savings-badge">-${savePct}%</span>` : ''}
+            ${p.tipo ? `<span class="tipo-badge">${p.tipo}</span>` : ''}
+            ${agotado ? `<div class="agotado-overlay"><span class="bg-black/70 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">Agotado</span></div>` : ''}
+            ${qty > 0 ? `<div class="absolute bottom-1 left-1 bg-purple-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">${qty}</div>` : ''}
           </div>
           <div class="p-1.5 flex flex-col flex-1">
             <p class="text-[10px] font-semibold text-purple-600 truncate leading-tight">${p.marca}</p>
             <p class="text-[11px] font-bold text-gray-800 leading-snug line-clamp-2">${p.perfume}</p>
-            <p class="text-[9px] text-gray-400 leading-tight truncate">${p.tamano}ml · ${p.notas}</p>
-            <p class="text-xs font-bold text-gray-900 mt-auto pt-1">$${price.toLocaleString()}</p>
+            <p class="text-[9px] text-gray-400 truncate">${p.tamano}ml · ${p.notas}</p>
+            <div class="mt-auto pt-1">
+              ${p.p1 > price ? `<p class="text-[9px] text-gray-300 line-through leading-none">$${p.p1.toLocaleString()}</p>` : ''}
+              <p class="text-xs font-black text-gray-900">$${price.toLocaleString()}</p>
+            </div>
             <div class="flex items-center justify-between mt-1 gap-1">
-              <button onclick="updateQty('${p.id}',-1)"
-                class="flex-1 h-6 rounded-lg bg-gray-100 text-gray-600 font-bold text-base flex items-center justify-center active:bg-gray-200">−</button>
+              <button onclick="updateQty('${p.id}',-1)" ${agotado?'disabled':''}
+                class="flex-1 h-6 rounded-lg bg-gray-100 text-gray-600 font-bold text-base flex items-center justify-center active:bg-gray-200 disabled:opacity-30">−</button>
               <span class="font-bold text-gray-800 w-4 text-center text-xs">${qty}</span>
-              <button onclick="updateQty('${p.id}',1)"
-                class="flex-1 h-6 rounded-lg bg-purple-600 text-white font-bold text-base flex items-center justify-center active:bg-purple-700">+</button>
+              <button onclick="updateQty('${p.id}',1)" ${agotado?'disabled':''}
+                class="flex-1 h-6 rounded-lg bg-purple-600 text-white font-bold text-base flex items-center justify-center active:bg-purple-700 disabled:opacity-30">+</button>
             </div>
           </div>
         </div>`;
@@ -222,55 +326,62 @@
       cart[id] = Math.max(0, (cart[id] || 0) + delta);
       if (!cart[id]) delete cart[id];
       updateCart();
+      renderTierBar();
+      renderProgress();
       renderGrid();
     }
 
     function updateCart() {
       const qty = totalQty();
-      let total = 0;
+      let total = 0, savedVsPublic = 0;
+
       for (const [id, q] of Object.entries(cart)) {
         const p = allProducts.find(p => p.id === id);
-        if (p) total += q * getPrice(p);
+        if (!p) continue;
+        const price = getPrice(p);
+        total += q * price;
+        savedVsPublic += q * (p.p1 - price);
       }
-      document.getElementById('cart-count').textContent = `${qty} pieza${qty!==1?'s':''}`;
+
+      document.getElementById('cart-count').textContent = `${qty} pieza${qty!==1?'s':''} · ${currentTier().label}`;
       document.getElementById('cart-total').textContent  = `$${total.toLocaleString()}`;
       document.getElementById('wa-btn').disabled = qty === 0;
 
-      const ti = document.getElementById('tier-info');
-      const tt = document.getElementById('tier-text');
-      const tl = document.getElementById('tier-label');
-      if (qty >= 15) {
-        ti.classList.remove('hidden'); tl.classList.remove('hidden');
-        tt.textContent = '🎉 Precio mayoreo 15 piezas aplicado';
-        tl.textContent = 'Mayoreo 15+';
-      } else if (qty >= 5) {
-        ti.classList.remove('hidden'); tl.classList.remove('hidden');
-        tt.textContent = `✅ Mayoreo 5 piezas · Agrega ${15-qty} más para mejor precio`;
-        tl.textContent = 'Mayoreo 5+';
-      } else if (qty > 0) {
-        ti.classList.remove('hidden'); tl.classList.add('hidden');
-        tt.textContent = `💡 Agrega ${5-qty} pieza${5-qty!==1?'s':''} más para precio mayoreo`;
+      const savEl = document.getElementById('savings-total');
+      if (savedVsPublic > 0) {
+        savEl.textContent = `Ahorrando $${Math.round(savedVsPublic).toLocaleString()}`;
+        savEl.classList.remove('hidden');
       } else {
-        ti.classList.add('hidden'); tl.classList.add('hidden');
+        savEl.classList.add('hidden');
       }
     }
 
     function sendWhatsApp() {
       const qty = totalQty();
-      let total = 0;
-      const lines = ['🛍️ *Mi pedido — Nobile Perfumes*','─────────────────'];
+      const tier = currentTier();
+      let total = 0, savedVsPublic = 0;
+      const lines = [
+        `🛍️ *Pedido Mayoreo — Nobile Perfumes*`,
+        `📦 Tier: ${tier.label}`,
+        `─────────────────`
+      ];
+
       for (const [id, q] of Object.entries(cart)) {
         const p = allProducts.find(p => p.id === id);
         if (!p) continue;
         const price = getPrice(p);
         const sub = q * price;
         total += sub;
+        savedVsPublic += q * (p.p1 - price);
         lines.push(`• *${p.marca} ${p.perfume}* ${p.tamano}ml`);
         lines.push(`  ${q} pz × $${price.toLocaleString()} = $${sub.toLocaleString()}`);
       }
+
       lines.push('─────────────────');
       lines.push(`*Total: $${total.toLocaleString()} (${qty} pzas)*`);
-      lines.push(qty>=15?'✅ Precio mayoreo 15 piezas':qty>=5?'✅ Precio mayoreo 5 piezas':'📌 Precio público');
+      if (savedVsPublic > 0)
+        lines.push(`✅ Ahorro vs precio público: $${Math.round(savedVsPublic).toLocaleString()}`);
+
       window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
     }
 
