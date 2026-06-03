@@ -35,11 +35,9 @@
       background: #16a34a; color: white;
       font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px;
     }
-    .low-stock-badge {
-      position: absolute; bottom: 4px; right: 4px;
-      background: #ef4444; color: white;
-      font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px;
-    }
+    /* modal */
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:flex-end; }
+    .modal-sheet { background:white;border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:0 0 32px; }
     .agotado-overlay {
       position: absolute; inset: 0; background: rgba(0,0,0,0.4);
       display: flex; align-items: center; justify-content: center;
@@ -111,12 +109,107 @@
     </div>
   </div>
 
+  <!-- PAQUETES EMPRENDEDORES -->
+  <div class="px-2 pt-3 pb-1">
+    <p class="text-xs font-black text-blue-800 uppercase tracking-widest mb-2 px-1">🎁 Paquetes para emprender</p>
+
+    <!-- Pack 1 -->
+    <div class="bg-white border-2 border-blue-200 rounded-2xl p-4 mb-3 shadow-sm">
+      <div class="flex items-start justify-between mb-2">
+        <div>
+          <p class="text-xs font-bold text-blue-500 uppercase tracking-wide">Pack Revendedor</p>
+          <p class="text-2xl font-black text-gray-900">$2,099</p>
+        </div>
+        <span class="bg-blue-100 text-blue-700 text-xs font-black px-3 py-1 rounded-full">5 perfumes</span>
+      </div>
+      <ul class="text-xs text-gray-600 space-y-1 mb-3">
+        <li>✅ 5 perfumes de los más vendidos</li>
+        <li>✅ Marcas top: Armaf, Lattafa, Afnan</li>
+        <li>✅ 2 decants de muestra para tus clientes</li>
+        <li>✅ Guía de ventas</li>
+        <li>✅ Acceso al grupo privado de revendedores</li>
+        <li class="text-blue-600 font-semibold">📦 Surtido confirmado al momento de tu pedido</li>
+      </ul>
+      <button onclick="pedirPaquete(1)"
+        class="w-full bg-blue-700 text-white py-2.5 rounded-xl font-black text-sm active:bg-blue-900">
+        Quiero este paquete →
+      </button>
+    </div>
+
+    <!-- Pack 2 -->
+    <div class="bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-yellow-400 rounded-2xl p-4 mb-3 shadow-lg relative overflow-hidden">
+      <div class="absolute top-3 right-3 bg-yellow-400 text-blue-900 text-[10px] font-black px-2 py-0.5 rounded-full">⭐ MEJOR VALOR</div>
+      <div class="flex items-start justify-between mb-2">
+        <div>
+          <p class="text-xs font-bold text-blue-300 uppercase tracking-wide">Pack Pro</p>
+          <p class="text-2xl font-black text-white">$4,499</p>
+        </div>
+        <span class="bg-yellow-400 text-blue-900 text-xs font-black px-3 py-1 rounded-full">10 perfumes</span>
+      </div>
+      <ul class="text-xs text-blue-100 space-y-1 mb-3">
+        <li>✅ 10 perfumes de los más vendidos</li>
+        <li>✅ Marcas premium: Armaf, Lattafa, Afnan y más</li>
+        <li>✅ 6 decants de muestra para tus clientes</li>
+        <li>✅ Guía de ventas completa</li>
+        <li>✅ Envío gratis</li>
+        <li>✅ Acceso prioritario al grupo de revendedores</li>
+        <li class="text-yellow-300 font-semibold">📦 Surtido confirmado al momento de tu pedido</li>
+      </ul>
+      <button onclick="pedirPaquete(2)"
+        class="w-full bg-yellow-400 text-blue-900 py-2.5 rounded-xl font-black text-sm active:bg-yellow-500">
+        Quiero este paquete →
+      </button>
+    </div>
+  </div>
+
   <!-- Loading / Empty -->
   <div id="loading" class="text-center py-16 text-gray-400 text-sm">
     <div class="text-3xl mb-2">🌸</div>Cargando catálogo...
   </div>
   <div id="empty" class="text-center py-16 text-gray-400 text-sm hidden">
     <div class="text-3xl mb-2">🔍</div>No encontramos ese perfume
+  </div>
+
+  <!-- MODAL DETALLE -->
+  <div id="modal" class="modal-overlay hidden" onclick="closeModal(event)">
+    <div class="modal-sheet">
+      <div class="flex justify-center pt-3 pb-1">
+        <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
+      </div>
+      <img id="modal-img" src="" alt="" class="w-full aspect-square object-cover bg-blue-50">
+      <div class="px-4 pt-3">
+        <p id="modal-marca" class="text-xs font-bold text-blue-600 uppercase tracking-wide"></p>
+        <h2 id="modal-nombre" class="text-xl font-black text-gray-900 leading-tight mt-0.5"></h2>
+        <div class="flex gap-2 mt-1.5 flex-wrap">
+          <span id="modal-tamano" class="bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full"></span>
+          <span id="modal-tipo" class="bg-gray-100 text-gray-600 text-xs font-semibold px-3 py-1 rounded-full"></span>
+        </div>
+        <p id="modal-notas" class="text-sm text-gray-500 mt-2 leading-relaxed"></p>
+
+        <!-- Tabla de precios -->
+        <div class="mt-4 mb-3">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Precios por volumen</p>
+          <div id="modal-precios" class="grid grid-cols-3 gap-1.5"></div>
+        </div>
+
+        <!-- Selector cantidad -->
+        <div class="flex items-center justify-between bg-gray-50 rounded-2xl p-3 mt-2">
+          <div>
+            <p class="text-xs text-gray-400">Precio actual</p>
+            <p id="modal-precio-actual" class="text-2xl font-black text-gray-900"></p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="modalQty(-1)" class="w-10 h-10 rounded-xl bg-gray-200 text-gray-700 font-black text-xl flex items-center justify-center active:bg-gray-300">−</button>
+            <span id="modal-qty" class="text-xl font-black text-gray-900 w-6 text-center">0</span>
+            <button id="modal-plus" onclick="modalQty(1)" class="w-10 h-10 rounded-xl bg-blue-700 text-white font-black text-xl flex items-center justify-center active:bg-blue-900">+</button>
+          </div>
+        </div>
+
+        <button onclick="closeModalDone()" class="mt-3 w-full bg-blue-700 text-white py-3 rounded-2xl font-black text-sm">
+          ✓ Listo — seguir viendo
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- GRID -->
@@ -311,12 +404,11 @@
 
         return `
         <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-blue-50 flex flex-col ${isOut?'opacity-60':''}">
-          <div class="relative">
+          <div class="relative cursor-pointer" onclick="openModal('${p.id}')">
             <img src="${img}" alt="${p.perfume}" class="card-img"
                  onerror="this.src='https://placehold.co/300x300/eff6ff/93c5fd?text=📷'">
             ${savePct > 0 ? `<span class="savings-badge">-${savePct}%</span>` : ''}
             ${p.tipo ? `<span class="tipo-badge">${p.tipo}</span>` : ''}
-            ${lowStock ? `<span class="low-stock-badge">¡${p.stock} left!</span>` : ''}
             ${isOut ? `<div class="agotado-overlay"><span class="bg-black/70 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">Agotado</span></div>` : ''}
             ${qty > 0 ? `<div class="absolute bottom-1 left-1 bg-blue-700 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">${qty}</div>` : ''}
           </div>
@@ -420,6 +512,82 @@
       lines.push(`*Total: $${total.toLocaleString()} (${qty} pzas)*`);
       if (saved > 0) lines.push(`✅ Ahorro vs precio público: $${Math.round(saved).toLocaleString()}`);
       window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
+    }
+
+    let modalProductId = null;
+
+    function openModal(id) {
+      const p = allProducts.find(p => p.id === id);
+      if (!p) return;
+      modalProductId = id;
+      const price = getPrice(p);
+      const img = p.foto || `https://placehold.co/600x600/eff6ff/93c5fd?text=${encodeURIComponent(p.marca)}`;
+
+      document.getElementById('modal-img').src = img;
+      document.getElementById('modal-marca').textContent = p.marca;
+      document.getElementById('modal-nombre').textContent = p.perfume;
+      document.getElementById('modal-tamano').textContent = p.tamano + 'ml';
+      document.getElementById('modal-tipo').textContent = p.tipo;
+      document.getElementById('modal-notas').textContent = '🌿 ' + p.notas;
+      document.getElementById('modal-qty').textContent = cart[id] || 0;
+      document.getElementById('modal-precio-actual').textContent = '$' + price.toLocaleString();
+      document.getElementById('modal-plus').disabled = (cart[id]||0) >= p.stock && p.stock > 0;
+
+      // Tabla de precios
+      const tierLabels = [
+        { label: '1 pz',     key: 'p1' },
+        { label: '5–14',     key: 'p5' },
+        { label: '15–24',    key: 'p15' },
+        { label: '25–49 ⭐', key: 'p25' },
+        { label: '50–99',    key: 'p50' },
+        { label: '100+ 💎',  key: 'p100' },
+      ];
+      const curr = currentTier().key;
+      document.getElementById('modal-precios').innerHTML = tierLabels.map(t => {
+        const pr = p[t.key] || p.p1;
+        const isActive = t.key === curr;
+        const savePct = p.p1 > 0 && pr < p.p1 ? Math.round((1-pr/p.p1)*100) : 0;
+        return `
+          <div class="${isActive ? 'bg-blue-700 text-white' : 'bg-gray-50 text-gray-700'} rounded-xl py-2 px-1 text-center">
+            <p class="text-[9px] font-semibold ${isActive?'text-blue-200':'text-gray-400'}">${t.label}</p>
+            <p class="text-xs font-black">$${pr.toLocaleString()}</p>
+            ${savePct > 0 ? `<p class="text-[9px] ${isActive?'text-green-300':'text-green-600'} font-bold">-${savePct}%</p>` : ''}
+          </div>`;
+      }).join('');
+
+      document.getElementById('modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function modalQty(delta) {
+      if (!modalProductId) return;
+      const p = allProducts.find(p => p.id === modalProductId);
+      if (!p) return;
+      const newQty = Math.max(0, (cart[modalProductId]||0) + delta);
+      cart[modalProductId] = p.stock > 0 ? Math.min(newQty, p.stock) : newQty;
+      if (!cart[modalProductId]) delete cart[modalProductId];
+      document.getElementById('modal-qty').textContent = cart[modalProductId] || 0;
+      document.getElementById('modal-precio-actual').textContent = '$' + getPrice(p).toLocaleString();
+      document.getElementById('modal-plus').disabled = (cart[modalProductId]||0) >= p.stock && p.stock > 0;
+      updateCart(); renderTierBar(); renderProgress();
+    }
+
+    function closeModal(e) {
+      if (e.target.id === 'modal') { closeModalDone(); }
+    }
+    function closeModalDone() {
+      document.getElementById('modal').classList.add('hidden');
+      document.body.style.overflow = '';
+      modalProductId = null;
+      renderGrid();
+    }
+
+    function pedirPaquete(num) {
+      const packs = {
+        1: `🎁 *Quiero el Pack Revendedor — $2,099*\n\nHola, me interesa el paquete de 5 perfumes top ventas.\n¿Puedes confirmarme la disponibilidad y los detalles?`,
+        2: `🎁 *Quiero el Pack Pro — $4,499*\n\nHola, me interesa el paquete de 10 perfumes top ventas.\n¿Puedes confirmarme la disponibilidad y los detalles?`
+      };
+      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(packs[num])}`, '_blank');
     }
 
     document.querySelectorAll('.filter-btn').forEach(btn => {
