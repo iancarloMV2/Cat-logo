@@ -35,6 +35,8 @@
       background: #16a34a; color: white;
       font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px;
     }
+    .tier-hero-btn { transition: all 0.2s; }
+    .active-tier { background: rgba(255,255,255,0.3) !important; border-color: white !important; transform: scale(1.05); box-shadow: 0 0 0 2px white; }
     /* modal */
     .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:flex-end; }
     .modal-sheet { background:white;border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:0 0 32px; }
@@ -65,34 +67,39 @@
     </div>
     <p class="text-sm text-blue-100 mb-3">Selecciona tus productos — el precio baja automáticamente según tu cantidad total.</p>
 
-    <!-- Tiers -->
+    <!-- Tiers interactivos — toca para ver precios -->
+    <p class="text-[10px] text-blue-200 text-center mb-1.5">👇 Toca un nivel para ver los precios</p>
     <div class="grid grid-cols-3 gap-1.5 text-center mb-1.5">
-      <div class="bg-white/10 rounded-xl py-2 px-1 border border-white/20">
-        <p class="text-[9px] text-blue-200 font-medium">1 pieza</p>
-        <p class="text-xs font-black">Público</p>
+      <div onclick="selectTier(0)" id="hero-tier-0" class="tier-hero-btn active-tier rounded-xl py-2 px-1 border cursor-pointer transition-all">
+        <p class="text-[9px] text-blue-200 font-medium">1–4 pzas</p>
+        <p class="text-xs font-black text-white">Público</p>
       </div>
-      <div class="bg-white/10 rounded-xl py-2 px-1 border border-white/20">
+      <div onclick="selectTier(1)" id="hero-tier-1" class="tier-hero-btn rounded-xl py-2 px-1 border border-white/20 bg-white/10 cursor-pointer transition-all">
         <p class="text-[9px] text-blue-200 font-medium">5–14 pzas</p>
-        <p class="text-xs font-black text-green-300">Mayoreo</p>
+        <p class="text-sm font-black text-green-300">−10%</p>
       </div>
-      <div class="bg-white/10 rounded-xl py-2 px-1 border border-white/20">
+      <div onclick="selectTier(2)" id="hero-tier-2" class="tier-hero-btn rounded-xl py-2 px-1 border border-white/20 bg-white/10 cursor-pointer transition-all">
         <p class="text-[9px] text-blue-200 font-medium">15–24 pzas</p>
-        <p class="text-xs font-black text-green-300">Mayoreo +</p>
+        <p class="text-sm font-black text-green-300">−15%</p>
       </div>
     </div>
     <div class="grid grid-cols-3 gap-1.5 text-center">
-      <div class="bg-yellow-400/20 rounded-xl py-2 px-1 border border-yellow-400/50">
+      <div onclick="selectTier(3)" id="hero-tier-3" class="tier-hero-btn rounded-xl py-2 px-1 border border-yellow-400/50 bg-yellow-400/20 cursor-pointer transition-all">
         <p class="text-[9px] text-yellow-200 font-medium">25–49 pzas</p>
-        <p class="text-xs font-black text-yellow-300">⭐ Popular</p>
+        <p class="text-sm font-black text-yellow-300">−18% ⭐</p>
       </div>
-      <div class="bg-white/10 rounded-xl py-2 px-1 border border-white/20">
+      <div onclick="selectTier(4)" id="hero-tier-4" class="tier-hero-btn rounded-xl py-2 px-1 border border-white/20 bg-white/10 cursor-pointer transition-all">
         <p class="text-[9px] text-blue-200 font-medium">50–99 pzas</p>
-        <p class="text-xs font-black text-green-300">Gran Mayoreo</p>
+        <p class="text-sm font-black text-green-300">−20%</p>
       </div>
-      <div class="bg-green-400/20 rounded-xl py-2 px-1 border border-green-400/50">
+      <div onclick="selectTier(5)" id="hero-tier-5" class="tier-hero-btn rounded-xl py-2 px-1 border border-green-400/50 bg-green-400/20 cursor-pointer transition-all">
         <p class="text-[9px] text-green-200 font-medium">100+ pzas</p>
-        <p class="text-xs font-black text-green-300">💎 Mejor</p>
+        <p class="text-sm font-black text-green-300">−22% 💎</p>
       </div>
+    </div>
+    <!-- Banner tier seleccionado -->
+    <div id="tier-preview-banner" class="mt-2 bg-white/15 rounded-xl px-3 py-1.5 text-center hidden">
+      <p id="tier-preview-text" class="text-xs font-bold text-white"></p>
     </div>
   </div>
 
@@ -263,18 +270,39 @@
     const WA_NUMBER = '524761604759';
 
     const TIERS = [
-      { min: 1,   max: 4,    key: 'p1',   label: '1 pz',     color: 'border-gray-300 text-gray-600' },
-      { min: 5,   max: 14,   key: 'p5',   label: '5–14 pz',  color: 'border-blue-300 text-blue-600' },
-      { min: 15,  max: 24,   key: 'p15',  label: '15–24 pz', color: 'border-blue-400 text-blue-700' },
-      { min: 25,  max: 49,   key: 'p25',  label: '25–49 pz', color: 'border-yellow-400 text-yellow-700', star: '⭐ ' },
-      { min: 50,  max: 99,   key: 'p50',  label: '50–99 pz', color: 'border-green-400 text-green-700' },
-      { min: 100, max: 9999, key: 'p100', label: '100+ pz',  color: 'border-green-500 text-green-800', star: '💎 ' },
+      { min: 1,   max: 4,    disc: 0,    label: '1 pz',     tag: 'Público',       color: 'border-gray-300 text-gray-600' },
+      { min: 5,   max: 14,   disc: 0.10, label: '5–14 pz',  tag: '−10%',          color: 'border-blue-300 text-blue-600' },
+      { min: 15,  max: 24,   disc: 0.15, label: '15–24 pz', tag: '−15%',          color: 'border-blue-400 text-blue-700' },
+      { min: 25,  max: 49,   disc: 0.18, label: '25–49 pz', tag: '−18% ⭐',       color: 'border-yellow-400 text-yellow-700', star: '⭐ ' },
+      { min: 50,  max: 99,   disc: 0.20, label: '50–99 pz', tag: '−20%',          color: 'border-green-400 text-green-700' },
+      { min: 100, max: 9999, disc: 0.22, label: '100+ pz',  tag: '−22% 💎',       color: 'border-green-500 text-green-800', star: '💎 ' },
     ];
 
     let allProducts = [];
     let cart = {};
     let currentFilter = 'Todos';
     let currentSearch = '';
+    let previewTierIdx = 0; // tier seleccionado manualmente
+
+    function selectTier(idx) {
+      previewTierIdx = idx;
+      // Actualizar UI hero
+      document.querySelectorAll('.tier-hero-btn').forEach((el, i) => {
+        el.classList.toggle('active-tier', i === idx);
+      });
+      // Banner
+      const t = TIERS[idx];
+      const banner = document.getElementById('tier-preview-banner');
+      const text   = document.getElementById('tier-preview-text');
+      if (idx === 0) {
+        banner.classList.add('hidden');
+      } else {
+        banner.classList.remove('hidden');
+        text.textContent = `Viendo precios con ${t.disc*100}% de descuento (${t.label})`;
+      }
+      renderGrid();
+      updateCart();
+    }
 
     function driveThumb(url) {
       if (!url) return '';
@@ -327,23 +355,42 @@
 
     function currentTier() {
       const q = totalQty();
-      for (let i = TIERS.length - 1; i >= 0; i--)
-        if (q >= TIERS[i].min) return TIERS[i];
-      return TIERS[0];
+      if (q > 0) {
+        // Si hay items en carrito, usar tier real por cantidad
+        for (let i = TIERS.length - 1; i >= 0; i--)
+          if (q >= TIERS[i].min) return TIERS[i];
+      }
+      // Si carrito vacío, usar tier seleccionado manualmente
+      return TIERS[previewTierIdx];
     }
 
-    function getPrice(p) { return p[currentTier().key] || p.p1; }
+    function getPrice(p) {
+      const disc = currentTier().disc;
+      return disc > 0 ? Math.round(p.p1 * (1 - disc)) : p.p1;
+    }
 
     function renderTierBar() {
       const qty = totalQty();
-      document.getElementById('tier-bar').innerHTML = TIERS.map(t => {
-        const active  = qty >= t.min && qty <= t.max;
-        const reached = qty >= t.min;
+      const activeTier = currentTier();
+      document.getElementById('tier-bar').innerHTML = TIERS.map((t, i) => {
+        const active  = qty > 0 ? (qty >= t.min && qty <= t.max) : (i === previewTierIdx);
+        const reached = qty > 0 ? qty >= t.min : i <= previewTierIdx;
         const bg = active  ? 'bg-blue-700 text-white border-blue-700'
                  : reached ? 'bg-blue-50 ' + t.color
                  : t.color + ' bg-white opacity-40';
-        return `<span class="tier-pill ${bg}">${t.star||''}${t.label}</span>`;
+        return `<span class="tier-pill ${bg}">${t.tag}</span>`;
       }).join('');
+
+      // Sincronizar hero si hay items en carrito
+      if (qty > 0) {
+        const realIdx = TIERS.findIndex(t => qty >= t.min && qty <= t.max);
+        if (realIdx !== previewTierIdx) {
+          previewTierIdx = realIdx;
+          document.querySelectorAll('.tier-hero-btn').forEach((el, i) => {
+            el.classList.toggle('active-tier', i === realIdx);
+          });
+        }
+      }
     }
 
     function renderProgress() {
@@ -533,25 +580,16 @@
       document.getElementById('modal-precio-actual').textContent = '$' + price.toLocaleString();
       document.getElementById('modal-plus').disabled = (cart[id]||0) >= p.stock && p.stock > 0;
 
-      // Tabla de precios
-      const tierLabels = [
-        { label: '1 pz',     key: 'p1' },
-        { label: '5–14',     key: 'p5' },
-        { label: '15–24',    key: 'p15' },
-        { label: '25–49 ⭐', key: 'p25' },
-        { label: '50–99',    key: 'p50' },
-        { label: '100+ 💎',  key: 'p100' },
-      ];
-      const curr = currentTier().key;
-      document.getElementById('modal-precios').innerHTML = tierLabels.map(t => {
-        const pr = p[t.key] || p.p1;
-        const isActive = t.key === curr;
-        const savePct = p.p1 > 0 && pr < p.p1 ? Math.round((1-pr/p.p1)*100) : 0;
+      // Tabla de precios con descuentos reales
+      const curr = currentTier().disc;
+      document.getElementById('modal-precios').innerHTML = TIERS.map(t => {
+        const pr = t.disc > 0 ? Math.round(p.p1 * (1 - t.disc)) : p.p1;
+        const isActive = t.disc === curr;
         return `
           <div class="${isActive ? 'bg-blue-700 text-white' : 'bg-gray-50 text-gray-700'} rounded-xl py-2 px-1 text-center">
             <p class="text-[9px] font-semibold ${isActive?'text-blue-200':'text-gray-400'}">${t.label}</p>
             <p class="text-xs font-black">$${pr.toLocaleString()}</p>
-            ${savePct > 0 ? `<p class="text-[9px] ${isActive?'text-green-300':'text-green-600'} font-bold">-${savePct}%</p>` : ''}
+            <p class="text-[9px] ${isActive?'text-green-300':'text-green-600'} font-bold">${t.tag}</p>
           </div>`;
       }).join('');
 
