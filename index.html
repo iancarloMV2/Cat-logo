@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4JPVKX2JNN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-4JPVKX2JNN');
+  </script>
   <title>IanCarloMV — Mayoreo</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -568,6 +576,7 @@
       lines.push('─────────────────');
       lines.push(`*Total: $${total.toLocaleString()} (${qty} pzas)*`);
       if (saved > 0) lines.push(`✅ Ahorro vs precio público: $${Math.round(saved).toLocaleString()}`);
+      gtag('event', 'whatsapp_click', { event_category: 'conversion', event_label: `${qty} piezas · $${total.toLocaleString()}` });
       window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
     }
 
@@ -635,6 +644,7 @@
         1: `🎁 *Quiero el Pack Revendedor — $2,099*\n\nHola, me interesa el paquete de 5 perfumes top ventas.\n¿Puedes confirmarme la disponibilidad y los detalles?`,
         2: `🎁 *Quiero el Pack Pro — $4,499*\n\nHola, me interesa el paquete de 10 perfumes top ventas.\n¿Puedes confirmarme la disponibilidad y los detalles?`
       };
+      gtag('event', 'paquete_click', { event_category: 'conversion', event_label: `Pack ${num}` });
       window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(packs[num])}`, '_blank');
     }
 
