@@ -302,6 +302,7 @@
       }
       renderGrid();
       updateCart();
+      renderTierBarClickable();
     }
 
     function driveThumb(url) {
@@ -331,12 +332,7 @@
             notas:   r.c[ci('NOTAS')]?.v || '',
             stock:   parseInt(r.c[ci('STOCK')]?.v) || 0,
             disp:    r.c[ci('DISPONIBILIDAD')]?.v || '',
-            p1:   parseFloat(r.c[ci('PRECIO_PUBLICO')]?.v)  || 0,
-            p5:   parseFloat(r.c[ci('MAY_5_NUEVO')]?.v)     || 0,
-            p15:  parseFloat(r.c[ci('MAY_15_NUEVO')]?.v)    || 0,
-            p25:  parseFloat(r.c[ci('MAY_25_NUEVO')]?.v)    || 0,
-            p50:  parseFloat(r.c[ci('MAY_50_NUEVO')]?.v)    || 0,
-            p100: parseFloat(r.c[ci('MAY_100_NUEVO')]?.v)   || 0,
+            p1:      parseFloat(r.c[ci('PRECIO_PUBLICO')]?.v) || 0,
           }))
           .filter(p => p.p1 > 0)
           .sort((a, b) => a.marca.localeCompare(b.marca) || a.perfume.localeCompare(b.perfume));
@@ -344,6 +340,7 @@
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('grid').classList.remove('hidden');
         renderTierBar();
+        renderTierBarClickable();
         renderGrid();
       } catch(e) {
         document.getElementById('loading').innerHTML = '<div class="text-3xl mb-2">⚠️</div>Error al cargar. Intenta de nuevo.';
@@ -391,6 +388,18 @@
           });
         }
       }
+    }
+
+    function renderTierBarClickable() {
+      const qty = totalQty();
+      document.getElementById('tier-bar').innerHTML = TIERS.map((t, i) => {
+        const active  = i === previewTierIdx;
+        const reached = qty > 0 ? qty >= t.min : i <= previewTierIdx;
+        const bg = active  ? 'bg-blue-700 text-white border-blue-700 scale-105'
+                 : reached ? 'bg-blue-50 ' + t.color
+                 : t.color + ' bg-white opacity-40';
+        return `<span class="tier-pill ${bg} cursor-pointer" onclick="selectTier(${i})">${t.tag}</span>`;
+      }).join('');
     }
 
     function renderProgress() {
@@ -488,6 +497,7 @@
       if (!cart[id]) delete cart[id];
       updateCart();
       renderTierBar();
+      renderTierBarClickable();
       renderProgress();
       renderGrid();
     }
