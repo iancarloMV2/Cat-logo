@@ -60,6 +60,14 @@
     .btn-plus { background: #1d4ed8; }
     .btn-plus:active { background: #1e3a8a; }
     .btn-plus:disabled { background: #93c5fd; cursor: not-allowed; }
+    .card-selected { border: 2.5px solid #1d4ed8 !important; background: #f0f4ff; }
+    .card-selected .card-img { opacity: 0.92; }
+    .check-overlay { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      background:#1d4ed8;color:white;border-radius:999px;width:28px;height:28px;
+      display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;
+      box-shadow:0 2px 8px rgba(29,78,216,0.4); }
+    .mini-cart-strip { overflow-x:auto;display:flex;gap:8px;padding:8px 12px;
+      background:white;border-bottom:2px solid #dbeafe; }
   </style>
 </head>
 <body>
@@ -95,6 +103,15 @@
       <button class="filter-btn" data-filter="Hombre">Hombre</button>
       <button class="filter-btn" data-filter="Unisex">Unisex</button>
     </div>
+  </div>
+
+  <!-- RESUMEN PEDIDO VISIBLE -->
+  <div id="order-strip" class="hidden bg-white border-b-2 border-blue-100">
+    <div class="px-3 pt-2 pb-1 flex items-center justify-between">
+      <p class="text-xs font-black text-blue-800">Tu pedido</p>
+      <button onclick="openCartModal()" class="text-xs font-bold text-blue-600 underline">Ver todo</button>
+    </div>
+    <div id="order-strip-items" class="mini-cart-strip"></div>
   </div>
 
   <!-- PAQUETES EMPRENDEDORES -->
@@ -507,15 +524,16 @@
         const atMax    = qty >= maxQty && !isOut;
         const lowStock = !isOut && p.stock > 0 && p.stock <= 3;
 
+        const selected = qty > 0;
         return `
-        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-blue-50 flex flex-col ${isOut?'opacity-60':''}">
+        <div class="rounded-xl overflow-hidden shadow-sm flex flex-col transition-all ${isOut?'opacity-60':''} ${selected?'card-selected shadow-md':'bg-white border border-blue-50'}">
           <div class="relative cursor-pointer" onclick="openModal('${p.id}')">
             <img src="${img}" alt="${p.perfume}" class="card-img"
                  onerror="this.src='https://placehold.co/300x300/eff6ff/93c5fd?text=📷'">
             ${savePct > 0 ? `<span class="savings-badge">-${savePct}%</span>` : ''}
             ${p.tipo ? `<span class="tipo-badge">${p.tipo}</span>` : ''}
             ${isOut ? `<div class="agotado-overlay"><span class="bg-black/70 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">Agotado</span></div>` : ''}
-            ${qty > 0 ? `<div class="absolute bottom-1 left-1 bg-blue-700 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">${qty}</div>` : ''}
+            ${qty > 0 ? `<div class="check-overlay">${qty}</div>` : ''}
           </div>
           <div class="p-1.5 flex flex-col flex-1">
             <p class="text-[10px] font-semibold text-blue-600 truncate leading-tight">${p.marca}</p>
@@ -564,9 +582,30 @@
       }
       const tier = currentTier();
 
-      document.getElementById('cart-count').textContent = `${qty} pieza${qty!==1?'s':''}`;
+      document.getElementById('cart-count').textContent = qty > 0 ? `${qty} piezas — Ver pedido` : 'Ver pedido';
       document.getElementById('cart-total').textContent = `$${total.toLocaleString()}`;
       document.getElementById('wa-btn').disabled = qty === 0;
+
+      // Strip de pedido visible
+      const strip = document.getElementById('order-strip');
+      const stripItems = document.getElementById('order-strip-items');
+      if (qty === 0) {
+        strip.classList.add('hidden');
+      } else {
+        strip.classList.remove('hidden');
+        stripItems.innerHTML = Object.entries(cart).map(([id, q]) => {
+          const p = allProducts.find(p => p.id === id);
+          if (!p) return '';
+          const img = p.foto || `https://placehold.co/60x60/eff6ff/93c5fd?text=?`;
+          return `
+            <div class="shrink-0 relative cursor-pointer" onclick="openModal('${id}')">
+              <img src="${img}" onerror="this.src='https://placehold.co/60x60/eff6ff/93c5fd?text=?'"
+                class="w-14 h-14 rounded-xl object-cover bg-blue-50 border-2 border-blue-600">
+              <div class="absolute -top-1.5 -right-1.5 bg-blue-700 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">${q}</div>
+              <p class="text-[9px] text-gray-600 font-semibold text-center mt-0.5 w-14 truncate">${p.perfume}</p>
+            </div>`;
+        }).join('');
+      }
 
       // Ahorro en verde grande
       const savBox = document.getElementById('savings-box');
