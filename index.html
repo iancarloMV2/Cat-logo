@@ -692,6 +692,7 @@
     }
 
     function openCartModal() {
+      cartModalOpen = true;
       renderCartModal();
       document.getElementById('cart-modal').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
@@ -744,6 +745,8 @@
       document.getElementById('cart-modal-saving').textContent = saved > 0 ? `Ahorrando $${Math.round(saved).toLocaleString()}` : '';
     }
 
+    let cartModalOpen = false;
+
     function cartModalQty(id, action) {
       if (action === 'remove') {
         delete cart[id];
@@ -753,15 +756,21 @@
         cart[id] = p && p.stock > 0 ? Math.min(newQty, p.stock) : newQty;
         if (!cart[id]) delete cart[id];
       }
-      updateCart(); renderTierCards(); renderTierBar(); renderTierBarClickable(); renderProgress(); renderGrid();
-      renderCartModal();
+      // Actualizar modal inmediatamente sin tocar el grid
+      updateCart();
+      renderTierCards();
+      renderTierBar();
+      renderTierBarClickable();
+      renderCartModal(); // modal se actualiza al instante
     }
 
     function closeCartModal(e) {
       if (!e || e.target.id === 'cart-modal') {
+        cartModalOpen = false;
         document.getElementById('cart-modal').classList.add('hidden');
         document.body.style.overflow = '';
-        renderGrid();
+        renderGrid(); // actualizar grid al cerrar
+        renderProgress();
       }
     }
 
