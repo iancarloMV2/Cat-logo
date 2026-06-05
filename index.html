@@ -67,7 +67,7 @@
   <!-- HERO -->
   <div style="background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #3b82f6 100%);" class="text-white px-4 pt-5 pb-4">
     <div class="flex items-center gap-3 mb-2">
-      <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">🌸</div>
+      <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center font-black text-white text-sm">IM</div>
       <div>
         <h1 class="text-xl font-black leading-tight tracking-tight">IanCarloMV</h1>
         <p class="text-blue-200 text-xs font-semibold tracking-widest uppercase">Mayoreo · Perfumería Original</p>
@@ -75,39 +75,12 @@
     </div>
     <p class="text-sm text-blue-100 mb-3">Selecciona tus productos — el precio baja automáticamente según tu cantidad total.</p>
 
-    <!-- Tiers interactivos — toca para ver precios -->
-    <p class="text-[10px] text-blue-200 text-center mb-1.5">👇 Toca un nivel para ver los precios</p>
-    <div class="grid grid-cols-3 gap-1.5 text-center mb-1.5">
-      <div onclick="selectTier(0)" id="hero-tier-0" class="tier-hero-btn active-tier rounded-xl py-2 px-1 border cursor-pointer transition-all">
-        <p class="text-[9px] text-blue-200 font-medium">1–4 pzas</p>
-        <p class="text-xs font-black text-white">Público</p>
-      </div>
-      <div onclick="selectTier(1)" id="hero-tier-1" class="tier-hero-btn rounded-xl py-2 px-1 border border-white/20 bg-white/10 cursor-pointer transition-all">
-        <p class="text-[9px] text-blue-200 font-medium">5–14 pzas</p>
-        <p class="text-sm font-black text-green-300">−10%</p>
-      </div>
-      <div onclick="selectTier(2)" id="hero-tier-2" class="tier-hero-btn rounded-xl py-2 px-1 border border-white/20 bg-white/10 cursor-pointer transition-all">
-        <p class="text-[9px] text-blue-200 font-medium">15–24 pzas</p>
-        <p class="text-sm font-black text-green-300">−15%</p>
-      </div>
-    </div>
-    <div class="grid grid-cols-3 gap-1.5 text-center">
-      <div onclick="selectTier(3)" id="hero-tier-3" class="tier-hero-btn rounded-xl py-2 px-1 border border-yellow-400/50 bg-yellow-400/20 cursor-pointer transition-all">
-        <p class="text-[9px] text-yellow-200 font-medium">25–49 pzas</p>
-        <p class="text-sm font-black text-yellow-300">−18% ⭐</p>
-      </div>
-      <div onclick="selectTier(4)" id="hero-tier-4" class="tier-hero-btn rounded-xl py-2 px-1 border border-white/20 bg-white/10 cursor-pointer transition-all">
-        <p class="text-[9px] text-blue-200 font-medium">50–99 pzas</p>
-        <p class="text-sm font-black text-green-300">−20%</p>
-      </div>
-      <div onclick="selectTier(5)" id="hero-tier-5" class="tier-hero-btn rounded-xl py-2 px-1 border border-green-400/50 bg-green-400/20 cursor-pointer transition-all">
-        <p class="text-[9px] text-green-200 font-medium">100+ pzas</p>
-        <p class="text-sm font-black text-green-300">−22% 💎</p>
-      </div>
-    </div>
-    <!-- Banner tier seleccionado -->
-    <div id="tier-preview-banner" class="mt-2 bg-white/15 rounded-xl px-3 py-1.5 text-center hidden">
-      <p id="tier-preview-text" class="text-xs font-bold text-white"></p>
+    <!-- Tiers interactivos — tarjetas horizontales -->
+    <p class="text-[11px] text-blue-200 text-center mb-2 font-semibold">👇 Toca un nivel y ve cómo bajan los precios</p>
+    <div id="tier-cards" class="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory"></div>
+    <!-- Banner tier activo -->
+    <div id="tier-preview-banner" class="mt-2 bg-green-500/20 border border-green-400/40 rounded-xl px-3 py-2 text-center hidden">
+      <p id="tier-preview-text" class="text-xs font-bold text-green-300"></p>
     </div>
   </div>
 
@@ -143,6 +116,7 @@
         <li>✅ 2 decants de muestra para tus clientes</li>
         <li>✅ Guía de ventas</li>
         <li>✅ Acceso al grupo privado de revendedores</li>
+        <li>🚚 <span class="font-bold text-green-600">Envío gratis</span></li>
         <li class="text-blue-600 font-semibold">📦 Surtido confirmado al momento de tu pedido</li>
       </ul>
       <button onclick="pedirPaquete(1)"
@@ -166,7 +140,7 @@
         <li>✅ Marcas premium: Armaf, Lattafa, Afnan y más</li>
         <li>✅ 6 decants de muestra para tus clientes</li>
         <li>✅ Guía de ventas completa</li>
-        <li>✅ Envío gratis</li>
+        <li>🚚 <span class="font-bold text-green-300">Envío gratis incluido</span></li>
         <li>✅ Acceso prioritario al grupo de revendedores</li>
         <li class="text-yellow-300 font-semibold">📦 Surtido confirmado al momento de tu pedido</li>
       </ul>
@@ -183,6 +157,34 @@
   </div>
   <div id="empty" class="text-center py-16 text-gray-400 text-sm hidden">
     <div class="text-3xl mb-2">🔍</div>No encontramos ese perfume
+  </div>
+
+  <!-- MODAL RESUMEN PEDIDO -->
+  <div id="cart-modal" class="modal-overlay hidden" onclick="closeCartModal(event)">
+    <div class="modal-sheet">
+      <div class="flex justify-center pt-3 pb-2">
+        <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
+      </div>
+      <div class="px-4 pb-2 flex items-center justify-between">
+        <h2 class="text-lg font-black text-gray-900">Mi pedido</h2>
+        <button onclick="closeCartModal()" class="text-gray-400 text-sm font-semibold">Cerrar</button>
+      </div>
+      <div id="cart-modal-items" class="px-4 overflow-y-auto" style="max-height:55vh"></div>
+      <div class="px-4 pt-3 border-t border-gray-100 mt-2">
+        <div class="flex justify-between items-center mb-1">
+          <p class="text-sm text-gray-500" id="cart-modal-count"></p>
+          <p class="text-sm font-bold text-green-600" id="cart-modal-saving"></p>
+        </div>
+        <div class="flex justify-between items-center mb-3">
+          <p class="text-base font-bold text-gray-700">Total</p>
+          <p class="text-2xl font-black text-gray-900" id="cart-modal-total"></p>
+        </div>
+        <button onclick="closeCartModal(); sendWhatsApp();"
+          class="w-full bg-green-500 text-white py-3 rounded-2xl font-black text-sm">
+          Enviar pedido por WhatsApp
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL DETALLE -->
@@ -257,12 +259,12 @@
       </div>
     </div>
 
-    <!-- Total + botón -->
+    <!-- Total + botones -->
     <div class="flex items-center justify-between">
-      <div>
+      <div onclick="openCartModal()" class="cursor-pointer">
         <p class="text-[10px] text-gray-400 font-medium">Total de tu pedido</p>
         <p id="cart-total" class="text-2xl font-black text-gray-900 leading-tight">$0</p>
-        <p id="cart-count" class="text-[10px] text-gray-400">0 piezas</p>
+        <p id="cart-count" class="text-[10px] text-blue-500 font-semibold">Ver pedido</p>
       </div>
       <button id="wa-btn" onclick="sendWhatsApp()"
         class="bg-green-500 text-white px-5 py-3 rounded-2xl font-black text-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shadow-xl shadow-green-200 pulse-green"
@@ -292,21 +294,59 @@
     let currentSearch = '';
     let previewTierIdx = 0; // tier seleccionado manualmente
 
+    function avgSavingPesos(disc) {
+      if (!allProducts.length || disc === 0) return 0;
+      const sample = allProducts.filter(p => p.p1 > 0).slice(0, 30);
+      const total  = sample.reduce((s, p) => s + Math.round(p.p1 * disc), 0);
+      return Math.round(total / sample.length);
+    }
+
+    function renderTierCards() {
+      const container = document.getElementById('tier-cards');
+      if (!container) return;
+      const TIER_CONFIG = [
+        { name: 'Público',      sub: '1–4 piezas'   },
+        { name: 'Mayoreo',      sub: '5–14 piezas'  },
+        { name: 'Mayoreo Plus', sub: '15–24 piezas' },
+        { name: 'Popular',      sub: '25–49 piezas' },
+        { name: 'Gran Mayoreo', sub: '50–99 piezas' },
+        { name: 'Elite',        sub: '100+ piezas'  },
+      ];
+      container.innerHTML = TIERS.map((t, i) => {
+        const cfg    = TIER_CONFIG[i];
+        const saving = avgSavingPesos(t.disc);
+        const active = i === previewTierIdx;
+        const bg     = active
+          ? 'background:rgba(255,255,255,0.25);border:2px solid white;transform:scale(1.04);box-shadow:0 0 0 3px rgba(255,255,255,0.3)'
+          : i === 3 ? 'background:rgba(234,179,8,0.15);border:2px solid rgba(234,179,8,0.4)'
+          : 'background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.12)';
+        return `
+          <div onclick="selectTier(${i})" class="snap-start shrink-0 rounded-2xl p-3 cursor-pointer transition-all text-center" style="min-width:115px;${bg}">
+            <p class="text-[11px] text-white font-black leading-tight">${cfg.name}</p>
+            <p class="text-[9px] text-blue-200 mb-1.5">${cfg.sub}</p>
+            ${t.disc > 0
+              ? `<p class="text-xl font-black text-green-300 leading-none">−${t.disc*100}%</p>
+                 <p class="text-[10px] text-green-400 font-semibold mt-0.5">$${saving} menos<br>por perfume</p>`
+              : `<p class="text-sm font-bold text-blue-300 mt-1">Precio<br>normal</p>`
+            }
+            ${active ? `<p class="text-[9px] bg-white text-blue-800 font-black px-2 py-0.5 rounded-full mt-2 inline-block">ACTIVO</p>` : ''}
+          </div>`;
+      }).join('');
+    }
+
     function selectTier(idx) {
       previewTierIdx = idx;
-      // Actualizar UI hero
-      document.querySelectorAll('.tier-hero-btn').forEach((el, i) => {
-        el.classList.toggle('active-tier', i === idx);
-      });
+      renderTierCards();
       // Banner
-      const t = TIERS[idx];
+      const t      = TIERS[idx];
       const banner = document.getElementById('tier-preview-banner');
       const text   = document.getElementById('tier-preview-text');
       if (idx === 0) {
         banner.classList.add('hidden');
       } else {
+        const saving = avgSavingPesos(t.disc);
         banner.classList.remove('hidden');
-        text.textContent = `Viendo precios con ${t.disc*100}% de descuento (${t.label})`;
+        text.textContent = `🎉 Viendo precios con −${t.disc*100}% · Ahorras ~$${saving} por perfume`;
       }
       renderGrid();
       updateCart();
@@ -347,6 +387,7 @@
 
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('grid').classList.remove('hidden');
+        renderTierCards();
         renderTierBar();
         renderTierBarClickable();
         renderGrid();
@@ -504,6 +545,7 @@
       cart[id] = Math.min(newQty, p.stock);
       if (!cart[id]) delete cart[id];
       updateCart();
+      renderTierCards();
       renderTierBar();
       renderTierBarClickable();
       renderProgress();
@@ -578,6 +620,51 @@
       if (saved > 0) lines.push(`✅ Ahorro vs precio público: $${Math.round(saved).toLocaleString()}`);
       gtag('event', 'whatsapp_click', { event_category: 'conversion', event_label: `${qty} piezas · $${total.toLocaleString()}` });
       window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
+    }
+
+    function openCartModal() {
+      if (!Object.keys(cart).length) return;
+      let total = 0, saved = 0;
+      const items = Object.entries(cart).map(([id, qty]) => {
+        const p = allProducts.find(p => p.id === id);
+        if (!p) return '';
+        const price = getPrice(p);
+        const sub = qty * price;
+        total += sub;
+        saved += qty * (p.p1 - price);
+        return `
+          <div class="flex items-center gap-3 py-3 border-b border-gray-50">
+            <img src="${p.foto || ''}" onerror="this.src='https://placehold.co/60x60/eff6ff/93c5fd?text=?'"
+              class="w-12 h-12 rounded-xl object-cover bg-blue-50 shrink-0">
+            <div class="flex-1 min-w-0">
+              <p class="text-[10px] text-blue-600 font-bold truncate">${p.marca}</p>
+              <p class="text-xs font-bold text-gray-800 leading-snug truncate">${p.perfume} ${p.tamano}ml</p>
+              <p class="text-xs font-black text-gray-900">$${price.toLocaleString()} c/u</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="updateQty('${id}',-1)" class="w-7 h-7 rounded-lg bg-gray-100 font-bold text-gray-600 flex items-center justify-center">−</button>
+              <span class="font-black text-gray-900 w-5 text-center text-sm">${qty}</span>
+              <button onclick="updateQty('${id}',1)" class="w-7 h-7 rounded-lg bg-blue-700 text-white font-bold flex items-center justify-center">+</button>
+            </div>
+            <p class="text-xs font-black text-gray-900 w-16 text-right shrink-0">$${sub.toLocaleString()}</p>
+          </div>`;
+      }).join('');
+
+      document.getElementById('cart-modal-items').innerHTML = items;
+      document.getElementById('cart-modal-total').textContent = `$${total.toLocaleString()}`;
+      document.getElementById('cart-modal-count').textContent = `${totalQty()} piezas`;
+      const savEl = document.getElementById('cart-modal-saving');
+      savEl.textContent = saved > 0 ? `Ahorrando $${Math.round(saved).toLocaleString()}` : '';
+      document.getElementById('cart-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCartModal(e) {
+      if (!e || e.target.id === 'cart-modal') {
+        document.getElementById('cart-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+        renderGrid();
+      }
     }
 
     let modalProductId = null;
