@@ -132,34 +132,41 @@
 
     <!-- Pack 1 -->
     <div class="bg-white border-2 border-blue-200 rounded-2xl p-4 mb-3 shadow-md">
+      <!-- Header con caja -->
       <div class="flex items-center gap-3 mb-3">
-        <!-- Caja animada -->
         <div class="box-icon shrink-0 w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border-2 border-blue-100">
           <svg viewBox="0 0 24 24" class="w-8 h-8" fill="none" stroke="#1d4ed8" stroke-width="1.8">
-            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/>
-            <path d="M3 8l9 5 9-5"/>
-            <path d="M12 13v8"/>
-            <path d="M7.5 5.5l9 5"/>
+            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/><path d="M7.5 5.5l9 5"/>
           </svg>
         </div>
         <div class="flex-1">
-          <div class="flex items-center gap-2 mb-0.5">
+          <div class="flex items-center gap-2 flex-wrap mb-0.5">
             <p class="text-sm font-black text-blue-800">Pack Revendedor</p>
             <span class="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-full">5 perfumes</span>
           </div>
           <p class="text-3xl font-black text-gray-900 leading-none">$2,099</p>
+          <p class="text-xs text-gray-400 line-through">Valor a precio público: ~$2,900</p>
         </div>
       </div>
-      <div class="bg-blue-50 rounded-xl px-3 py-1.5 mb-3 text-center">
-        <p class="text-xs font-black text-blue-700">Los perfumes que mas se venden</p>
+
+      <!-- Ahorro en verde prominente -->
+      <div class="bg-green-50 border border-green-200 rounded-xl px-3 py-2 mb-3 flex items-center justify-between">
+        <p class="text-xs text-green-700">Ahorras aprox.</p>
+        <p class="text-lg font-black text-green-600">$800 vs precio público</p>
       </div>
+
+      <!-- ROI -->
+      <div class="bg-blue-50 rounded-xl px-3 py-2 mb-3">
+        <p class="text-xs font-black text-blue-700">Recuperas tu inversion vendiendo solo 3 perfumes a precio público</p>
+      </div>
+
       <ul class="text-sm text-gray-600 space-y-1.5 mb-4">
-        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> 5 perfumes top ventas: Armaf, Lattafa, Afnan</li>
-        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> 2 decants de muestra para tus clientes</li>
-        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> Guía de ventas</li>
+        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> 5 perfumes de los que mas se venden</li>
+        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> 2 decants de muestra para cerrar ventas</li>
+        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> Guía de ventas paso a paso</li>
         <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> Acceso al grupo privado de revendedores</li>
         <li class="flex items-center gap-2"><span class="text-green-500 font-black">+</span> <span class="font-bold text-green-600">Envío gratis</span></li>
-        <li class="flex items-center gap-2 text-blue-500 font-semibold"><span>+</span> Surtido confirmado al momento de tu pedido</li>
+        <li class="flex items-center gap-2 text-blue-500 font-semibold text-xs"><span>+</span> Nosotros elegimos lo que mas vende — tu no arriesgas</li>
       </ul>
       <button onclick="pedirPaquete(1)"
         class="w-full bg-blue-700 text-white py-3 rounded-xl font-black text-base active:bg-blue-900">
@@ -169,37 +176,43 @@
 
     <!-- Pack 2 -->
     <div class="bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-yellow-400 rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden">
-      <div class="absolute top-0 left-0 right-0 bg-yellow-400 text-blue-900 text-xs font-black py-1 text-center tracking-wide">
-        EL MAS VENDIDO
+      <div class="absolute top-0 left-0 right-0 bg-yellow-400 text-blue-900 text-xs font-black py-1.5 text-center tracking-wide">
+        EL MAS ELEGIDO POR REVENDEDORES
       </div>
-      <div class="flex items-center gap-3 mt-7 mb-3">
-        <!-- Caja animada -->
+      <div class="flex items-center gap-3 mt-8 mb-3">
         <div class="box-icon shrink-0 w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border-2 border-yellow-400/50">
           <svg viewBox="0 0 24 24" class="w-8 h-8" fill="none" stroke="#fbbf24" stroke-width="1.8">
-            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/>
-            <path d="M3 8l9 5 9-5"/>
-            <path d="M12 13v8"/>
-            <path d="M7.5 5.5l9 5"/>
+            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/><path d="M7.5 5.5l9 5"/>
           </svg>
         </div>
         <div class="flex-1">
-          <div class="flex items-center gap-2 mb-0.5">
+          <div class="flex items-center gap-2 flex-wrap mb-0.5">
             <p class="text-sm font-black text-white">Pack Pro</p>
             <span class="bg-yellow-400 text-blue-900 text-[10px] font-black px-2 py-0.5 rounded-full">10 perfumes</span>
           </div>
           <p class="text-3xl font-black text-white leading-none">$4,499</p>
+          <p class="text-xs text-blue-300 line-through">Valor a precio público: ~$6,200</p>
         </div>
       </div>
-      <div class="bg-yellow-400/20 border border-yellow-400/40 rounded-xl px-3 py-1.5 mb-3 text-center">
-        <p class="text-xs font-black text-yellow-300">Los perfumes que mas se venden</p>
+
+      <!-- Ahorro -->
+      <div class="bg-green-500/20 border border-green-400/40 rounded-xl px-3 py-2 mb-3 flex items-center justify-between">
+        <p class="text-xs text-green-300">Ahorras aprox.</p>
+        <p class="text-lg font-black text-green-300">$1,700 vs precio público</p>
       </div>
+
+      <!-- ROI -->
+      <div class="bg-yellow-400/15 border border-yellow-400/30 rounded-xl px-3 py-2 mb-3">
+        <p class="text-xs font-black text-yellow-300">Recuperas tu inversion vendiendo solo 5 perfumes — el resto es ganancia</p>
+      </div>
+
       <ul class="text-sm text-blue-100 space-y-1.5 mb-4">
-        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> 10 perfumes top ventas: Armaf, Lattafa, Afnan y más</li>
-        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> 6 decants de muestra para tus clientes</li>
+        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> 10 perfumes de los que mas se venden</li>
+        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> 6 decants de muestra para cerrar ventas</li>
         <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> Guía de ventas completa</li>
         <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> Acceso prioritario al grupo de revendedores</li>
         <li class="flex items-center gap-2"><span class="text-green-400 font-black">+</span> <span class="font-bold text-green-300">Envío gratis incluido</span></li>
-        <li class="flex items-center gap-2 text-yellow-300 font-semibold"><span>+</span> Surtido confirmado al momento de tu pedido</li>
+        <li class="flex items-center gap-2 text-yellow-300 font-semibold text-xs"><span>+</span> Nosotros elegimos lo que mas vende — tu no arriesgas</li>
       </ul>
       <button onclick="pedirPaquete(2)"
         class="w-full bg-yellow-400 text-blue-900 py-3 rounded-xl font-black text-base active:bg-yellow-500">
@@ -417,16 +430,7 @@
             class="snap-start shrink-0 rounded-2xl p-3 cursor-pointer transition-all text-center"
             style="min-width:110px;background:${bg};border:${border};${scale}">
             <p class="text-[10px] font-black text-white leading-tight mb-0.5">${cfg.name}</p>
-            <p class="text-[9px] text-blue-200 mb-2">${cfg.sub}</p>
-            ${t.disc > 0 ? `
-              <p class="text-[10px] text-white/50 line-through leading-none">$${refPrice.toLocaleString()}</p>
-              <p class="text-xl font-black text-green-300 leading-tight">$${newPrice.toLocaleString()}</p>
-              <p class="text-[9px] font-black mt-0.5" style="color:#4ade80">−$${saving.toLocaleString()} c/u</p>
-              <p class="text-[9px] font-bold text-green-400 mt-0.5">−${t.disc*100}%</p>
-            ` : `
-              <p class="text-xl font-black text-white leading-tight">$${refPrice.toLocaleString()}</p>
-              <p class="text-[9px] text-blue-300 mt-1">sin descuento</p>
-            `}
+            <p class="text-[9px] text-blue-200">${cfg.sub}</p>
             ${active ? `<p class="text-[9px] bg-white text-blue-800 font-black px-2 py-0.5 rounded-full mt-2 inline-block">ACTIVO</p>` : ''}
           </div>`;
       }).join('');
