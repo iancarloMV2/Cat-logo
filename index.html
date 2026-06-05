@@ -45,6 +45,10 @@
     }
     .tier-hero-btn { transition: all 0.2s; }
     .active-tier { background: rgba(255,255,255,0.3) !important; border-color: white !important; transform: scale(1.05); box-shadow: 0 0 0 2px white; }
+    @keyframes price-drop { 0%{transform:translateY(-8px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+    .price-anim { animation: price-drop 0.3s ease; }
+    @keyframes flash-green { 0%,100%{background:transparent} 40%{background:rgba(22,163,74,0.15)} }
+    .flash-card { animation: flash-green 0.5s ease; }
     /* modal */
     .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:flex-end; }
     .modal-sheet { background:white;border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:0 0 32px; }
@@ -83,12 +87,13 @@
     </div>
     <p class="text-sm text-blue-100 mb-3">Selecciona tus productos — el precio baja automáticamente según tu cantidad total.</p>
 
-    <!-- Tiers interactivos — tarjetas horizontales -->
-    <p class="text-[11px] text-blue-200 text-center mb-2 font-semibold">👇 Toca un nivel y ve cómo bajan los precios</p>
-    <div id="tier-cards" class="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory"></div>
-    <!-- Banner tier activo -->
-    <div id="tier-preview-banner" class="mt-2 bg-green-500/20 border border-green-400/40 rounded-xl px-3 py-2 text-center hidden">
-      <p id="tier-preview-text" class="text-xs font-bold text-green-300"></p>
+    <!-- Selector de tiers — grande y dramático -->
+    <p class="text-[11px] text-blue-200 text-center mb-2 font-semibold">Toca un nivel — ve cómo bajan los precios</p>
+    <div id="tier-cards" class="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory -mx-1 px-1"></div>
+    <!-- Banner precio cayendo -->
+    <div id="tier-preview-banner" class="mt-2 rounded-xl px-3 py-2 text-center hidden" style="background:rgba(22,163,74,0.2);border:1px solid rgba(22,163,74,0.4)">
+      <p id="tier-preview-text" class="text-sm font-black text-green-300"></p>
+      <p id="tier-preview-sub" class="text-[10px] text-green-400 mt-0.5"></p>
     </div>
   </div>
 
@@ -348,31 +353,45 @@
     function renderTierCards() {
       const container = document.getElementById('tier-cards');
       if (!container) return;
+
+      // Usar el precio del perfume más vendido como referencia
+      const ref = allProducts.find(p => p.p1 > 0) || { p1: 779 };
+      const refPrice = ref.p1;
+
       const TIER_CONFIG = [
-        { name: 'Público',      sub: '1–4 piezas'   },
-        { name: 'Mayoreo',      sub: '5–14 piezas'  },
-        { name: 'Mayoreo Plus', sub: '15–24 piezas' },
-        { name: 'Popular',      sub: '25–49 piezas' },
-        { name: 'Gran Mayoreo', sub: '50–99 piezas' },
-        { name: 'Elite',        sub: '100+ piezas'  },
+        { name: 'Público',      sub: '1–4 pzas',    color: 'rgba(255,255,255,0.07)', border: 'rgba(255,255,255,0.15)' },
+        { name: 'Mayoreo',      sub: '5–14 pzas',   color: 'rgba(255,255,255,0.07)', border: 'rgba(255,255,255,0.15)' },
+        { name: 'Mayoreo Plus', sub: '15–24 pzas',  color: 'rgba(255,255,255,0.07)', border: 'rgba(255,255,255,0.15)' },
+        { name: 'Popular',      sub: '25–49 pzas',  color: 'rgba(234,179,8,0.15)',   border: 'rgba(234,179,8,0.5)' },
+        { name: 'Gran Mayoreo', sub: '50–99 pzas',  color: 'rgba(255,255,255,0.07)', border: 'rgba(255,255,255,0.15)' },
+        { name: 'Elite',        sub: '100+ pzas',   color: 'rgba(22,163,74,0.15)',   border: 'rgba(22,163,74,0.5)' },
       ];
+
       container.innerHTML = TIERS.map((t, i) => {
-        const cfg    = TIER_CONFIG[i];
-        const saving = avgSavingPesos(t.disc);
-        const active = i === previewTierIdx;
-        const bg     = active
-          ? 'background:rgba(255,255,255,0.25);border:2px solid white;transform:scale(1.04);box-shadow:0 0 0 3px rgba(255,255,255,0.3)'
-          : i === 3 ? 'background:rgba(234,179,8,0.15);border:2px solid rgba(234,179,8,0.4)'
-          : 'background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.12)';
+        const cfg      = TIER_CONFIG[i];
+        const active   = i === previewTierIdx;
+        const newPrice = t.disc > 0 ? Math.round(refPrice * (1 - t.disc)) : refPrice;
+        const saving   = refPrice - newPrice;
+        const bg       = active
+          ? 'rgba(255,255,255,0.28)' : cfg.color;
+        const border   = active ? '2px solid white' : `2px solid ${cfg.border}`;
+        const scale    = active ? 'transform:scale(1.05);box-shadow:0 0 0 3px rgba(255,255,255,0.25)' : '';
+
         return `
-          <div onclick="selectTier(${i})" class="snap-start shrink-0 rounded-2xl p-3 cursor-pointer transition-all text-center" style="min-width:115px;${bg}">
-            <p class="text-[11px] text-white font-black leading-tight">${cfg.name}</p>
-            <p class="text-[9px] text-blue-200 mb-1.5">${cfg.sub}</p>
-            ${t.disc > 0
-              ? `<p class="text-2xl font-black text-green-300 leading-none">−${t.disc*100}%</p>
-                 <p class="text-[10px] text-green-400 font-semibold mt-0.5">descuento</p>`
-              : `<p class="text-sm font-bold text-blue-300 mt-1">Precio<br>normal</p>`
-            }
+          <div onclick="selectTier(${i})"
+            class="snap-start shrink-0 rounded-2xl p-3 cursor-pointer transition-all text-center"
+            style="min-width:110px;background:${bg};border:${border};${scale}">
+            <p class="text-[10px] font-black text-white leading-tight mb-0.5">${cfg.name}</p>
+            <p class="text-[9px] text-blue-200 mb-2">${cfg.sub}</p>
+            ${t.disc > 0 ? `
+              <p class="text-[10px] text-white/50 line-through leading-none">$${refPrice.toLocaleString()}</p>
+              <p class="text-xl font-black text-green-300 leading-tight">$${newPrice.toLocaleString()}</p>
+              <p class="text-[9px] font-black mt-0.5" style="color:#4ade80">−$${saving.toLocaleString()} c/u</p>
+              <p class="text-[9px] font-bold text-green-400 mt-0.5">−${t.disc*100}%</p>
+            ` : `
+              <p class="text-xl font-black text-white leading-tight">$${refPrice.toLocaleString()}</p>
+              <p class="text-[9px] text-blue-300 mt-1">sin descuento</p>
+            `}
             ${active ? `<p class="text-[9px] bg-white text-blue-800 font-black px-2 py-0.5 rounded-full mt-2 inline-block">ACTIVO</p>` : ''}
           </div>`;
       }).join('');
@@ -381,18 +400,33 @@
     function selectTier(idx) {
       previewTierIdx = idx;
       renderTierCards();
-      // Banner
+
       const t      = TIERS[idx];
       const banner = document.getElementById('tier-preview-banner');
       const text   = document.getElementById('tier-preview-text');
+      const sub    = document.getElementById('tier-preview-sub');
+
       if (idx === 0) {
         banner.classList.add('hidden');
       } else {
-        const saving = avgSavingPesos(t.disc);
+        const ref      = allProducts.find(p => p.p1 > 0) || { p1: 779 };
+        const oldP     = ref.p1;
+        const newP     = Math.round(oldP * (1 - t.disc));
+        const saving   = oldP - newP;
         banner.classList.remove('hidden');
-        text.textContent = `🎉 Viendo precios con −${t.disc*100}% · Ahorras ~$${saving} por perfume`;
+        text.textContent  = `Precios con −${t.disc*100}% de descuento`;
+        sub.textContent   = `Ejemplo: $${oldP.toLocaleString()} baja a $${newP.toLocaleString()} — ahorras $${saving.toLocaleString()} por pieza`;
       }
+
       renderGrid();
+      // Animar precios en las tarjetas
+      setTimeout(() => {
+        document.querySelectorAll('.price-tag').forEach(el => {
+          el.classList.remove('price-anim');
+          void el.offsetWidth;
+          el.classList.add('price-anim');
+        });
+      }, 10);
       updateCart();
       renderTierBarClickable();
     }
@@ -568,7 +602,7 @@
             <p class="text-[9px] text-gray-400 truncate">${p.tamano}ml · ${p.notas}</p>
             <div class="mt-auto pt-1">
               ${p.p1 > price ? `<p class="text-[9px] text-gray-300 line-through leading-none">$${p.p1.toLocaleString()}</p>` : ''}
-              <p class="text-xs font-black text-gray-900">$${price.toLocaleString()}</p>
+              <p class="text-xs font-black text-gray-900 price-tag">$${price.toLocaleString()}</p>
             </div>
             <div class="flex items-center justify-between mt-1 gap-1">
               <button onclick="updateQty('${p.id}',-1)" ${isOut?'disabled':''}
@@ -756,12 +790,7 @@
         cart[id] = p && p.stock > 0 ? Math.min(newQty, p.stock) : newQty;
         if (!cart[id]) delete cart[id];
       }
-      // Actualizar modal inmediatamente sin tocar el grid
-      updateCart();
-      renderTierCards();
-      renderTierBar();
-      renderTierBarClickable();
-      renderCartModal(); // modal se actualiza al instante
+      renderCartModal();
     }
 
     function closeCartModal(e) {
@@ -769,8 +798,12 @@
         cartModalOpen = false;
         document.getElementById('cart-modal').classList.add('hidden');
         document.body.style.overflow = '';
-        renderGrid(); // actualizar grid al cerrar
+        updateCart();
+        renderTierCards();
+        renderTierBar();
+        renderTierBarClickable();
         renderProgress();
+        renderGrid();
       }
     }
 
