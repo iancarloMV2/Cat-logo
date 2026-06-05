@@ -45,6 +45,8 @@
     }
     .tier-hero-btn { transition: all 0.2s; }
     .active-tier { background: rgba(255,255,255,0.3) !important; border-color: white !important; transform: scale(1.05); box-shadow: 0 0 0 2px white; }
+    @keyframes box-float { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-5px) rotate(1deg)} }
+    .box-icon { animation: box-float 3s ease-in-out infinite; }
     @keyframes price-drop { 0%{transform:translateY(-8px);opacity:0} 100%{transform:translateY(0);opacity:1} }
     .price-anim { animation: price-drop 0.3s ease; }
     @keyframes flash-green { 0%,100%{background:transparent} 40%{background:rgba(22,163,74,0.15)} }
@@ -125,69 +127,102 @@
   </div>
 
   <!-- PAQUETES EMPRENDEDORES -->
-  <div class="px-2 pt-3 pb-1">
-    <p class="text-xs font-black text-blue-800 uppercase tracking-widest mb-2 px-1">🎁 Paquetes para emprender</p>
+  <div class="px-2 pt-4 pb-1">
+    <p class="text-sm font-black text-blue-800 uppercase tracking-widest mb-3 px-1 text-center">Paquetes para emprender</p>
 
     <!-- Pack 1 -->
-    <div class="bg-white border-2 border-blue-200 rounded-2xl p-4 mb-3 shadow-sm">
-      <div class="flex items-start justify-between mb-2">
-        <div>
-          <p class="text-xs font-bold text-blue-500 uppercase tracking-wide">Pack Revendedor</p>
-          <p class="text-2xl font-black text-gray-900">$2,099</p>
+    <div class="bg-white border-2 border-blue-200 rounded-2xl p-4 mb-3 shadow-md">
+      <div class="flex items-center gap-3 mb-3">
+        <!-- Caja animada -->
+        <div class="box-icon shrink-0 w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border-2 border-blue-100">
+          <svg viewBox="0 0 24 24" class="w-8 h-8" fill="none" stroke="#1d4ed8" stroke-width="1.8">
+            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/>
+            <path d="M3 8l9 5 9-5"/>
+            <path d="M12 13v8"/>
+            <path d="M7.5 5.5l9 5"/>
+          </svg>
         </div>
-        <span class="bg-blue-100 text-blue-700 text-xs font-black px-3 py-1 rounded-full">5 perfumes</span>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-0.5">
+            <p class="text-sm font-black text-blue-800">Pack Revendedor</p>
+            <span class="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-full">5 perfumes</span>
+          </div>
+          <p class="text-3xl font-black text-gray-900 leading-none">$2,099</p>
+        </div>
       </div>
-      <ul class="text-xs text-gray-600 space-y-1 mb-3">
-        <li>✅ 5 perfumes de los más vendidos</li>
-        <li>✅ Marcas top: Armaf, Lattafa, Afnan</li>
-        <li>✅ 2 decants de muestra para tus clientes</li>
-        <li>✅ Guía de ventas</li>
-        <li>✅ Acceso al grupo privado de revendedores</li>
-        <li>🚚 <span class="font-bold text-green-600">Envío gratis</span></li>
-        <li class="text-blue-600 font-semibold">📦 Surtido confirmado al momento de tu pedido</li>
+      <div class="bg-blue-50 rounded-xl px-3 py-1.5 mb-3 text-center">
+        <p class="text-xs font-black text-blue-700">Los perfumes que mas se venden</p>
+      </div>
+      <ul class="text-sm text-gray-600 space-y-1.5 mb-4">
+        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> 5 perfumes top ventas: Armaf, Lattafa, Afnan</li>
+        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> 2 decants de muestra para tus clientes</li>
+        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> Guía de ventas</li>
+        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">+</span> Acceso al grupo privado de revendedores</li>
+        <li class="flex items-center gap-2"><span class="text-green-500 font-black">+</span> <span class="font-bold text-green-600">Envío gratis</span></li>
+        <li class="flex items-center gap-2 text-blue-500 font-semibold"><span>+</span> Surtido confirmado al momento de tu pedido</li>
       </ul>
       <button onclick="pedirPaquete(1)"
-        class="w-full bg-blue-700 text-white py-2.5 rounded-xl font-black text-sm active:bg-blue-900">
-        Quiero este paquete →
+        class="w-full bg-blue-700 text-white py-3 rounded-xl font-black text-base active:bg-blue-900">
+        Quiero este paquete
       </button>
     </div>
 
     <!-- Pack 2 -->
-    <div class="bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-yellow-400 rounded-2xl p-4 mb-3 shadow-lg relative overflow-hidden">
-      <div class="absolute top-3 right-3 bg-yellow-400 text-blue-900 text-[10px] font-black px-2 py-0.5 rounded-full">⭐ MEJOR VALOR</div>
-      <div class="flex items-start justify-between mb-2">
-        <div>
-          <p class="text-xs font-bold text-blue-300 uppercase tracking-wide">Pack Pro</p>
-          <p class="text-2xl font-black text-white">$4,499</p>
-        </div>
-        <span class="bg-yellow-400 text-blue-900 text-xs font-black px-3 py-1 rounded-full">10 perfumes</span>
+    <div class="bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-yellow-400 rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 bg-yellow-400 text-blue-900 text-xs font-black py-1 text-center tracking-wide">
+        EL MAS VENDIDO
       </div>
-      <ul class="text-xs text-blue-100 space-y-1 mb-3">
-        <li>✅ 10 perfumes de los más vendidos</li>
-        <li>✅ Marcas premium: Armaf, Lattafa, Afnan y más</li>
-        <li>✅ 6 decants de muestra para tus clientes</li>
-        <li>✅ Guía de ventas completa</li>
-        <li>🚚 <span class="font-bold text-green-300">Envío gratis incluido</span></li>
-        <li>✅ Acceso prioritario al grupo de revendedores</li>
-        <li class="text-yellow-300 font-semibold">📦 Surtido confirmado al momento de tu pedido</li>
+      <div class="flex items-center gap-3 mt-7 mb-3">
+        <!-- Caja animada -->
+        <div class="box-icon shrink-0 w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border-2 border-yellow-400/50">
+          <svg viewBox="0 0 24 24" class="w-8 h-8" fill="none" stroke="#fbbf24" stroke-width="1.8">
+            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/>
+            <path d="M3 8l9 5 9-5"/>
+            <path d="M12 13v8"/>
+            <path d="M7.5 5.5l9 5"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-0.5">
+            <p class="text-sm font-black text-white">Pack Pro</p>
+            <span class="bg-yellow-400 text-blue-900 text-[10px] font-black px-2 py-0.5 rounded-full">10 perfumes</span>
+          </div>
+          <p class="text-3xl font-black text-white leading-none">$4,499</p>
+        </div>
+      </div>
+      <div class="bg-yellow-400/20 border border-yellow-400/40 rounded-xl px-3 py-1.5 mb-3 text-center">
+        <p class="text-xs font-black text-yellow-300">Los perfumes que mas se venden</p>
+      </div>
+      <ul class="text-sm text-blue-100 space-y-1.5 mb-4">
+        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> 10 perfumes top ventas: Armaf, Lattafa, Afnan y más</li>
+        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> 6 decants de muestra para tus clientes</li>
+        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> Guía de ventas completa</li>
+        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">+</span> Acceso prioritario al grupo de revendedores</li>
+        <li class="flex items-center gap-2"><span class="text-green-400 font-black">+</span> <span class="font-bold text-green-300">Envío gratis incluido</span></li>
+        <li class="flex items-center gap-2 text-yellow-300 font-semibold"><span>+</span> Surtido confirmado al momento de tu pedido</li>
       </ul>
       <button onclick="pedirPaquete(2)"
-        class="w-full bg-yellow-400 text-blue-900 py-2.5 rounded-xl font-black text-sm active:bg-yellow-500">
-        Quiero este paquete →
+        class="w-full bg-yellow-400 text-blue-900 py-3 rounded-xl font-black text-base active:bg-yellow-500">
+        Quiero este paquete
       </button>
     </div>
-  </div>
 
-  <!-- Banner ayuda personalizada -->
-  <div class="mx-2 mb-3 bg-blue-50 border border-blue-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
-    <div class="flex-1">
-      <p class="text-xs font-black text-blue-800">¿No sabes en qué invertir?</p>
-      <p class="text-xs text-blue-600 mt-0.5">Si quieres un paquete mayor o necesitas orientación, escríbenos y te ayudamos a armar tu pedido ideal.</p>
+    <!-- Pack personalizado — secundario y pequeño -->
+    <div class="bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 mb-3">
+      <p class="text-sm font-black text-gray-800 mb-0.5">Tengo otra cantidad para invertir</p>
+      <p class="text-xs text-gray-500 mb-3">Escribe cuánto tienes disponible y te armamos un paquete a tu medida con los perfumes que más venden.</p>
+      <div class="flex gap-2">
+        <div class="flex-1 relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">$</span>
+          <input id="custom-budget" type="number" placeholder="Ej: 3000"
+            class="w-full border-2 border-gray-200 rounded-xl pl-7 pr-3 py-2 text-sm font-bold focus:outline-none focus:border-blue-400 bg-white">
+        </div>
+        <button onclick="pedirPresupuesto()"
+          class="shrink-0 bg-blue-700 text-white px-4 py-2 rounded-xl font-black text-sm">
+          Armar
+        </button>
+      </div>
     </div>
-    <button onclick="pedirAyuda()"
-      class="shrink-0 bg-blue-700 text-white px-3 py-2 rounded-xl font-black text-xs">
-      Escribir
-    </button>
   </div>
 
   <!-- Loading / Empty -->
@@ -864,6 +899,16 @@
       document.body.style.overflow = '';
       modalProductId = null;
       renderGrid();
+    }
+
+    function pedirPresupuesto() {
+      const budget = document.getElementById('custom-budget').value;
+      if (!budget || isNaN(budget) || budget <= 0) {
+        alert('Escribe una cantidad para continuar.');
+        return;
+      }
+      const msg = `Hola, tengo $${Number(budget).toLocaleString()} para invertir. ¿Me ayudas a armar mi paquete con los perfumes que más se venden?`;
+      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
     function pedirAyuda() {
