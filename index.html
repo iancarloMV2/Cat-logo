@@ -94,9 +94,15 @@
 
   <!-- HEADER STICKY -->
   <div class="bg-white shadow-md sticky top-0 z-40 px-3 pt-3 pb-2 border-b-2 border-blue-100">
-    <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">🔍 Encuentra tu perfume</p>
-    <input id="search" type="text" placeholder="Buscar por nombre o marca..."
-      class="w-full border-2 border-blue-300 rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 bg-white mb-2 shadow-sm">
+    <div class="flex gap-2 mb-2">
+      <input id="search" type="text" placeholder="Buscar por nombre o marca..."
+        class="flex-1 border-2 border-blue-300 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white shadow-sm">
+      <button onclick="openCartModal()"
+        class="shrink-0 bg-blue-700 text-white px-3 py-2 rounded-xl font-black text-xs flex items-center gap-1.5 relative">
+        Mi pedido
+        <span id="cart-badge" class="hidden absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center"></span>
+      </button>
+    </div>
     <div class="flex gap-1.5 overflow-x-auto pb-0.5">
       <button class="filter-btn active" data-filter="Todos">Todos</button>
       <button class="filter-btn" data-filter="Mujer">Mujer</button>
@@ -342,8 +348,8 @@
             <p class="text-[11px] text-white font-black leading-tight">${cfg.name}</p>
             <p class="text-[9px] text-blue-200 mb-1.5">${cfg.sub}</p>
             ${t.disc > 0
-              ? `<p class="text-xl font-black text-green-300 leading-none">−${t.disc*100}%</p>
-                 <p class="text-[10px] text-green-400 font-semibold mt-0.5">$${saving} menos<br>por perfume</p>`
+              ? `<p class="text-2xl font-black text-green-300 leading-none">−${t.disc*100}%</p>
+                 <p class="text-[10px] text-green-400 font-semibold mt-0.5">descuento</p>`
               : `<p class="text-sm font-bold text-blue-300 mt-1">Precio<br>normal</p>`
             }
             ${active ? `<p class="text-[9px] bg-white text-blue-800 font-black px-2 py-0.5 rounded-full mt-2 inline-block">ACTIVO</p>` : ''}
@@ -582,7 +588,10 @@
       }
       const tier = currentTier();
 
-      document.getElementById('cart-count').textContent = qty > 0 ? `${qty} piezas — Ver pedido` : 'Ver pedido';
+      document.getElementById('cart-count').textContent = qty > 0 ? `${qty} piezas` : '';
+      const badge = document.getElementById('cart-badge');
+      if (qty > 0) { badge.textContent = qty; badge.classList.remove('hidden'); }
+      else badge.classList.add('hidden');
       document.getElementById('cart-total').textContent = `$${total.toLocaleString()}`;
       document.getElementById('wa-btn').disabled = qty === 0;
 
@@ -662,9 +671,28 @@
     }
 
     function openCartModal() {
-      if (!Object.keys(cart).length) return;
+      renderCartModal();
+      document.getElementById('cart-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function renderCartModal() {
       let total = 0, saved = 0;
-      const items = Object.entries(cart).map(([id, qty]) => {
+      const entries = Object.entries(cart);
+
+      if (!entries.length) {
+        document.getElementById('cart-modal-items').innerHTML =
+          `<div class="text-center py-10 text-gray-400">
+            <p class="text-base font-semibold">No has agregado perfumes</p>
+            <p class="text-sm mt-1">Toca el + en cualquier producto</p>
+          </div>`;
+        document.getElementById('cart-modal-total').textContent = '$0';
+        document.getElementById('cart-modal-count').textContent = '0 piezas';
+        document.getElementById('cart-modal-saving').textContent = '';
+        return;
+      }
+
+      const items = entries.map(([id, qty]) => {
         const p = allProducts.find(p => p.id === id);
         if (!p) return '';
         const price = getPrice(p);
@@ -672,30 +700,40 @@
         total += sub;
         saved += qty * (p.p1 - price);
         return `
-          <div class="flex items-center gap-3 py-3 border-b border-gray-50">
-            <img src="${p.foto || ''}" onerror="this.src='https://placehold.co/60x60/eff6ff/93c5fd?text=?'"
+          <div class="flex items-center gap-3 py-3 border-b border-gray-100">
+            <img src="${p.foto||''}" onerror="this.src='https://placehold.co/60x60/eff6ff/93c5fd?text=?'"
               class="w-12 h-12 rounded-xl object-cover bg-blue-50 shrink-0">
             <div class="flex-1 min-w-0">
               <p class="text-[10px] text-blue-600 font-bold truncate">${p.marca}</p>
               <p class="text-xs font-bold text-gray-800 leading-snug truncate">${p.perfume} ${p.tamano}ml</p>
-              <p class="text-xs font-black text-gray-900">$${price.toLocaleString()} c/u</p>
+              <p class="text-xs font-black text-gray-900 mt-0.5">$${price.toLocaleString()} c/u · $${sub.toLocaleString()}</p>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <button onclick="updateQty('${id}',-1)" class="w-7 h-7 rounded-lg bg-gray-100 font-bold text-gray-600 flex items-center justify-center">−</button>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button onclick="cartModalQty('${id}',-1)" class="w-7 h-7 rounded-lg bg-gray-100 font-bold text-gray-700 text-base flex items-center justify-center">−</button>
               <span class="font-black text-gray-900 w-5 text-center text-sm">${qty}</span>
-              <button onclick="updateQty('${id}',1)" class="w-7 h-7 rounded-lg bg-blue-700 text-white font-bold flex items-center justify-center">+</button>
+              <button onclick="cartModalQty('${id}',1)" class="w-7 h-7 rounded-lg bg-blue-700 text-white font-bold text-base flex items-center justify-center">+</button>
+              <button onclick="cartModalQty('${id}','remove')" class="w-7 h-7 rounded-lg bg-red-50 text-red-400 font-bold text-xs flex items-center justify-center ml-1">✕</button>
             </div>
-            <p class="text-xs font-black text-gray-900 w-16 text-right shrink-0">$${sub.toLocaleString()}</p>
           </div>`;
       }).join('');
 
       document.getElementById('cart-modal-items').innerHTML = items;
       document.getElementById('cart-modal-total').textContent = `$${total.toLocaleString()}`;
       document.getElementById('cart-modal-count').textContent = `${totalQty()} piezas`;
-      const savEl = document.getElementById('cart-modal-saving');
-      savEl.textContent = saved > 0 ? `Ahorrando $${Math.round(saved).toLocaleString()}` : '';
-      document.getElementById('cart-modal').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
+      document.getElementById('cart-modal-saving').textContent = saved > 0 ? `Ahorrando $${Math.round(saved).toLocaleString()}` : '';
+    }
+
+    function cartModalQty(id, action) {
+      if (action === 'remove') {
+        delete cart[id];
+      } else {
+        const p = allProducts.find(p => p.id === id);
+        const newQty = Math.max(0, (cart[id]||0) + action);
+        cart[id] = p && p.stock > 0 ? Math.min(newQty, p.stock) : newQty;
+        if (!cart[id]) delete cart[id];
+      }
+      updateCart(); renderTierCards(); renderTierBar(); renderTierBarClickable(); renderProgress(); renderGrid();
+      renderCartModal();
     }
 
     function closeCartModal(e) {
