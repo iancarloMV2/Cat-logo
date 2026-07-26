@@ -143,9 +143,12 @@
     </div>
   </div>
 
-  <!-- BANNER DE MARCAS — chips girando, tocar filtra el catálogo a esa marca -->
-  <div class="bg-white border-b border-blue-100 py-2 overflow-hidden" style="-webkit-mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent);mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent)">
-    <div id="marca-banner" class="marca-marquee flex gap-2 px-2"></div>
+  <!-- BANNER DE MARCAS — logos girando, tocar filtra el catálogo a esa marca -->
+  <div class="border-b-2 border-blue-100 py-2.5" style="background:linear-gradient(180deg,#eff6ff,#ffffff)">
+    <p class="text-[10px] font-black text-blue-700 uppercase tracking-widest text-center mb-1.5">✨ Marcas 100% originales que manejamos</p>
+    <div class="overflow-hidden" style="-webkit-mask-image:linear-gradient(90deg,transparent,black 6%,black 94%,transparent);mask-image:linear-gradient(90deg,transparent,black 6%,black 94%,transparent)">
+      <div id="marca-banner" class="marca-marquee flex gap-2.5 px-2"></div>
+    </div>
   </div>
 
   <!-- RESUMEN PEDIDO VISIBLE -->
@@ -692,13 +695,64 @@
       document.getElementById('progress-sub').textContent = `Tier actual: ${curr.label} · Siguiente: ${next.label}`;
     }
 
+    /** Logo por marca, a partir del favicon del sitio oficial de cada casa de fragancias
+     *  (investigado uno por uno). Si una marca no está aquí, o la imagen no carga, el chip
+     *  muestra su inicial en un círculo en vez del logo — nunca se rompe la página. */
+    const favicon_ = dominio => `https://www.google.com/s2/favicons?domain=${dominio}&sz=128`;
+    const MARCA_LOGOS = {
+      'Afnan': favicon_('afnan.com'),
+      'Al Haramain': favicon_('alharamainperfumes.com'),
+      'Antonio Banderas': favicon_('banderasperfumes.com'),
+      'Ariana Grande': favicon_('arianagrandefragrances.com'),
+      'Armaf': favicon_('armaf.com'),
+      'Azzaro': favicon_('azzaro.com'),
+      'Bharara': favicon_('bhararabeauty.com'),
+      'Britney Spears': favicon_('britneyspearsperfumes.com'),
+      'Calvin Klein': favicon_('calvinklein.com'),
+      'Carolina Herrera': favicon_('carolinaherrera.com'),
+      'Christian Dior': favicon_('dior.com'),
+      'Davidoff': favicon_('zinodavidoff.com'),
+      'Dolce & Gabbana': favicon_('dolcegabbana.com'),
+      'Donna Karan': favicon_('donnakaran.com'),
+      'Emper': favicon_('emperperfumes.com'),
+      'Emporio Armani': favicon_('armani.com'),
+      'Giorgio Armani': favicon_('armani.com'),
+      'Hollister': favicon_('hollisterco.com'),
+      'Jean Paul Gaultier': favicon_('jeanpaulgaultier.com'),
+      // 'Jesus Del Pozo': sin dominio oficial confiable — muestra inicial.
+      'Jo Milano': favicon_('jomilanoparis.com'),
+      'Lattafa': favicon_('lattafa.com'),
+      // 'Legend EDP': no es una marca real, ver aviso en el chat — muestra inicial.
+      'Maison Alhambra': favicon_('maisonalhambraperfume.com'),
+      'Mont Blanc': favicon_('montblanc.com'),
+      'Moschino': favicon_('moschino.com'),
+      'Nautica': favicon_('nautica.com'),
+      'Perry Ellis': favicon_('perryellis.com'),
+      'Ralph Lauren': favicon_('ralphlauren.com'),
+      'Rasasi': favicon_('rasasi.com'),
+      'Valentino': favicon_('valentino.com'),
+      'Versace': favicon_('versace.com'),
+      'Xerjoff': favicon_('xerjoff.com'),
+      'Yves Saint Laurent': favicon_('yslbeauty.com'),
+    };
+
     /** Chips de marca girando arriba del catálogo — tocar una filtra el grid a esa marca. */
     function renderBrandBanner() {
       const marcas = [...new Set(allProducts.map(p => p.marca.trim()).filter(Boolean))].sort();
       const chip = m => {
         const active = currentBrandFilter === m;
+        const logoUrl = MARCA_LOGOS[m] || '';
+        // Comillas simples adentro a propósito: va embebido dentro de un onerror="..." con
+        // comillas dobles — si esto tuviera comillas dobles, cortaría el atributo a la mitad.
+        const inicial = `<span class='text-base font-black text-blue-700'>${m[0]}</span>`;
+        const logoHtml = logoUrl
+          ? `<img src="${logoUrl}" alt="${m}" class="w-9 h-9 object-contain" onerror="this.outerHTML='${inicial.replace(/'/g, "&#39;")}'">`
+          : inicial;
         return `<button onclick="toggleBrandFilter('${m.replace(/'/g, "\\'")}')"
-          class="marca-chip shrink-0 px-3 py-1.5 rounded-full border text-xs font-bold whitespace-nowrap ${active ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-blue-700 border-blue-200'}">${m}</button>`;
+          class="marca-chip shrink-0 w-20 flex flex-col items-center gap-1 py-2 px-1 rounded-2xl border-2 ${active ? 'bg-blue-700 border-blue-700' : 'bg-white border-blue-200'}">
+          <div class="w-11 h-11 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-sm">${logoHtml}</div>
+          <span class="text-[9px] font-bold leading-tight text-center line-clamp-2 ${active ? 'text-white' : 'text-blue-700'}">${m}</span>
+        </button>`;
       };
       const html = marcas.map(chip).join('');
       // Se duplica el listado para que la animación haga un loop continuo sin "brinco" visible.
