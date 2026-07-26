@@ -330,14 +330,15 @@
     <div class="text-3xl mb-2">🔍</div>No encontramos ese perfume
   </div>
 
-  <!-- MODAL BIENVENIDA / IDENTIFICACIÓN POR TELÉFONO -->
+  <!-- MODAL BIENVENIDA / IDENTIFICACIÓN POR TELÉFONO (se abre al armar el pedido, no al entrar) -->
   <div id="welcome-modal" class="modal-overlay hidden">
-    <div class="modal-sheet" style="padding:28px 20px 32px;">
+    <div class="modal-sheet" style="padding:28px 20px 32px; position:relative;">
+      <button onclick="cancelarIdentificacion()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 text-gray-400 font-bold text-sm flex items-center justify-center">✕</button>
       <!-- Paso 1: pedir teléfono -->
       <div id="welcome-step-tel">
         <p class="text-3xl mb-2">👋</p>
-        <h2 class="text-xl font-black text-gray-900 mb-1">¡Bienvenido a IanCarloMV!</h2>
-        <p class="text-sm text-gray-500 mb-4">Escribe tu WhatsApp para identificarte — así no repites tus datos en cada pedido.</p>
+        <h2 class="text-xl font-black text-gray-900 mb-1">¡Ya casi!</h2>
+        <p class="text-sm text-gray-500 mb-4">Escribe tu WhatsApp para tu nota de compra — así no repites tus datos la próxima vez.</p>
         <input id="welcome-telefono" type="tel" inputmode="numeric" placeholder="Tu WhatsApp (10 dígitos)"
           class="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-sm font-semibold focus:outline-none focus:border-blue-500 mb-2">
         <p id="welcome-tel-error" class="text-xs text-red-500 font-semibold mb-2 hidden">Escribe un WhatsApp válido (10 dígitos).</p>
@@ -946,6 +947,15 @@
     }
 
     function openCartModal() {
+      const stored = getStoredCliente();
+      if (!stored.telefono || !stored.nombre) {
+        // Todavía no sabemos quién es — se le pregunta aquí, justo al armar el pedido,
+        // no al entrar a la página (así cualquiera puede curiosear el catálogo libremente).
+        pendingOpenCart = true;
+        document.getElementById('welcome-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        return;
+      }
       cartModalOpen = true;
       renderCartModal();
       prefillClienteFields();
@@ -958,6 +968,7 @@
     const LS_NOMBRE = 'nobile_cliente_nombre';
     let welcomePendingTelefono = '';
     let welcomePendingNombre = '';
+    let pendingOpenCart = false;
 
     function getStoredCliente() {
       return {
@@ -989,14 +1000,14 @@
     }
 
     function initWelcome() {
+      // Ya no bloquea la entrada — solo saluda si ya lo conocíamos. La identificación
+      // real (pedir WhatsApp/nombre a alguien nuevo) pasa hasta que arma su pedido,
+      // ver openCartModal().
       const stored = getStoredCliente();
       if (stored.telefono && stored.nombre) {
         prefillClienteFields();
         mostrarSaludoBreve(stored.nombre);
-        return;
       }
-      document.getElementById('welcome-modal').classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
     }
 
     async function welcomeSubmitTelefono() {
@@ -1064,6 +1075,17 @@
       document.getElementById('welcome-modal').classList.add('hidden');
       document.body.style.overflow = '';
       prefillClienteFields();
+      if (pendingOpenCart) {
+        pendingOpenCart = false;
+        openCartModal();
+      }
+    }
+
+    /** Cierra la pantalla de identificación sin guardar nada — vuelve a ver el catálogo. */
+    function cancelarIdentificacion() {
+      pendingOpenCart = false;
+      document.getElementById('welcome-modal').classList.add('hidden');
+      document.body.style.overflow = '';
     }
 
     function renderCartModal() {
