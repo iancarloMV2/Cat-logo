@@ -330,42 +330,6 @@
     <div class="text-3xl mb-2">🔍</div>No encontramos ese perfume
   </div>
 
-  <!-- MODAL BIENVENIDA / IDENTIFICACIÓN POR TELÉFONO (se abre al armar el pedido, no al entrar) -->
-  <div id="welcome-modal" class="modal-overlay hidden">
-    <div class="modal-sheet" style="padding:28px 20px 32px; position:relative;">
-      <button onclick="cancelarIdentificacion()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 text-gray-400 font-bold text-sm flex items-center justify-center">✕</button>
-      <!-- Paso 1: pedir teléfono -->
-      <div id="welcome-step-tel">
-        <p class="text-3xl mb-2">👋</p>
-        <h2 class="text-xl font-black text-gray-900 mb-1">¡Ya casi!</h2>
-        <p class="text-sm text-gray-500 mb-4">Escribe tu WhatsApp para tu nota de compra — así no repites tus datos la próxima vez.</p>
-        <input id="welcome-telefono" type="tel" inputmode="numeric" placeholder="Tu WhatsApp (10 dígitos)"
-          class="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-sm font-semibold focus:outline-none focus:border-blue-500 mb-2">
-        <p id="welcome-tel-error" class="text-xs text-red-500 font-semibold mb-2 hidden">Escribe un WhatsApp válido (10 dígitos).</p>
-        <button id="welcome-btn-tel" onclick="welcomeSubmitTelefono()" class="w-full bg-blue-700 text-white py-3 rounded-2xl font-black text-sm">Continuar</button>
-      </div>
-
-      <!-- Paso 2a: cliente ya existe -->
-      <div id="welcome-step-returning" class="hidden">
-        <p class="text-3xl mb-2">👋</p>
-        <h2 id="welcome-saludo" class="text-xl font-black text-gray-900 mb-1"></h2>
-        <p id="welcome-historial" class="text-sm text-gray-500 mb-4"></p>
-        <button onclick="welcomeConfirmar()" class="w-full bg-blue-700 text-white py-3 rounded-2xl font-black text-sm">Sí, soy yo — continuar</button>
-        <button onclick="welcomeCambiarTelefono()" class="w-full text-gray-400 text-xs font-semibold mt-3">No soy yo, usar otro número</button>
-      </div>
-
-      <!-- Paso 2b: cliente nuevo -->
-      <div id="welcome-step-new" class="hidden">
-        <p class="text-3xl mb-2">✨</p>
-        <h2 class="text-xl font-black text-gray-900 mb-1">¡Qué gusto tenerte aquí!</h2>
-        <p class="text-sm text-gray-500 mb-4">Es tu primer pedido con nosotros — dinos tu nombre.</p>
-        <input id="welcome-nombre" type="text" placeholder="Tu nombre"
-          class="w-full border-2 border-gray-200 rounded-xl px-3 py-3 text-sm font-semibold focus:outline-none focus:border-blue-500 mb-3">
-        <button onclick="welcomeSubmitNombre()" class="w-full bg-blue-700 text-white py-3 rounded-2xl font-black text-sm">Continuar</button>
-      </div>
-    </div>
-  </div>
-
   <!-- MODAL RESUMEN PEDIDO -->
   <div id="cart-modal" class="modal-overlay hidden" onclick="closeCartModal(event)">
     <div class="modal-sheet">
@@ -391,8 +355,9 @@
         <div class="space-y-2 mb-3">
           <input id="nc-cliente" type="text" placeholder="Tu nombre"
             class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-500">
-          <input id="nc-telefono" type="tel" placeholder="Tu teléfono (WhatsApp)"
+          <input id="nc-telefono" type="tel" placeholder="Tu teléfono (WhatsApp)" oninput="onTelefonoInput()"
             class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-500">
+          <p id="nc-saludo" class="text-xs font-bold text-blue-600 hidden"></p>
         </div>
 
         <button id="nc-btn-enviar" onclick="confirmarPedido()"
@@ -947,15 +912,6 @@
     }
 
     function openCartModal() {
-      const stored = getStoredCliente();
-      if (!stored.telefono || !stored.nombre) {
-        // Todavía no sabemos quién es — se le pregunta aquí, justo al armar el pedido,
-        // no al entrar a la página (así cualquiera puede curiosear el catálogo libremente).
-        pendingOpenCart = true;
-        document.getElementById('welcome-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        return;
-      }
       cartModalOpen = true;
       renderCartModal();
       prefillClienteFields();
@@ -963,12 +919,10 @@
       document.body.style.overflow = 'hidden';
     }
 
-    /* ===== Identificación por teléfono (bienvenida) ===== */
+    /* ===== Identificación por teléfono (todo dentro del panel de "Mi pedido") ===== */
     const LS_TEL = 'nobile_cliente_telefono';
     const LS_NOMBRE = 'nobile_cliente_nombre';
-    let welcomePendingTelefono = '';
-    let welcomePendingNombre = '';
-    let pendingOpenCart = false;
+    let clienteLookupTimeout = null;
 
     function getStoredCliente() {
       return {
@@ -986,8 +940,13 @@
       const stored = getStoredCliente();
       const ncCliente = document.getElementById('nc-cliente');
       const ncTelefono = document.getElementById('nc-telefono');
+      const saludoEl = document.getElementById('nc-saludo');
       if (ncCliente && stored.nombre) ncCliente.value = stored.nombre;
       if (ncTelefono && stored.telefono) ncTelefono.value = stored.telefono;
+      if (saludoEl && stored.nombre) {
+        saludoEl.textContent = `👋 Hola de nuevo, ${stored.nombre}`;
+        saludoEl.classList.remove('hidden');
+      }
     }
 
     function mostrarSaludoBreve(nombre) {
@@ -1000,92 +959,41 @@
     }
 
     function initWelcome() {
-      // Ya no bloquea la entrada — solo saluda si ya lo conocíamos. La identificación
-      // real (pedir WhatsApp/nombre a alguien nuevo) pasa hasta que arma su pedido,
-      // ver openCartModal().
+      // Solo saluda con un mensajito breve si ya lo conocíamos — nunca bloquea la entrada.
       const stored = getStoredCliente();
-      if (stored.telefono && stored.nombre) {
-        prefillClienteFields();
-        mostrarSaludoBreve(stored.nombre);
-      }
+      if (stored.telefono && stored.nombre) mostrarSaludoBreve(stored.nombre);
     }
 
-    async function welcomeSubmitTelefono() {
-      const telInput = document.getElementById('welcome-telefono');
+    /**
+     * Se dispara al escribir en "Tu teléfono" dentro del panel de "Mi pedido". En cuanto
+     * hay 10 dígitos, busca en automático si ese número ya compró antes (sin ningún paso
+     * ni pantalla de por medio) y, si sí, autocompleta el nombre y muestra un saludo.
+     */
+    function onTelefonoInput() {
+      const telInput = document.getElementById('nc-telefono');
+      const saludoEl = document.getElementById('nc-saludo');
       const telefono = telInput.value.trim().replace(/\D/g, '');
-      const errorEl = document.getElementById('welcome-tel-error');
-      if (telefono.length < 10) {
-        errorEl.classList.remove('hidden');
-        return;
-      }
-      errorEl.classList.add('hidden');
-      welcomePendingTelefono = telefono;
 
-      const btnTel = document.getElementById('welcome-btn-tel');
-      btnTel.disabled = true;
-      btnTel.textContent = 'Buscando...';
+      saludoEl.classList.add('hidden');
+      clearTimeout(clienteLookupTimeout);
+      if (telefono.length < 10 || !CATALOGO_WEBAPP_URL) return;
 
-      let info = { ok: false };
-      if (CATALOGO_WEBAPP_URL) {
+      clienteLookupTimeout = setTimeout(async () => {
+        let info = { ok: false };
         try {
           const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=cliente&telefono=${encodeURIComponent(telefono)}`);
           info = await res.json();
         } catch (err) {
-          console.warn('No se pudo verificar el cliente, se pedirá el nombre.', err);
+          console.warn('No se pudo verificar el cliente.', err);
         }
-      }
-
-      btnTel.disabled = false;
-      btnTel.textContent = 'Continuar';
-      document.getElementById('welcome-step-tel').classList.add('hidden');
-
-      if (info.ok && info.existe) {
-        welcomePendingNombre = info.nombre;
-        document.getElementById('welcome-saludo').textContent = `Hola de nuevo, ${info.nombre} 👋`;
-        document.getElementById('welcome-historial').textContent =
-          info.totalPedidos > 0 ? `Llevas ${info.totalPedidos} pedido${info.totalPedidos === 1 ? '' : 's'} con nosotros.` : '';
-        document.getElementById('welcome-step-returning').classList.remove('hidden');
-      } else {
-        document.getElementById('welcome-step-new').classList.remove('hidden');
-      }
-    }
-
-    function welcomeConfirmar() {
-      saveStoredCliente(welcomePendingNombre, welcomePendingTelefono);
-      cerrarWelcomeModal();
-    }
-
-    function welcomeSubmitNombre() {
-      const nombreInput = document.getElementById('welcome-nombre');
-      const nombre = nombreInput.value.trim();
-      if (!nombre) { nombreInput.focus(); return; }
-      saveStoredCliente(nombre, welcomePendingTelefono);
-      cerrarWelcomeModal();
-    }
-
-    function welcomeCambiarTelefono() {
-      document.getElementById('welcome-step-returning').classList.add('hidden');
-      document.getElementById('welcome-step-new').classList.add('hidden');
-      document.getElementById('welcome-step-tel').classList.remove('hidden');
-      document.getElementById('welcome-telefono').value = '';
-      document.getElementById('welcome-telefono').focus();
-    }
-
-    function cerrarWelcomeModal() {
-      document.getElementById('welcome-modal').classList.add('hidden');
-      document.body.style.overflow = '';
-      prefillClienteFields();
-      if (pendingOpenCart) {
-        pendingOpenCart = false;
-        openCartModal();
-      }
-    }
-
-    /** Cierra la pantalla de identificación sin guardar nada — vuelve a ver el catálogo. */
-    function cancelarIdentificacion() {
-      pendingOpenCart = false;
-      document.getElementById('welcome-modal').classList.add('hidden');
-      document.body.style.overflow = '';
+        if (info.ok && info.existe) {
+          const ncCliente = document.getElementById('nc-cliente');
+          if (!ncCliente.value.trim()) ncCliente.value = info.nombre;
+          saludoEl.textContent = `👋 Hola de nuevo, ${info.nombre}` +
+            (info.totalPedidos > 0 ? ` — llevas ${info.totalPedidos} pedido${info.totalPedidos === 1 ? '' : 's'}` : '');
+          saludoEl.classList.remove('hidden');
+        }
+      }, 600); // pequeño debounce para no llamar en cada tecla
     }
 
     function renderCartModal() {
