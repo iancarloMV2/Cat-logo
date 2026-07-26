@@ -669,6 +669,7 @@
     function renderProgress() {
       const qty = totalQty();
       const box = document.getElementById('progress-box');
+      if (!box) return; // esta sección de "barra de progreso" ya no existe en la página
       if (qty === 0) { box.classList.add('hidden'); return; }
       box.classList.remove('hidden');
 
@@ -880,6 +881,11 @@
 
       saveStoredCliente(cliente, telefono);
 
+      // Se abre YA (vacía) mientras el clic del usuario todavía cuenta como "gesto directo"
+      // para el navegador. Si esperamos a que termine el fetch de abajo para abrir WhatsApp,
+      // Safari/Chrome ya no lo reconocen como clic real y bloquean la ventana en silencio.
+      const waWin = window.open('', '_blank');
+
       const btn = document.getElementById('nc-btn-enviar');
       btn.disabled = true;
       btn.textContent = 'Enviando...';
@@ -894,10 +900,17 @@
           });
           // Sin header Content-Type a propósito: así el navegador lo manda como "simple
           // request" y no dispara un preflight OPTIONS que Apps Script no contesta.
+          // Límite de 8s: el redirect interno de Apps Script a veces se cuelga en el
+          // navegador con POST (aunque el Sheet ya procesó todo bien del otro lado) —
+          // sin esto el botón se quedaba pegado en "Enviando..." para siempre.
+          const controller = new AbortController();
+          const avisoTimeout = setTimeout(() => controller.abort(), 8000);
           const res = await fetch(CATALOGO_WEBAPP_URL, {
             method: 'POST',
             body: JSON.stringify({ cliente, telefono, tipoPago, numPlazos, items }),
+            signal: controller.signal,
           });
+          clearTimeout(avisoTimeout);
           const data = await res.json();
           if (data.ok) { folio = data.folio; facturaUrl = data.facturaUrl || null; }
           else console.warn('Nota de compra no registrada:', data.mensaje);
@@ -907,18 +920,17 @@
       }
 
       closeCartModal();
-      if (facturaUrl) window.open(facturaUrl, '_blank'); // abre el PDF de la nota en otra pestaña
-      sendWhatsApp(folio, cliente, tipoPago, numPlazos, facturaUrl);
+      sendWhatsApp(folio, cliente, tipoPago, numPlazos, facturaUrl, waWin);
       btn.disabled = false;
       btn.textContent = 'Enviar pedido por WhatsApp';
     }
 
-    function sendWhatsApp(folio, cliente, tipoPago, numPlazos, facturaUrl) {
+    function sendWhatsApp(folio, cliente, tipoPago, numPlazos, facturaUrl, waWin) {
       const qty = totalQty();
       const tier = currentTier();
       let total = 0, saved = 0;
       const lines = [`🛍️ *Pedido Mayoreo — IanCarloMV*`];
-      if (folio) lines.push(`📄 Nota de Compra #${folio}`);
+      if (folio) lines.push(`📄 Nota de Compra #${folio} — ⏳ pendiente de confirmar pago`);
       if (facturaUrl) lines.push(`📎 ${facturaUrl}`);
       lines.push(`📦 Tier: ${tier.label}`, `─────────────────`);
       for (const [id, q] of Object.entries(cart)) {
@@ -935,7 +947,9 @@
       if (tipoPago === 'Abonos' && numPlazos) lines.push(`💳 Pago a abonos en ${numPlazos} plazos`);
       if (cliente) lines.push(`👤 ${cliente}`);
       gtag('event', 'whatsapp_click', { event_category: 'conversion', event_label: `${qty} piezas · $${total.toLocaleString()}` });
-      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
+      const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`;
+      if (waWin && !waWin.closed) waWin.location.href = waUrl;
+      else window.open(waUrl, '_blank'); // respaldo si el navegador bloqueó la ventana pre-abierta
     }
 
     function openCartModal() {
@@ -1008,7 +1022,10 @@
       clienteLookupTimeout = setTimeout(async () => {
         let info = { ok: false };
         try {
-          const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=cliente&telefono=${encodeURIComponent(telefono)}`);
+          const controller = new AbortController();
+          const avisoTimeout = setTimeout(() => controller.abort(), 8000);
+          const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=cliente&telefono=${encodeURIComponent(telefono)}`, { signal: controller.signal });
+          clearTimeout(avisoTimeout);
           info = await res.json();
         } catch (err) {
           console.warn('No se pudo verificar el cliente.', err);
