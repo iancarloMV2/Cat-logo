@@ -44,6 +44,10 @@
       font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px;
     }
     .tier-hero-btn { transition: all 0.2s; }
+    @keyframes marca-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .marca-marquee { width: max-content; animation: marca-scroll 30s linear infinite; }
+    .marca-marquee:hover, .marca-marquee:active { animation-play-state: paused; }
+    .marca-chip { transition: all 0.15s; }
     .active-tier { background: rgba(255,255,255,0.3) !important; border-color: white !important; transform: scale(1.05); box-shadow: 0 0 0 2px white; }
     @keyframes box-float { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-5px) rotate(1deg)} }
     .box-icon { animation: box-float 3s ease-in-out infinite; }
@@ -139,6 +143,11 @@
     </div>
   </div>
 
+  <!-- BANNER DE MARCAS — chips girando, tocar filtra el catálogo a esa marca -->
+  <div class="bg-white border-b border-blue-100 py-2 overflow-hidden" style="-webkit-mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent);mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent)">
+    <div id="marca-banner" class="marca-marquee flex gap-2 px-2"></div>
+  </div>
+
   <!-- RESUMEN PEDIDO VISIBLE -->
   <div id="order-strip" class="hidden bg-white border-b-2 border-blue-100">
     <div class="px-3 pt-2 pb-1 flex items-center justify-between">
@@ -194,88 +203,70 @@
   <div class="px-2 pt-4 pb-1">
     <p class="text-sm font-black text-blue-800 uppercase tracking-widest mb-3 px-1 text-center">Paquetes para emprender</p>
 
-    <!-- Pack 1 -->
-    <div class="bg-white border-2 border-blue-200 rounded-2xl p-4 mb-3 shadow-md">
-      <!-- Header con caja -->
-      <div class="flex items-center gap-3 mb-3">
-        <div class="box-icon shrink-0 w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center border-2 border-blue-100">
-          <svg viewBox="0 0 24 24" class="w-8 h-8" fill="none" stroke="#1d4ed8" stroke-width="1.8">
-            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/><path d="M7.5 5.5l9 5"/>
-          </svg>
-        </div>
-        <div class="flex-1">
-          <div class="flex items-center gap-2 flex-wrap mb-0.5">
-            <p class="text-sm font-black text-blue-800">Pack Revendedor</p>
-            <span class="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-full">4 perfumes</span>
+    <!-- Packs — cajas chicas lado a lado, se despliega el detalle al tocar -->
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <!-- Pack 1 -->
+      <details class="group bg-white border-2 border-blue-200 rounded-2xl p-3 shadow-md">
+        <summary class="list-none cursor-pointer text-center">
+          <div class="box-icon w-11 h-11 mx-auto bg-blue-50 rounded-2xl flex items-center justify-center border-2 border-blue-100 mb-1.5">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="#1d4ed8" stroke-width="1.8">
+              <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/><path d="M7.5 5.5l9 5"/>
+            </svg>
           </div>
-          <p class="text-3xl font-black text-gray-900 leading-none">$2,099</p>
-          <p class="text-xs text-gray-400 line-through">Precio en tienda departamental: $2,900</p>
+          <p class="text-xs font-black text-blue-800 leading-tight">Pack Revendedor</p>
+          <p class="text-[10px] text-blue-500 font-bold">4 perfumes</p>
+          <p class="text-xl font-black text-gray-900 leading-none mt-1">$2,099</p>
+          <p class="text-[9px] text-blue-500 font-bold mt-1.5 group-open:hidden">Ver qué incluye ▾</p>
+          <p class="text-[9px] text-blue-500 font-bold mt-1.5 hidden group-open:block">Ocultar ▴</p>
+        </summary>
+        <div class="mt-2 pt-2 border-t border-blue-100">
+          <ul class="text-[11px] text-gray-600 space-y-1 mb-3">
+            <li>✓ 4 perfumes de los que más se venden</li>
+            <li>✓ 2 muestras para que tus clientes prueben</li>
+            <li>✓ Guía de ventas paso a paso</li>
+            <li>✓ Grupo privado de revendedores</li>
+            <li class="font-bold text-green-600">✓ Envío gratis</li>
+            <li class="text-orange-500 font-bold">⏳ Precio válido esta semana</li>
+          </ul>
+          <button onclick="pedirPaquete(1)"
+            class="w-full bg-blue-700 text-white py-2 rounded-xl font-black text-xs active:bg-blue-900">
+            Iniciemos hoy
+          </button>
         </div>
-      </div>
+      </details>
 
-      <div class="bg-green-50 border border-green-200 rounded-xl px-3 py-2 mb-2 text-center">
-        <p class="text-sm font-black text-green-600">Vende rápido, reinvierte y repite</p>
-      </div>
-      <div class="bg-orange-50 border border-orange-200 rounded-xl px-3 py-1.5 mb-3 flex items-center justify-center gap-2">
-        <span class="text-orange-500 text-sm">⏳</span>
-        <p class="text-xs font-black text-orange-600">Precio válido esta semana</p>
-      </div>
-
-      <ul class="text-sm text-gray-600 space-y-1.5 mb-4">
-        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">✓</span> 4 perfumes de los que más se venden</li>
-        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">✓</span> 2 muestras pequeñas para que tus clientes prueben antes de comprar — así cierras más fácil</li>
-        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">✓</span> Guía de ventas paso a paso</li>
-        <li class="flex items-center gap-2"><span class="text-blue-500 font-black">✓</span> Acceso al grupo privado de revendedores</li>
-        <li class="flex items-center gap-2"><span class="text-green-500 font-black">✓</span> <span class="font-bold text-green-600">Envío gratis</span></li>
-        <li class="flex items-center gap-2 text-blue-600 font-semibold text-xs"><span>✓</span> Nosotros elegimos los que más rotan — tú no arriesgas eligiendo mal</li>
-      </ul>
-      <button onclick="pedirPaquete(1)"
-        class="w-full bg-blue-700 text-white py-3 rounded-xl font-black text-base active:bg-blue-900">
-        Iniciemos hoy mismo
-      </button>
-    </div>
-
-    <!-- Pack 2 -->
-    <div class="bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-yellow-400 rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden">
-      <div class="absolute top-0 left-0 right-0 bg-yellow-400 text-blue-900 text-xs font-black py-1.5 text-center tracking-wide">
-        EL MAS ELEGIDO POR REVENDEDORES
-      </div>
-      <div class="flex items-center gap-3 mt-8 mb-3">
-        <div class="box-icon shrink-0 w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center border-2 border-yellow-400/50">
-          <svg viewBox="0 0 24 24" class="w-8 h-8" fill="none" stroke="#fbbf24" stroke-width="1.8">
-            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/><path d="M7.5 5.5l9 5"/>
-          </svg>
+      <!-- Pack 2 -->
+      <details class="group bg-gradient-to-br from-blue-800 to-blue-900 border-2 border-yellow-400 rounded-2xl p-3 pt-4 shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 bg-yellow-400 text-blue-900 text-[8px] font-black py-1 text-center tracking-wide">
+          MÁS ELEGIDO
         </div>
-        <div class="flex-1">
-          <div class="flex items-center gap-2 flex-wrap mb-0.5">
-            <p class="text-sm font-black text-white">Pack Pro</p>
-            <span class="bg-yellow-400 text-blue-900 text-[10px] font-black px-2 py-0.5 rounded-full">8 perfumes</span>
+        <summary class="list-none cursor-pointer text-center">
+          <div class="box-icon w-11 h-11 mx-auto bg-white/10 rounded-2xl flex items-center justify-center border-2 border-yellow-400/50 mb-1.5">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="#fbbf24" stroke-width="1.8">
+              <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/><path d="M7.5 5.5l9 5"/>
+            </svg>
           </div>
-          <p class="text-3xl font-black text-white leading-none">$4,499</p>
-          <p class="text-xs text-blue-300 line-through">Precio en tienda departamental: $6,200</p>
+          <p class="text-xs font-black text-white leading-tight">Pack Pro</p>
+          <p class="text-[10px] text-yellow-300 font-bold">8 perfumes</p>
+          <p class="text-xl font-black text-white leading-none mt-1">$4,499</p>
+          <p class="text-[9px] text-yellow-300 font-bold mt-1.5 group-open:hidden">Ver qué incluye ▾</p>
+          <p class="text-[9px] text-yellow-300 font-bold mt-1.5 hidden group-open:block">Ocultar ▴</p>
+        </summary>
+        <div class="mt-2 pt-2 border-t border-white/20">
+          <ul class="text-[11px] text-blue-100 space-y-1 mb-3">
+            <li>✓ 8 perfumes de los que más se venden</li>
+            <li>✓ 6 muestras para que tus clientes prueben</li>
+            <li>✓ Guía de ventas completa</li>
+            <li>✓ Acceso prioritario al grupo</li>
+            <li class="font-bold text-green-300">✓ Envío gratis incluido</li>
+            <li class="text-orange-300 font-bold">⏳ Precio válido esta semana</li>
+          </ul>
+          <button onclick="pedirPaquete(2)"
+            class="w-full bg-yellow-400 text-blue-900 py-2 rounded-xl font-black text-xs active:bg-yellow-500">
+            Iniciemos hoy
+          </button>
         </div>
-      </div>
-
-      <div class="bg-green-500/20 border border-green-400/40 rounded-xl px-3 py-2 mb-2 text-center">
-        <p class="text-sm font-black text-green-300">Vende rápido, reinvierte y repite</p>
-      </div>
-      <div class="bg-orange-400/20 border border-orange-400/40 rounded-xl px-3 py-1.5 mb-3 flex items-center justify-center gap-2">
-        <span class="text-orange-300 text-sm">⏳</span>
-        <p class="text-xs font-black text-orange-300">Precio válido esta semana</p>
-      </div>
-
-      <ul class="text-sm text-blue-100 space-y-1.5 mb-4">
-        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">✓</span> 8 perfumes de los que más se venden</li>
-        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">✓</span> 6 muestras pequeñas para que tus clientes prueben antes de comprar — así cierras más fácil</li>
-        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">✓</span> Guía de ventas completa</li>
-        <li class="flex items-center gap-2"><span class="text-yellow-400 font-black">✓</span> Acceso prioritario al grupo de revendedores</li>
-        <li class="flex items-center gap-2"><span class="text-green-400 font-black">✓</span> <span class="font-bold text-green-300">Envío gratis incluido</span></li>
-        <li class="flex items-center gap-2 text-yellow-300 font-semibold text-xs"><span>✓</span> Nosotros elegimos los que más rotan — tú no arriesgas eligiendo mal</li>
-      </ul>
-      <button onclick="pedirPaquete(2)"
-        class="w-full bg-yellow-400 text-blue-900 py-3 rounded-xl font-black text-base active:bg-yellow-500">
-        Iniciemos hoy mismo
-      </button>
+      </details>
     </div>
 
     <!-- Pack personalizado -->
@@ -341,15 +332,23 @@
         <button onclick="closeCartModal()" class="text-gray-400 text-sm font-semibold">Cerrar</button>
       </div>
       <div id="cart-modal-items" class="px-4 overflow-y-auto" style="max-height:55vh"></div>
+
+      <!-- Comparar niveles de mayoreo (solo para ver — el cobro siempre es al nivel real) -->
+      <div class="px-4 pt-2">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">Comparar precios por nivel</p>
+        <div id="cart-modal-tier-bar" class="flex gap-1 overflow-x-auto pb-1.5"></div>
+      </div>
+
       <div class="px-4 pt-3 border-t border-gray-100 mt-2">
         <div class="flex justify-between items-center mb-1">
           <p class="text-sm text-gray-500" id="cart-modal-count"></p>
           <p class="text-sm font-bold text-green-600" id="cart-modal-saving"></p>
         </div>
-        <div class="flex justify-between items-center mb-3">
-          <p class="text-base font-bold text-gray-700">Total</p>
+        <div class="flex justify-between items-center mb-1">
+          <p class="text-base font-bold text-gray-700">Total (tu nivel real)</p>
           <p class="text-2xl font-black text-gray-900" id="cart-modal-total"></p>
         </div>
+        <p id="cart-modal-tier-real" class="text-[10px] text-gray-400 mb-2"></p>
 
         <!-- Datos para la nota de compra -->
         <div class="space-y-2 mb-3">
@@ -440,29 +439,30 @@
       </div>
     </div>
 
-    <!-- Fila 1: Ver pedido + total -->
-    <div class="flex items-center justify-between mb-2">
-      <div>
-        <p class="text-[10px] text-gray-400">Total</p>
-        <div class="flex items-center gap-2">
-          <p id="cart-total" class="text-xl font-black text-gray-900">$0</p>
-          <p id="cart-count" class="text-[10px] text-gray-400"></p>
+    <!-- Total + botones: solo se muestran si ya hay algo en el carrito (si no, es puro
+         relleno visual mientras el cliente nada más está viendo el catálogo). -->
+    <div id="checkout-row" class="hidden">
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <p class="text-[10px] text-gray-400">Total</p>
+          <div class="flex items-center gap-2">
+            <p id="cart-total" class="text-xl font-black text-gray-900">$0</p>
+            <p id="cart-count" class="text-[10px] text-gray-400"></p>
+          </div>
         </div>
+        <button onclick="openCartModal()"
+          class="bg-blue-700 text-white px-4 py-2 rounded-xl font-black text-xs flex items-center gap-1.5 relative">
+          Ver mi pedido
+          <span id="cart-badge" class="hidden absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center"></span>
+        </button>
       </div>
-      <button onclick="openCartModal()"
-        class="bg-blue-700 text-white px-4 py-2 rounded-xl font-black text-xs flex items-center gap-1.5 relative">
-        Ver mi pedido
-        <span id="cart-badge" class="hidden absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center"></span>
-      </button>
-    </div>
-    <!-- Fila 2: WhatsApp -->
-    <div class="flex">
-      <button id="wa-btn" onclick="enviarPedidoRapido()"
-        class="flex-1 bg-green-500 text-white px-4 py-2.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-green-200"
-        disabled>
-        <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 shrink-0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.847L.057 23.882l6.207-1.456A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.853 0-3.587-.5-5.084-1.37l-.363-.214-3.767.884.933-3.667-.235-.375A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-        Enviar pedido por WhatsApp
-      </button>
+      <div class="flex">
+        <button id="wa-btn" onclick="enviarPedidoRapido()"
+          class="flex-1 bg-green-500 text-white px-4 py-2.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-green-200">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 shrink-0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.847L.057 23.882l6.207-1.456A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.853 0-3.587-.5-5.084-1.37l-.363-.214-3.767.884.933-3.667-.235-.375A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          Enviar pedido por WhatsApp
+        </button>
+      </div>
     </div>
   </div>
 
@@ -486,6 +486,7 @@
     let allProducts = [];
     let cart = {};
     let currentFilter = 'Todos';
+    let currentBrandFilter = null;
     let currentSearch = '';
     let previewTierIdx = 0; // tier seleccionado manualmente
 
@@ -603,8 +604,8 @@
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('grid').classList.remove('hidden');
         renderTierCards();
-        renderTierBar();
         renderTierBarClickable();
+        renderBrandBanner();
         renderGrid();
       } catch(e) {
         document.getElementById('loading').innerHTML = '<div class="text-3xl mb-2">⚠️</div>Error al cargar. Intenta de nuevo.';
@@ -614,49 +615,38 @@
 
     function totalQty() { return Object.values(cart).reduce((a,b)=>a+b,0); }
 
-    function currentTier() {
+    /** El nivel que de VERDAD aplica al pedido, según la cantidad total real en el carrito
+     *  (nunca según lo que el usuario esté comparando/previsualizando en pantalla). */
+    function tierRealIdx() {
       const q = totalQty();
-      if (q > 0) {
-        // Si hay items en carrito, usar tier real por cantidad
-        for (let i = TIERS.length - 1; i >= 0; i--)
-          if (q >= TIERS[i].min) return TIERS[i];
-      }
-      // Si carrito vacío, usar tier seleccionado manualmente
-      return TIERS[previewTierIdx];
+      if (q <= 0) return 0;
+      for (let i = TIERS.length - 1; i >= 0; i--) if (q >= TIERS[i].min) return i;
+      return 0;
+    }
+    function tierReal() { return TIERS[tierRealIdx()]; }
+
+    /** El nivel que el usuario está viendo/comparando (tocando la barra de niveles) —
+     *  solo para navegar precios, nunca para cobrar. */
+    function currentTier() { return TIERS[previewTierIdx]; }
+
+    /** Precio REAL que se cobra — siempre según la cantidad total del carrito. Se usa en
+     *  todo lo que implica cobrar de verdad (carrito, "Mi pedido", WhatsApp, el registro
+     *  en el Sheet). */
+    function getPrice(p) {
+      const disc = tierReal().disc;
+      return disc > 0 ? Math.round(p.p1 * (1 - disc)) : p.p1;
     }
 
-    function getPrice(p) {
+    /** Precio de "aparador" — el del nivel que el usuario está comparando en el catálogo.
+     *  Solo para navegar/comparar; nunca determina lo que se cobra. */
+    function getDisplayPrice(p) {
       const disc = currentTier().disc;
       return disc > 0 ? Math.round(p.p1 * (1 - disc)) : p.p1;
     }
 
-    function renderTierBar() {
-      const qty = totalQty();
-      const activeTier = currentTier();
-      document.getElementById('tier-bar').innerHTML = TIERS.map((t, i) => {
-        const active  = qty > 0 ? (qty >= t.min && qty <= t.max) : (i === previewTierIdx);
-        const reached = qty > 0 ? qty >= t.min : i <= previewTierIdx;
-        const bg = active  ? 'bg-blue-700 text-white border-blue-700'
-                 : reached ? 'bg-blue-50 ' + t.color
-                 : t.color + ' bg-white opacity-40';
-        return `<span class="tier-pill ${bg}">${t.tag}</span>`;
-      }).join('');
-
-      // Sincronizar hero si hay items en carrito
-      if (qty > 0) {
-        const realIdx = TIERS.findIndex(t => qty >= t.min && qty <= t.max);
-        if (realIdx !== previewTierIdx) {
-          previewTierIdx = realIdx;
-          document.querySelectorAll('.tier-hero-btn').forEach((el, i) => {
-            el.classList.toggle('active-tier', i === realIdx);
-          });
-        }
-      }
-    }
-
     function renderTierBarClickable() {
       const qty = totalQty();
-      document.getElementById('tier-bar').innerHTML = TIERS.map((t, i) => {
+      const html = TIERS.map((t, i) => {
         const active  = i === previewTierIdx;
         const reached = qty > 0 ? qty >= t.min : i <= previewTierIdx;
         const bg = active  ? 'bg-blue-700 text-white border-blue-700 scale-105'
@@ -664,6 +654,12 @@
                  : t.color + ' bg-white opacity-40';
         return `<span class="tier-pill ${bg} cursor-pointer" onclick="selectTier(${i})">${t.tag}</span>`;
       }).join('');
+      // Se dibuja en dos lugares que comparten el mismo estado (previewTierIdx): la barra
+      // de abajo (siempre visible) y la de dentro de "Mi pedido" (queda tapada por ese
+      // panel, así que necesita su propia copia para que ahí también se pueda comparar).
+      document.getElementById('tier-bar').innerHTML = html;
+      const cartModalBar = document.getElementById('cart-modal-tier-bar');
+      if (cartModalBar) cartModalBar.innerHTML = html;
     }
 
     function renderProgress() {
@@ -696,6 +692,25 @@
       document.getElementById('progress-sub').textContent = `Tier actual: ${curr.label} · Siguiente: ${next.label}`;
     }
 
+    /** Chips de marca girando arriba del catálogo — tocar una filtra el grid a esa marca. */
+    function renderBrandBanner() {
+      const marcas = [...new Set(allProducts.map(p => p.marca.trim()).filter(Boolean))].sort();
+      const chip = m => {
+        const active = currentBrandFilter === m;
+        return `<button onclick="toggleBrandFilter('${m.replace(/'/g, "\\'")}')"
+          class="marca-chip shrink-0 px-3 py-1.5 rounded-full border text-xs font-bold whitespace-nowrap ${active ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-blue-700 border-blue-200'}">${m}</button>`;
+      };
+      const html = marcas.map(chip).join('');
+      // Se duplica el listado para que la animación haga un loop continuo sin "brinco" visible.
+      document.getElementById('marca-banner').innerHTML = html + html;
+    }
+
+    function toggleBrandFilter(marca) {
+      currentBrandFilter = currentBrandFilter === marca ? null : marca;
+      renderBrandBanner();
+      renderGrid();
+    }
+
     function renderGrid() {
       const grid  = document.getElementById('grid');
       const empty = document.getElementById('empty');
@@ -703,19 +718,19 @@
 
       const filtered = allProducts.filter(p => {
         const mf = currentFilter === 'Todos' || p.tipo === currentFilter;
+        const mb = !currentBrandFilter || p.marca.trim() === currentBrandFilter;
         const ms = !search || p.perfume.toLowerCase().includes(search) || p.marca.toLowerCase().includes(search);
-        return mf && ms;
+        return mf && mb && ms;
       });
 
       if (!filtered.length) { grid.classList.add('hidden'); empty.classList.remove('hidden'); return; }
       empty.classList.add('hidden'); grid.classList.remove('hidden');
 
-      const tier    = currentTier();
       const agotado = p => p.disp === 'Agotado' || p.stock <= 0;
 
       grid.innerHTML = filtered.map(p => {
         const qty      = cart[p.id] || 0;
-        const price    = getPrice(p);
+        const price    = getDisplayPrice(p); // precio de aparador (nivel que se está comparando)
         const img      = p.foto || `https://placehold.co/300x300/eff6ff/93c5fd?text=${encodeURIComponent(p.marca[0]||'?')}`;
         const savePct  = p.p1 > 0 && price < p.p1 ? Math.round((1 - price/p.p1)*100) : 0;
         const isOut    = agotado(p);
@@ -761,9 +776,12 @@
       const newQty = Math.max(0, (cart[id] || 0) + delta);
       cart[id] = Math.min(newQty, p.stock);
       if (!cart[id]) delete cart[id];
+      // La cantidad real cambió — por default, el nivel que se compara "salta" a mostrar
+      // el nivel real alcanzado. Si después tocan otro nivel para comparar (selectTier),
+      // eso ya no se pisa aquí hasta el próximo cambio real de cantidad.
+      if (totalQty() > 0) previewTierIdx = tierRealIdx();
       updateCart();
       renderTierCards();
-      renderTierBar();
       renderTierBarClickable();
       renderProgress();
       renderGrid();
@@ -779,14 +797,13 @@
         total += q * price;
         saved += q * (p.p1 - price);
       }
-      const tier = currentTier();
 
       document.getElementById('cart-count').textContent = qty > 0 ? `${qty} piezas` : '';
       const badge = document.getElementById('cart-badge');
       if (qty > 0) { badge.textContent = qty; badge.classList.remove('hidden'); }
       else badge.classList.add('hidden');
       document.getElementById('cart-total').textContent = `$${total.toLocaleString()}`;
-      document.getElementById('wa-btn').disabled = qty === 0;
+      document.getElementById('checkout-row').classList.toggle('hidden', qty === 0);
 
       // Strip de pedido visible
       const strip = document.getElementById('order-strip');
@@ -847,20 +864,21 @@
      *  identificamos antes (localStorage), manda el pedido directo sin abrir nada — atajo
      *  para clientes que regresan. Si no, abre el panel de "Mi pedido" para que llene sus
      *  datos ahí (nunca dispara un alert pidiendo datos que no puede ver en pantalla). */
-    async function enviarPedidoRapido() {
+    function enviarPedidoRapido() {
       const stored = getStoredCliente();
       if (!stored.nombre || !stored.telefono) {
         openCartModal();
         return;
       }
       prefillClienteFields();
-      await confirmarPedido();
+      confirmarPedido();
     }
 
-    /** Se llama desde el botón del modal. Intenta registrar la nota de compra en el Sheet
-     *  (folio + descuento de stock) y LUEGO abre WhatsApp. Si el registro falla o la URL
-     *  del Web App no está configurada, igual abre WhatsApp — nunca se bloquea la venta. */
-    async function confirmarPedido() {
+    /** Se llama desde el botón del modal. Manda a WhatsApp DE INMEDIATO (sin esperar nada
+     *  del Sheet — por eso el cliente nunca ve una pantalla en blanco ni una demora) y,
+     *  aparte, registra el pedido pendiente en segundo plano. Si ese registro falla, el
+     *  cliente ya recibió su WhatsApp de todas formas — nunca se bloquea la venta. */
+    function confirmarPedido() {
       const clienteInput  = document.getElementById('nc-cliente');
       const telefonoInput = document.getElementById('nc-telefono');
       const cliente   = clienteInput.value.trim();
@@ -882,56 +900,34 @@
       saveStoredCliente(cliente, telefono);
 
       // Se abre YA (vacía) mientras el clic del usuario todavía cuenta como "gesto directo"
-      // para el navegador. Si esperamos a que termine el fetch de abajo para abrir WhatsApp,
-      // Safari/Chrome ya no lo reconocen como clic real y bloquean la ventana en silencio.
+      // para el navegador — si esperáramos al fetch de abajo, Safari/Chrome dejan de
+      // reconocerlo como clic real y bloquean la ventana en silencio.
       const waWin = window.open('', '_blank');
 
-      const btn = document.getElementById('nc-btn-enviar');
-      btn.disabled = true;
-      btn.textContent = 'Enviando...';
-
-      let folio = null;
-      let facturaUrl = null;
-      if (CATALOGO_WEBAPP_URL) {
-        try {
-          const items = Object.entries(cart).map(([id, cantidad]) => {
-            const p = allProducts.find(p => p.id === id);
-            return { id, cantidad, precioUnitario: p ? getPrice(p) : 0 };
-          });
-          // Sin header Content-Type a propósito: así el navegador lo manda como "simple
-          // request" y no dispara un preflight OPTIONS que Apps Script no contesta.
-          // Límite de 8s: el redirect interno de Apps Script a veces se cuelga en el
-          // navegador con POST (aunque el Sheet ya procesó todo bien del otro lado) —
-          // sin esto el botón se quedaba pegado en "Enviando..." para siempre.
-          const controller = new AbortController();
-          const avisoTimeout = setTimeout(() => controller.abort(), 8000);
-          const res = await fetch(CATALOGO_WEBAPP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ cliente, telefono, tipoPago, numPlazos, items }),
-            signal: controller.signal,
-          });
-          clearTimeout(avisoTimeout);
-          const data = await res.json();
-          if (data.ok) { folio = data.folio; facturaUrl = data.facturaUrl || null; }
-          else console.warn('Nota de compra no registrada:', data.mensaje);
-        } catch (err) {
-          console.warn('No se pudo contactar el registro de pedidos, se envía solo por WhatsApp.', err);
-        }
-      }
+      const items = Object.entries(cart).map(([id, cantidad]) => {
+        const p = allProducts.find(p => p.id === id);
+        return { id, cantidad, precioUnitario: p ? getPrice(p) : 0 };
+      });
 
       closeCartModal();
-      sendWhatsApp(folio, cliente, tipoPago, numPlazos, facturaUrl, waWin);
-      btn.disabled = false;
-      btn.textContent = 'Enviar pedido por WhatsApp';
+      sendWhatsApp(cliente, tipoPago, numPlazos, waWin);
+
+      // Registro del pedido pendiente: en segundo plano, sin await — no debe hacer
+      // esperar al cliente ni un segundo más para llegar a WhatsApp. Sin header
+      // Content-Type a propósito (evita el preflight OPTIONS que Apps Script no contesta).
+      if (CATALOGO_WEBAPP_URL) {
+        fetch(CATALOGO_WEBAPP_URL, {
+          method: 'POST',
+          body: JSON.stringify({ cliente, telefono, tipoPago, numPlazos, items }),
+        }).catch(err => console.warn('No se pudo registrar el pedido pendiente en el Sheet.', err));
+      }
     }
 
-    function sendWhatsApp(folio, cliente, tipoPago, numPlazos, facturaUrl, waWin) {
+    function sendWhatsApp(cliente, tipoPago, numPlazos, waWin) {
       const qty = totalQty();
-      const tier = currentTier();
+      const tier = tierReal(); // el mensaje SIEMPRE reporta el nivel real, nunca el previsualizado
       let total = 0, saved = 0;
-      const lines = [`🛍️ *Pedido Mayoreo — IanCarloMV*`];
-      if (folio) lines.push(`📄 Nota de Compra #${folio} — ⏳ pendiente de confirmar pago`);
-      if (facturaUrl) lines.push(`📎 ${facturaUrl}`);
+      const lines = [`🛍️ *Pedido Mayoreo — IanCarloMV*`, `⏳ Pendiente de confirmar pago`];
       lines.push(`📦 Tier: ${tier.label}`, `─────────────────`);
       for (const [id, q] of Object.entries(cart)) {
         const p = allProducts.find(p => p.id === id);
@@ -1053,6 +1049,8 @@
         document.getElementById('cart-modal-total').textContent = '$0';
         document.getElementById('cart-modal-count').textContent = '0 piezas';
         document.getElementById('cart-modal-saving').textContent = '';
+        document.getElementById('cart-modal-tier-real').textContent = '';
+        renderTierBarClickable();
         return;
       }
 
@@ -1085,6 +1083,8 @@
       document.getElementById('cart-modal-total').textContent = `$${total.toLocaleString()}`;
       document.getElementById('cart-modal-count').textContent = `${totalQty()} piezas`;
       document.getElementById('cart-modal-saving').textContent = saved > 0 ? `Ahorrando $${Math.round(saved).toLocaleString()}` : '';
+      document.getElementById('cart-modal-tier-real').textContent = `Nivel real: ${tierReal().label} (${tierReal().tag})`;
+      renderTierBarClickable();
     }
 
     let cartModalOpen = false;
@@ -1101,6 +1101,7 @@
         cart[id] = p ? Math.min(newQty, Math.max(p.stock, 0)) : newQty;
         if (!cart[id]) delete cart[id];
       }
+      if (totalQty() > 0) previewTierIdx = tierRealIdx();
       renderCartModal();
     }
 
@@ -1111,7 +1112,6 @@
         document.body.style.overflow = '';
         updateCart();
         renderTierCards();
-        renderTierBar();
         renderTierBarClickable();
         renderProgress();
         renderGrid();
@@ -1161,10 +1161,11 @@
       const newQty = Math.max(0, (cart[modalProductId]||0) + delta);
       cart[modalProductId] = Math.min(newQty, Math.max(p.stock, 0));
       if (!cart[modalProductId]) delete cart[modalProductId];
+      if (totalQty() > 0) previewTierIdx = tierRealIdx();
       document.getElementById('modal-qty').textContent = cart[modalProductId] || 0;
       document.getElementById('modal-precio-actual').textContent = '$' + getPrice(p).toLocaleString();
       document.getElementById('modal-plus').disabled = (cart[modalProductId]||0) >= p.stock && p.stock > 0;
-      updateCart(); renderTierBar(); renderProgress();
+      updateCart(); renderTierCards(); renderTierBarClickable(); renderProgress();
     }
 
     function closeModal(e) {
