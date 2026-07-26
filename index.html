@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -345,7 +345,16 @@
           <p class="text-base font-bold text-gray-700">Total</p>
           <p class="text-2xl font-black text-gray-900" id="cart-modal-total"></p>
         </div>
-        <button onclick="closeCartModal(); sendWhatsApp();"
+
+        <!-- Datos para la nota de compra -->
+        <div class="space-y-2 mb-3">
+          <input id="nc-cliente" type="text" placeholder="Tu nombre"
+            class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-500">
+          <input id="nc-telefono" type="tel" placeholder="Tu teléfono (WhatsApp)"
+            class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-500">
+        </div>
+
+        <button id="nc-btn-enviar" onclick="confirmarPedido()"
           class="w-full bg-green-500 text-white py-3 rounded-2xl font-black text-sm">
           Enviar pedido por WhatsApp
         </button>
@@ -454,6 +463,10 @@
   <script>
     const SHEET_ID  = '19R5QP8YlFsJujsyJaUVIjaMQxzQRbsMPMNA5IvDl92M';
     const WA_NUMBER = '524761604759';
+    // URL de la implementación "Aplicación web" de NotaCompra_WebApp.gs (termina en /exec).
+    // Pégala aquí después de implementar el Apps Script — mientras esté vacía, el pedido
+    // se manda por WhatsApp igual, solo que sin folio ni registro en el Sheet.
+    const CATALOGO_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwWpvBUtItydbbkNFMWDMinZYdemuDujASLnSqAzJMInAmW__OPMJGhMYtjoCKr_CaLRw/exec';
 
     const TIERS = [
       { min: 1,   max: 4,    disc: 0,    label: '1 pz',     tag: 'Público',       color: 'border-gray-300 text-gray-600' },
@@ -823,11 +836,56 @@
       }
     }
 
-    function sendWhatsApp() {
+    /** Se llama desde el botón del modal. Intenta registrar la nota de compra en el Sheet
+     *  (folio + descuento de stock) y LUEGO abre WhatsApp. Si el registro falla o la URL
+     *  del Web App no está configurada, igual abre WhatsApp — nunca se bloquea la venta. */
+    async function confirmarPedido() {
+      const cliente   = document.getElementById('nc-cliente').value.trim();
+      const telefono  = document.getElementById('nc-telefono').value.trim();
+      const tipoPago  = 'Contado'; // los pedidos de la web siempre se registran de contado
+      const numPlazos = null;
+
+      const btn = document.getElementById('nc-btn-enviar');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      let folio = null;
+      let facturaUrl = null;
+      if (CATALOGO_WEBAPP_URL) {
+        try {
+          const items = Object.entries(cart).map(([id, cantidad]) => {
+            const p = allProducts.find(p => p.id === id);
+            return { id, cantidad, precioUnitario: p ? getPrice(p) : 0 };
+          });
+          // Sin header Content-Type a propósito: así el navegador lo manda como "simple
+          // request" y no dispara un preflight OPTIONS que Apps Script no contesta.
+          const res = await fetch(CATALOGO_WEBAPP_URL, {
+            method: 'POST',
+            body: JSON.stringify({ cliente, telefono, tipoPago, numPlazos, items }),
+          });
+          const data = await res.json();
+          if (data.ok) { folio = data.folio; facturaUrl = data.facturaUrl || null; }
+          else console.warn('Nota de compra no registrada:', data.mensaje);
+        } catch (err) {
+          console.warn('No se pudo contactar el registro de pedidos, se envía solo por WhatsApp.', err);
+        }
+      }
+
+      closeCartModal();
+      if (facturaUrl) window.open(facturaUrl, '_blank'); // abre el PDF de la nota en otra pestaña
+      sendWhatsApp(folio, cliente, tipoPago, numPlazos, facturaUrl);
+      btn.disabled = false;
+      btn.textContent = 'Enviar pedido por WhatsApp';
+    }
+
+    function sendWhatsApp(folio, cliente, tipoPago, numPlazos, facturaUrl) {
       const qty = totalQty();
       const tier = currentTier();
       let total = 0, saved = 0;
-      const lines = [`🛍️ *Pedido Mayoreo — IanCarloMV*`, `📦 Tier: ${tier.label}`, `─────────────────`];
+      const lines = [`🛍️ *Pedido Mayoreo — IanCarloMV*`];
+      if (folio) lines.push(`📄 Nota de Compra #${folio}`);
+      if (facturaUrl) lines.push(`📎 ${facturaUrl}`);
+      lines.push(`📦 Tier: ${tier.label}`, `─────────────────`);
       for (const [id, q] of Object.entries(cart)) {
         const p = allProducts.find(p => p.id === id);
         if (!p) continue;
@@ -839,6 +897,8 @@
       lines.push('─────────────────');
       lines.push(`*Total: $${total.toLocaleString()} (${qty} pzas)*`);
       if (saved > 0) lines.push(`✅ Ahorro vs precio público: $${Math.round(saved).toLocaleString()}`);
+      if (tipoPago === 'Abonos' && numPlazos) lines.push(`💳 Pago a abonos en ${numPlazos} plazos`);
+      if (cliente) lines.push(`👤 ${cliente}`);
       gtag('event', 'whatsapp_click', { event_category: 'conversion', event_label: `${qty} piezas · $${total.toLocaleString()}` });
       window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
     }
@@ -905,7 +965,10 @@
       } else {
         const p = allProducts.find(p => p.id === id);
         const newQty = Math.max(0, (cart[id]||0) + action);
-        cart[id] = p && p.stock > 0 ? Math.min(newQty, p.stock) : newQty;
+        // Antes: "p.stock > 0 ? Math.min(...) : newQty" no limitaba nada cuando el stock
+        // ya era 0 o negativo, permitiendo agregar piezas inexistentes. Ahora el tope
+        // siempre aplica (nunca deja agregar más de lo que hay, y si no hay stock, tapa en 0).
+        cart[id] = p ? Math.min(newQty, Math.max(p.stock, 0)) : newQty;
         if (!cart[id]) delete cart[id];
       }
       renderCartModal();
@@ -966,7 +1029,7 @@
       const p = allProducts.find(p => p.id === modalProductId);
       if (!p) return;
       const newQty = Math.max(0, (cart[modalProductId]||0) + delta);
-      cart[modalProductId] = p.stock > 0 ? Math.min(newQty, p.stock) : newQty;
+      cart[modalProductId] = Math.min(newQty, Math.max(p.stock, 0));
       if (!cart[modalProductId]) delete cart[modalProductId];
       document.getElementById('modal-qty').textContent = cart[modalProductId] || 0;
       document.getElementById('modal-precio-actual').textContent = '$' + getPrice(p).toLocaleString();
@@ -1022,3 +1085,4 @@
   </script>
 </body>
 </html>
+
