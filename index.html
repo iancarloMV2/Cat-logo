@@ -846,12 +846,25 @@
      *  (folio + descuento de stock) y LUEGO abre WhatsApp. Si el registro falla o la URL
      *  del Web App no está configurada, igual abre WhatsApp — nunca se bloquea la venta. */
     async function confirmarPedido() {
-      const cliente   = document.getElementById('nc-cliente').value.trim();
-      const telefono  = document.getElementById('nc-telefono').value.trim();
+      const clienteInput  = document.getElementById('nc-cliente');
+      const telefonoInput = document.getElementById('nc-telefono');
+      const cliente   = clienteInput.value.trim();
+      const telefono  = telefonoInput.value.trim().replace(/\D/g, '');
       const tipoPago  = 'Contado'; // los pedidos de la web siempre se registran de contado
       const numPlazos = null;
 
-      if (cliente && telefono) saveStoredCliente(cliente, telefono);
+      if (!cliente) {
+        alert('Escribe tu nombre antes de enviar tu pedido.');
+        clienteInput.focus();
+        return;
+      }
+      if (telefono.length < 10) {
+        alert('Escribe tu WhatsApp (10 dígitos) antes de enviar tu pedido.');
+        telefonoInput.focus();
+        return;
+      }
+
+      saveStoredCliente(cliente, telefono);
 
       const btn = document.getElementById('nc-btn-enviar');
       btn.disabled = true;
