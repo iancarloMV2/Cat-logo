@@ -392,6 +392,7 @@
           <span id="modal-tipo" class="bg-gray-100 text-gray-600 text-xs font-semibold px-3 py-1 rounded-full"></span>
         </div>
         <p id="modal-notas" class="text-sm text-gray-500 mt-2 leading-relaxed"></p>
+        <p id="modal-preventa-aviso" class="hidden text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2 mt-2 leading-relaxed"></p>
 
         <!-- Tabla de precios -->
         <div class="mt-4 mb-3">
@@ -591,6 +592,20 @@
       return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w300` : url;
     }
 
+    /** Convierte la fecha de PREVENTA_FECHA (viene de Sheets como "Date(y,m,d)", con el
+     *  mes empezando en 0) a texto legible, sumándole 12h de colchón antes de mostrarla —
+     *  así si algo se retrasa un poco no hay reclamos por una fecha demasiado ajustada.
+     *  Si la celda no es una fecha real de Sheets (alguien escribió texto libre), se
+     *  muestra tal cual, sin poder sumarle el margen. */
+    function parseFechaPreventa_(raw) {
+      if (!raw) return null;
+      const m = String(raw).match(/^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/);
+      if (!m) return String(raw);
+      const d = new Date(+m[1], +m[2], +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
+      d.setHours(d.getHours() + 12);
+      return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' });
+    }
+
     async function loadData() {
       try {
         const url  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MASTER`;
@@ -613,6 +628,8 @@
             stock:   parseInt(r.c[ci('STOCK')]?.v) || 0,
             disp:    r.c[ci('DISPONIBILIDAD')]?.v || '',
             p1:      parseFloat(r.c[ci('PRECIO_PUBLICO')]?.v) || 0,
+            preventaFecha: parseFechaPreventa_(r.c[ci('PREVENTA_FECHA')]?.v),
+            preventaDisponible: parseInt(r.c[ci('PREVENTA_DISPONIBLE')]?.v) || 0,
           }))
           .filter(p => p.p1 > 0)
           .sort((a, b) => a.marca.localeCompare(b.marca) || a.perfume.localeCompare(b.perfume));
@@ -658,6 +675,17 @@
     function getDisplayPrice(p) {
       const disc = currentTier().disc;
       return disc > 0 ? Math.round(p.p1 * (1 - disc)) : p.p1;
+    }
+
+    /* ===== Preventa: producto sin stock real, pero con un pedido en camino ===== */
+    function enPreventa(p) {
+      return p.stock <= 0 && !!p.preventaFecha && p.preventaDisponible > 0;
+    }
+    /** Cuántas piezas se pueden agregar de este producto ahora mismo — stock real si
+     *  hay, o el cupo de preventa si ya se acabó pero viene un pedido en camino. */
+    function maxAddable(p) {
+      if (p.stock > 0) return p.stock;
+      return enPreventa(p) ? p.preventaDisponible : 0;
     }
 
     function renderTierBarClickable() {
@@ -713,6 +741,8 @@
      *  muestra su inicial en un círculo en vez del logo — nunca se rompe la página. */
     const favicon_ = dominio => `https://www.google.com/s2/favicons?domain=${dominio}&sz=128`;
     const MARCA_LOGOS = {
+      'Adidas': favicon_('adidas.com'),
+      'Aeropostale': favicon_('aeropostale.com'),
       'Afnan': favicon_('afnan.com'),
       'Al Haramain': favicon_('alharamainperfumes.com'),
       'Antonio Banderas': favicon_('banderasperfumes.com'),
@@ -731,18 +761,23 @@
       'Emporio Armani': favicon_('armani.com'),
       'Giorgio Armani': favicon_('armani.com'),
       'Hollister': favicon_('hollisterco.com'),
+      'Hugo Boss': favicon_('hugoboss.com'),
       'Jean Paul Gaultier': favicon_('jeanpaulgaultier.com'),
       // 'Jesus Del Pozo': sin dominio oficial confiable — muestra inicial.
       'Jo Milano': favicon_('jomilanoparis.com'),
+      // 'Cuba': marca de nicho (Fragluxe), sin dominio oficial confiable — muestra inicial.
+      'Lacoste': favicon_('lacoste.com'),
       'Lattafa': favicon_('lattafa.com'),
       // 'Legend EDP': no es una marca real, ver aviso en el chat — muestra inicial.
       'Maison Alhambra': favicon_('maisonalhambraperfume.com'),
       'Mont Blanc': favicon_('montblanc.com'),
       'Moschino': favicon_('moschino.com'),
       'Nautica': favicon_('nautica.com'),
+      // 'Paris Hilton': sin dominio oficial confiable — muestra inicial.
       'Perry Ellis': favicon_('perryellis.com'),
       'Ralph Lauren': favicon_('ralphlauren.com'),
       'Rasasi': favicon_('rasasi.com'),
+      // 'Rayhaan': marca de nicho, sin dominio oficial confiable — muestra inicial.
       'Valentino': favicon_('valentino.com'),
       'Versace': favicon_('versace.com'),
       'Xerjoff': favicon_('xerjoff.com'),
@@ -813,17 +848,18 @@
       if (!filtered.length) { grid.classList.add('hidden'); empty.classList.remove('hidden'); return; }
       empty.classList.add('hidden'); grid.classList.remove('hidden');
 
-      const agotado = p => p.disp === 'Agotado' || p.stock <= 0;
+      const realmenteAgotado = p => (p.disp === 'Agotado' || p.stock <= 0) && !enPreventa(p);
 
       grid.innerHTML = filtered.map(p => {
         const qty      = cart[p.id] || 0;
         const price    = getDisplayPrice(p); // precio de aparador (nivel que se está comparando)
         const img      = p.foto || `https://placehold.co/300x300/eff6ff/93c5fd?text=${encodeURIComponent(p.marca[0]||'?')}`;
         const savePct  = p.p1 > 0 && price < p.p1 ? Math.round((1 - price/p.p1)*100) : 0;
-        const isOut    = agotado(p);
-        const maxQty   = p.stock;
+        const isOut    = realmenteAgotado(p);
+        const preventa = enPreventa(p);
+        const maxQty   = maxAddable(p);
         const atMax    = qty >= maxQty && !isOut;
-        const lowStock = !isOut && p.stock > 0 && p.stock <= 3;
+        const lowStock = !isOut && !preventa && p.stock > 0 && p.stock <= 3;
 
         const selected = qty > 0;
         return `
@@ -834,6 +870,7 @@
             ${savePct > 0 ? `<span class="savings-badge">-${savePct}%</span>` : ''}
             ${p.tipo ? `<span class="tipo-badge">${p.tipo}</span>` : ''}
             ${isOut ? `<div class="agotado-overlay"><span class="bg-black/70 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">Agotado</span></div>` : ''}
+            ${!isOut && preventa ? `<div class="absolute bottom-1 left-1 right-1 bg-orange-500/95 text-white text-[8px] font-bold px-1.5 py-1 rounded-lg text-center leading-tight">🕓 Preventa<br>llega ~${p.preventaFecha}</div>` : ''}
             ${qty > 0 ? `<div class="check-overlay">${qty}</div>` : ''}
           </div>
           <div class="p-1.5 flex flex-col flex-1">
@@ -861,7 +898,7 @@
       const p = allProducts.find(p => p.id === id);
       if (!p) return;
       const newQty = Math.max(0, (cart[id] || 0) + delta);
-      cart[id] = Math.min(newQty, p.stock);
+      cart[id] = Math.min(newQty, maxAddable(p));
       if (!cart[id]) delete cart[id];
       // La cantidad real cambió — por default, el nivel que se compara "salta" a mostrar
       // el nivel real alcanzado. Si después tocan otro nivel para comparar (selectTier),
@@ -1014,6 +1051,7 @@
       const qty = totalQty();
       const tier = tierReal(); // el mensaje SIEMPRE reporta el nivel real, nunca el previsualizado
       let total = 0, saved = 0;
+      let hayPreventa = false;
       const lines = [`🛍️ *Pedido Mayoreo — IanCarloMV*`, `⏳ Pendiente de confirmar pago`];
       lines.push(`📦 Tier: ${tier.label}`, `─────────────────`);
       for (const [id, q] of Object.entries(cart)) {
@@ -1021,13 +1059,17 @@
         if (!p) continue;
         const price = getPrice(p); const sub = q * price;
         total += sub; saved += q * (p.p1 - price);
-        lines.push(`• *${p.marca} ${p.perfume}* ${p.tamano}ml`);
+        const esPreventa = enPreventa(p);
+        if (esPreventa) hayPreventa = true;
+        lines.push(`• *${p.marca} ${p.perfume}* ${p.tamano}ml${esPreventa ? ' 🕓 PREVENTA' : ''}`);
         lines.push(`  ${q} pz × $${price.toLocaleString()} = $${sub.toLocaleString()}`);
+        if (esPreventa) lines.push(`  Llega aprox. ${p.preventaFecha}`);
       }
       lines.push('─────────────────');
       lines.push(`*Total: $${total.toLocaleString()} (${qty} pzas)*`);
       if (saved > 0) lines.push(`✅ Ahorro vs precio público: $${Math.round(saved).toLocaleString()}`);
       if (tipoPago === 'Abonos' && numPlazos) lines.push(`💳 Pago a abonos en ${numPlazos} plazos`);
+      if (hayPreventa) lines.push(`🕓 Este pedido incluye producto(s) en preventa — si se retrasa el envío del proveedor, esperas un poco más o te regreso tu dinero si no llega a tiempo.`);
       if (cliente) lines.push(`👤 ${cliente}`);
       gtag('event', 'whatsapp_click', { event_category: 'conversion', event_label: `${qty} piezas · $${total.toLocaleString()}` });
       const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`;
@@ -1156,6 +1198,7 @@
               <p class="text-[10px] text-blue-600 font-bold truncate">${p.marca}</p>
               <p class="text-xs font-bold text-gray-800 leading-snug truncate">${p.perfume} ${p.tamano}ml</p>
               <p class="text-xs font-black text-gray-900 mt-0.5">$${price.toLocaleString()} c/u · $${sub.toLocaleString()}</p>
+              ${enPreventa(p) ? `<p class="text-[9px] text-orange-600 font-bold mt-0.5">🕓 Preventa — llega ~${p.preventaFecha}</p>` : ''}
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <button onclick="cartModalQty('${id}',-1)" class="w-7 h-7 rounded-lg bg-gray-100 font-bold text-gray-700 text-base flex items-center justify-center">−</button>
@@ -1185,7 +1228,7 @@
         // Antes: "p.stock > 0 ? Math.min(...) : newQty" no limitaba nada cuando el stock
         // ya era 0 o negativo, permitiendo agregar piezas inexistentes. Ahora el tope
         // siempre aplica (nunca deja agregar más de lo que hay, y si no hay stock, tapa en 0).
-        cart[id] = p ? Math.min(newQty, Math.max(p.stock, 0)) : newQty;
+        cart[id] = p ? Math.min(newQty, maxAddable(p)) : newQty;
         if (!cart[id]) delete cart[id];
       }
       if (totalQty() > 0) previewTierIdx = tierRealIdx();
@@ -1222,7 +1265,15 @@
       document.getElementById('modal-notas').textContent = '🌿 ' + p.notas;
       document.getElementById('modal-qty').textContent = cart[id] || 0;
       document.getElementById('modal-precio-actual').textContent = '$' + price.toLocaleString();
-      document.getElementById('modal-plus').disabled = (cart[id]||0) >= p.stock && p.stock > 0;
+      document.getElementById('modal-plus').disabled = (cart[id]||0) >= maxAddable(p) && maxAddable(p) > 0;
+
+      const avisoPreventa = document.getElementById('modal-preventa-aviso');
+      if (enPreventa(p)) {
+        avisoPreventa.innerHTML = `🕓 <strong>Preventa</strong> — este perfume ya se agotó pero viene un pedido en camino, llega aprox. el <strong>${p.preventaFecha}</strong>. Quedan ${p.preventaDisponible} pieza(s) para apartar. Si el pedido se retrasa, esperas un poco más o te regresamos tu dinero si no llega a tiempo.`;
+        avisoPreventa.classList.remove('hidden');
+      } else {
+        avisoPreventa.classList.add('hidden');
+      }
 
       // Tabla de precios con descuentos reales
       const curr = currentTier().disc;
@@ -1246,12 +1297,12 @@
       const p = allProducts.find(p => p.id === modalProductId);
       if (!p) return;
       const newQty = Math.max(0, (cart[modalProductId]||0) + delta);
-      cart[modalProductId] = Math.min(newQty, Math.max(p.stock, 0));
+      cart[modalProductId] = Math.min(newQty, maxAddable(p));
       if (!cart[modalProductId]) delete cart[modalProductId];
       if (totalQty() > 0) previewTierIdx = tierRealIdx();
       document.getElementById('modal-qty').textContent = cart[modalProductId] || 0;
       document.getElementById('modal-precio-actual').textContent = '$' + getPrice(p).toLocaleString();
-      document.getElementById('modal-plus').disabled = (cart[modalProductId]||0) >= p.stock && p.stock > 0;
+      document.getElementById('modal-plus').disabled = (cart[modalProductId]||0) >= maxAddable(p) && maxAddable(p) > 0;
       updateCart(); renderTierCards(); renderTierBarClickable(); renderProgress();
     }
 
