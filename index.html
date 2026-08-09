@@ -1800,9 +1800,11 @@
         const info = await res.json();
         if (!info.ok) { mostrarMsgAdmin(msg, info.mensaje); return; }
         msg.className = 'text-xs font-bold mt-2 text-green-600';
-        let html = `Venta registrada — Folio ${info.folio} — Total $${info.total.toLocaleString()}`;
+        // Pendiente, no cerrada — igual que un pedido normal del catálogo: falta que
+        // confirmes el pago en PEDIDOS_WEB (Estado = Pagado) para que baje el stock y
+        // quede en VENTAS/CAJA. Mismo mecanismo, misma seguridad de siempre.
+        let html = `Pedido registrado como Pendiente — Folio ${info.folio} — Total $${info.total.toLocaleString()}. Confírmalo en PEDIDOS_WEB (Estado = Pagado) para cerrarlo.`;
         if (info.facturaUrl) html += ` — <a href="${info.facturaUrl}" target="_blank" class="underline">Ver nota</a>`;
-        if (info.avisoPdf) html += `<br><span class="text-orange-500">${info.avisoPdf}</span>`;
         msg.innerHTML = html;
         msg.classList.remove('hidden');
         document.getElementById('admin-vm-cliente').value = '';
