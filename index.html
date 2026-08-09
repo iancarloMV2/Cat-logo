@@ -90,7 +90,7 @@
   <!-- HERO -->
   <div style="background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #3b82f6 100%);" class="text-white px-4 pt-5 pb-4">
     <div class="flex items-center gap-3 mb-2">
-      <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center font-black text-white text-sm">IM</div>
+      <div onclick="onLogoTapAdmin()" class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center font-black text-white text-sm cursor-pointer select-none">IM</div>
       <div>
         <h1 class="text-xl font-black leading-tight tracking-tight">IanCarloMV</h1>
         <p class="text-blue-200 text-xs font-semibold tracking-widest uppercase">Mayoreo · Perfumería Original</p>
@@ -161,7 +161,9 @@
   <!-- RESUMEN PEDIDO VISIBLE -->
   <div id="order-strip" class="hidden bg-white border-b-2 border-blue-100">
     <div class="px-3 pt-2 pb-1 flex items-center justify-between">
-      <p class="text-xs font-black text-blue-800">Tu pedido</p>
+      <button onclick="toggleOrderStrip()" class="flex items-center gap-1 text-xs font-black text-blue-800">
+        <span id="order-strip-toggle-icon">▾</span> Tu pedido <span id="order-strip-count" class="text-blue-500 font-bold"></span>
+      </button>
       <button onclick="openCartModal()" class="text-xs font-bold text-blue-600 underline">Ver todo</button>
     </div>
     <div id="order-strip-items" class="mini-cart-strip"></div>
@@ -367,6 +369,9 @@
           <input id="nc-telefono" type="tel" placeholder="Tu teléfono (WhatsApp)" oninput="onTelefonoInput()"
             class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-500">
           <p id="nc-saludo" class="text-xs font-bold text-blue-600 hidden"></p>
+          <input id="nc-codigo" type="text" placeholder="¿Tienes un código de descuento? (opcional)" oninput="onCodigoInput()"
+            class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold uppercase focus:outline-none focus:border-blue-500">
+          <p id="nc-codigo-msg" class="text-xs font-bold hidden"></p>
         </div>
 
         <button id="nc-btn-enviar" onclick="confirmarPedido()"
@@ -416,6 +421,90 @@
         <button onclick="closeModalDone()" class="mt-3 w-full bg-blue-700 text-white py-3 rounded-2xl font-black text-sm">
           ✓ Listo — seguir viendo
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIN ADMIN — acceso oculto (5 toques en el logo del header) -->
+  <div id="admin-pin-modal" class="modal-overlay hidden" onclick="if(event.target===this) closeAdminPinModal()">
+    <div class="modal-sheet">
+      <div class="flex justify-center pt-3 pb-2">
+        <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
+      </div>
+      <div class="px-4 pb-4">
+        <h2 class="text-lg font-black text-gray-900 mb-3">🔒 Acceso administrador</h2>
+        <input id="admin-pin-input" type="password" inputmode="numeric" placeholder="PIN"
+          class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold text-center tracking-widest focus:outline-none focus:border-blue-500">
+        <p id="admin-pin-error" class="text-xs font-bold text-red-500 mt-2 hidden"></p>
+        <button id="admin-pin-btn" onclick="intentarLoginAdmin()" class="w-full bg-blue-700 text-white py-3 rounded-2xl font-black text-sm mt-3">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL ADMIN -->
+  <div id="admin-modal" class="modal-overlay hidden" onclick="if(event.target===this) closeAdminModal()">
+    <div class="modal-sheet">
+      <div class="flex justify-center pt-3 pb-2">
+        <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
+      </div>
+      <div class="px-4 pb-2 flex items-center justify-between">
+        <h2 class="text-lg font-black text-gray-900">Panel administrador</h2>
+        <button onclick="closeAdminModal()" class="text-gray-400 text-sm font-semibold">Cerrar</button>
+      </div>
+      <div class="px-4 flex gap-2 mb-3">
+        <button id="admin-tab-btn-codigos" onclick="cambiarTabAdmin('codigos')" class="flex-1 py-2 rounded-xl text-xs font-black bg-blue-700 text-white">Códigos</button>
+        <button id="admin-tab-btn-venta" onclick="cambiarTabAdmin('venta')" class="flex-1 py-2 rounded-xl text-xs font-black bg-gray-100 text-gray-600">Venta manual</button>
+      </div>
+
+      <!-- TAB CÓDIGOS -->
+      <div id="admin-tab-codigos" class="px-4 pb-4">
+        <div id="admin-codigos-lista" class="space-y-2 mb-4"></div>
+        <div class="border-t border-gray-100 pt-3">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Nuevo código / editar existente</p>
+          <input id="admin-codigo-texto" type="text" placeholder="Código (ej. LANZAMIENTO20)"
+            class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold uppercase mb-2 focus:outline-none focus:border-blue-500">
+          <input id="admin-codigo-pct" type="number" min="1" max="99" step="1" placeholder="% de descuento (ej. 15)"
+            class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500">
+          <input id="admin-codigo-motivo" type="text" placeholder="Motivo (ej. Lanzamiento agosto)"
+            class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500">
+          <button onclick="guardarCodigoAdmin()" class="w-full bg-green-500 text-white py-2.5 rounded-xl font-black text-sm">Guardar código</button>
+          <p id="admin-codigo-msg" class="text-xs font-bold mt-2 hidden"></p>
+        </div>
+      </div>
+
+      <!-- TAB VENTA MANUAL -->
+      <div id="admin-tab-venta" class="px-4 pb-4 hidden">
+        <input id="admin-vm-cliente" type="text" placeholder="Nombre del cliente"
+          class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500">
+        <input id="admin-vm-telefono" type="tel" placeholder="Teléfono"
+          class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500">
+        <div class="flex gap-2 mb-2">
+          <select id="admin-vm-tipopago" onchange="document.getElementById('admin-vm-plazos-wrap').classList.toggle('hidden', this.value!=='Abonos')"
+            class="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-500">
+            <option value="Contado">Contado</option>
+            <option value="Abonos">Abonos</option>
+          </select>
+          <div id="admin-vm-plazos-wrap" class="hidden flex-1">
+            <input id="admin-vm-plazos" type="number" min="2" value="3" placeholder="Plazos"
+              class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <div id="admin-vm-items" class="space-y-2 mb-2"></div>
+        <button onclick="adminVmAgregarFila()" class="text-xs font-bold text-blue-600 mb-3">+ Agregar producto</button>
+
+        <input id="admin-vm-descuento" type="number" min="0" max="100" step="0.5" placeholder="Descuento adicional % (opcional, reemplaza el nivel automático)"
+          oninput="adminVmRecalcular()" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500">
+        <input id="admin-vm-razon" type="text" placeholder="Razón del descuento adicional"
+          class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500 hidden">
+
+        <div class="bg-gray-50 rounded-xl p-3 text-sm mb-3">
+          Piezas: <b id="admin-vm-piezas">0</b> · Nivel: <b id="admin-vm-nivel">Público (0%)</b><br>
+          Total: <b id="admin-vm-total" class="text-lg">$0</b>
+        </div>
+
+        <button id="admin-vm-btn" onclick="adminRegistrarVentaManual()" class="w-full bg-green-500 text-white py-3 rounded-2xl font-black text-sm">Registrar venta</button>
+        <p id="admin-vm-msg" class="text-xs font-bold mt-2 hidden"></p>
       </div>
     </div>
   </div>
@@ -502,6 +591,14 @@
 
     let allProducts = [];
     let cart = {};
+    // Si la fila de fotos de "Tu pedido" (abajo, mientras compras) está abierta o cerrada.
+    // Empieza cerrada — antes se quedaba abierta a fuerzas todo el tiempo que hubiera algo
+    // en el carrito, tapando la pantalla sin que hubiera forma de quitarla de en medio.
+    let orderStripCollapsed = true;
+    function toggleOrderStrip() {
+      orderStripCollapsed = !orderStripCollapsed;
+      updateCart();
+    }
     let currentFilter = 'Todos';
     let currentBrandFilter = null;
     let currentSearch = '';
@@ -648,15 +745,26 @@
 
     function totalQty() { return Object.values(cart).reduce((a,b)=>a+b,0); }
 
+    /** Código de descuento aplicado (o null si no hay ninguno). Cuando hay uno válido,
+     *  REEMPLAZA el nivel de mayoreo por cantidad — así un cliente puede llevar 1 pieza
+     *  al precio de un código de −15%, por ejemplo. Nunca se suman los dos. */
+    let codigoAplicado = null;
+
     /** El nivel que de VERDAD aplica al pedido, según la cantidad total real en el carrito
-     *  (nunca según lo que el usuario esté comparando/previsualizando en pantalla). */
+     *  (nunca según lo que el usuario esté comparando/previsualizando en pantalla) — salvo
+     *  que haya un código de descuento válido, que manda sobre el nivel por cantidad. */
     function tierRealIdx() {
       const q = totalQty();
       if (q <= 0) return 0;
       for (let i = TIERS.length - 1; i >= 0; i--) if (q >= TIERS[i].min) return i;
       return 0;
     }
-    function tierReal() { return TIERS[tierRealIdx()]; }
+    function tierReal() {
+      if (codigoAplicado) {
+        return { disc: codigoAplicado.descuentoPct, label: `Código ${codigoAplicado.codigo}`, tag: `−${Math.round(codigoAplicado.descuentoPct * 100)}%` };
+      }
+      return TIERS[tierRealIdx()];
+    }
 
     /** El nivel que el usuario está viendo/comparando (tocando la barra de niveles) —
      *  solo para navegar precios, nunca para cobrar. */
@@ -929,13 +1037,21 @@
       document.getElementById('cart-total').textContent = `$${total.toLocaleString()}`;
       document.getElementById('checkout-row').classList.toggle('hidden', qty === 0);
 
-      // Strip de pedido visible
+      // Strip de pedido visible — el bloque entero solo se esconde cuando el carrito está
+      // vacío; mientras tenga piezas, el usuario decide si la fila de fotos está abierta o
+      // cerrada con toggleOrderStrip() (el encabezado "Tu pedido" siempre se ve).
       const strip = document.getElementById('order-strip');
       const stripItems = document.getElementById('order-strip-items');
+      document.getElementById('order-strip-count').textContent = qty > 0 ? `(${qty})` : '';
       if (qty === 0) {
         strip.classList.add('hidden');
       } else {
         strip.classList.remove('hidden');
+        // style.display directo (no clase .hidden): .mini-cart-strip ya trae su propio
+        // "display:flex" en <style>, y si Tailwind mete su .hidden después en el <head>
+        // puede ganarle al de .mini-cart-strip por orden — con style inline no hay duda.
+        stripItems.style.display = orderStripCollapsed ? 'none' : 'flex';
+        document.getElementById('order-strip-toggle-icon').textContent = orderStripCollapsed ? '▸' : '▾';
         stripItems.innerHTML = Object.entries(cart).map(([id, q]) => {
           const p = allProducts.find(p => p.id === id);
           if (!p) return '';
@@ -1036,13 +1152,20 @@
       closeCartModal();
       sendWhatsApp(cliente, tipoPago, numPlazos, waWin);
 
+      // Si se usó un código de descuento, queda anotado en Motivo_Descuento (PEDIDOS_WEB
+      // y luego VENTAS al confirmar el pago) — para que quede registrado por qué el precio
+      // no es el del nivel automático de mayoreo.
+      const motivoDescuento = codigoAplicado
+        ? `Código ${codigoAplicado.codigo}` + (codigoAplicado.motivo ? ` — ${codigoAplicado.motivo}` : '')
+        : '';
+
       // Registro del pedido pendiente: en segundo plano, sin await — no debe hacer
       // esperar al cliente ni un segundo más para llegar a WhatsApp. Sin header
       // Content-Type a propósito (evita el preflight OPTIONS que Apps Script no contesta).
       if (CATALOGO_WEBAPP_URL) {
         fetch(CATALOGO_WEBAPP_URL, {
           method: 'POST',
-          body: JSON.stringify({ cliente, telefono, tipoPago, numPlazos, items }),
+          body: JSON.stringify({ cliente, telefono, tipoPago, numPlazos, items, motivoDescuento }),
         }).catch(err => console.warn('No se pudo registrar el pedido pendiente en el Sheet.', err));
       }
     }
@@ -1163,6 +1286,64 @@
           saludoEl.classList.remove('hidden');
         }
       }, 600); // pequeño debounce para no llamar en cada tecla
+    }
+
+    let codigoLookupTimeout = null;
+
+    /**
+     * Se dispara al escribir en "¿Tienes un código de descuento?". Igual que el teléfono,
+     * valida en automático (con un pequeño debounce) contra la hoja CODIGOS_DESCUENTO vía
+     * el Web App. Si es válido, REEMPLAZA el nivel de mayoreo por cantidad para todo el
+     * carrito — por eso hay que volver a pintar precios (updateCart/renderGrid/barra de
+     * niveles) en cuanto cambia, no solo mostrar un mensajito.
+     */
+    function onCodigoInput() {
+      const input = document.getElementById('nc-codigo');
+      const msgEl = document.getElementById('nc-codigo-msg');
+      const codigo = input.value.trim().toUpperCase();
+
+      clearTimeout(codigoLookupTimeout);
+      msgEl.classList.add('hidden');
+
+      if (codigoAplicado && codigoAplicado.codigo !== codigo) {
+        codigoAplicado = null;
+        aplicarCambioDeCodigoATodaLaVitrina_();
+      }
+      if (!codigo || !CATALOGO_WEBAPP_URL) return;
+
+      codigoLookupTimeout = setTimeout(async () => {
+        let info = { ok: false };
+        try {
+          const controller = new AbortController();
+          const avisoTimeout = setTimeout(() => controller.abort(), 8000);
+          const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=codigo&codigo=${encodeURIComponent(codigo)}`, { signal: controller.signal });
+          clearTimeout(avisoTimeout);
+          info = await res.json();
+        } catch (err) {
+          console.warn('No se pudo verificar el código.', err);
+        }
+        if (info.ok && info.valido) {
+          codigoAplicado = { codigo, descuentoPct: info.descuentoPct, motivo: info.motivo || '' };
+          msgEl.className = 'text-xs font-bold text-green-600';
+          msgEl.textContent = `✅ Código aplicado: −${Math.round(info.descuentoPct * 100)}%` + (info.motivo ? ` (${info.motivo})` : '');
+          msgEl.classList.remove('hidden');
+        } else {
+          codigoAplicado = null;
+          msgEl.className = 'text-xs font-bold text-red-500';
+          msgEl.textContent = '❌ Ese código no es válido.';
+          msgEl.classList.remove('hidden');
+        }
+        aplicarCambioDeCodigoATodaLaVitrina_();
+      }, 500);
+    }
+
+    /** Repinta todo lo que depende del precio real (carrito, barra de niveles, vitrina)
+     *  después de aplicar o quitar un código — mismo patrón que ya usa el resto de la
+     *  página cuando cambia algo que afecta el precio cobrado. */
+    function aplicarCambioDeCodigoATodaLaVitrina_() {
+      updateCart();
+      renderTierBarClickable();
+      renderCartModal();
     }
 
     function renderCartModal() {
@@ -1352,6 +1533,248 @@
 
     loadData();
     initWelcome();
+
+    /* ===== Panel administrador (oculto — 5 toques en el logo + PIN) =====
+     * El PIN nunca se guarda aquí ni en ningún lado de este archivo público — solo vive
+     * en memoria mientras la pestaña está abierta y se manda con cada petición al Web
+     * App, que es quien de verdad lo valida (ver validarPinAdmin_ en NotaCompra_WebApp.gs).
+     * "adminListarCodigos_" hace doble función: listar códigos Y validar el PIN al entrar. */
+    let logoTapCount = 0, logoTapTimer = null;
+    function onLogoTapAdmin() {
+      logoTapCount++;
+      clearTimeout(logoTapTimer);
+      logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 2000);
+      if (logoTapCount >= 5) {
+        logoTapCount = 0;
+        document.getElementById('admin-pin-input').value = '';
+        document.getElementById('admin-pin-error').classList.add('hidden');
+        document.getElementById('admin-pin-modal').classList.remove('hidden');
+      }
+    }
+    function closeAdminPinModal() { document.getElementById('admin-pin-modal').classList.add('hidden'); }
+
+    let adminPin = '';
+    async function intentarLoginAdmin() {
+      const pin = document.getElementById('admin-pin-input').value.trim();
+      const btn = document.getElementById('admin-pin-btn');
+      const err = document.getElementById('admin-pin-error');
+      err.classList.add('hidden');
+      if (!pin) return;
+      btn.disabled = true; btn.textContent = 'Verificando...';
+      try {
+        const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=admincodigos&pin=${encodeURIComponent(pin)}`);
+        const info = await res.json();
+        if (!info.ok) {
+          err.textContent = info.mensaje || 'PIN incorrecto.';
+          err.classList.remove('hidden');
+          return;
+        }
+        adminPin = pin;
+        closeAdminPinModal();
+        renderAdminCodigos(info.codigos);
+        abrirPanelAdmin();
+      } catch (e) {
+        err.textContent = 'No se pudo verificar el PIN. Revisa tu conexión.';
+        err.classList.remove('hidden');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Entrar';
+      }
+    }
+
+    function abrirPanelAdmin() {
+      document.getElementById('admin-modal').classList.remove('hidden');
+      cambiarTabAdmin('codigos');
+      adminVmActualizarDatalist();
+      if (!document.getElementById('admin-vm-items').children.length) adminVmAgregarFila();
+    }
+    function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
+
+    function cambiarTabAdmin(tab) {
+      const esCodigos = tab === 'codigos';
+      document.getElementById('admin-tab-codigos').classList.toggle('hidden', !esCodigos);
+      document.getElementById('admin-tab-venta').classList.toggle('hidden', esCodigos);
+      document.getElementById('admin-tab-btn-codigos').className = 'flex-1 py-2 rounded-xl text-xs font-black ' + (esCodigos ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600');
+      document.getElementById('admin-tab-btn-venta').className = 'flex-1 py-2 rounded-xl text-xs font-black ' + (!esCodigos ? 'bg-blue-700 text-white' : 'bg-gray-100 text-gray-600');
+    }
+
+    function renderAdminCodigos(codigos) {
+      const cont = document.getElementById('admin-codigos-lista');
+      if (!codigos.length) { cont.innerHTML = '<p class="text-xs text-gray-400">No hay códigos todavía.</p>'; return; }
+      cont.innerHTML = codigos.map(c => `
+        <div class="flex items-center justify-between border border-gray-100 rounded-xl px-3 py-2">
+          <div>
+            <p class="text-sm font-black text-gray-900">${c.codigo} <span class="text-blue-600">−${Math.round(c.descuentoPct * 100)}%</span></p>
+            <p class="text-[10px] text-gray-400">${c.motivo || ''}</p>
+          </div>
+          <button onclick="toggleCodigoAdmin('${c.codigo.replace(/'/g, "\\'")}')"
+            class="text-xs font-black px-3 py-1.5 rounded-full ${c.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}">
+            ${c.activo ? 'Activo' : 'Inactivo'}
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function recargarCodigosAdmin() {
+      const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=admincodigos&pin=${encodeURIComponent(adminPin)}`);
+      const info = await res.json();
+      if (info.ok) renderAdminCodigos(info.codigos);
+    }
+
+    async function guardarCodigoAdmin() {
+      const codigo = document.getElementById('admin-codigo-texto').value.trim();
+      const pct = Number(document.getElementById('admin-codigo-pct').value);
+      const motivo = document.getElementById('admin-codigo-motivo').value.trim();
+      const msg = document.getElementById('admin-codigo-msg');
+      msg.classList.add('hidden');
+      if (!codigo || !(pct > 0 && pct < 100)) {
+        mostrarMsgAdmin(msg, 'Falta el código o el % (1-99).');
+        return;
+      }
+      const res = await fetch(CATALOGO_WEBAPP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'adminGuardarCodigo', pin: adminPin, codigo, descuentoPct: pct / 100, motivo }),
+      });
+      const info = await res.json();
+      if (info.ok) {
+        msg.className = 'text-xs font-bold mt-2 text-green-600';
+        msg.textContent = info.actualizado ? 'Código actualizado.' : 'Código creado.';
+        msg.classList.remove('hidden');
+        document.getElementById('admin-codigo-texto').value = '';
+        document.getElementById('admin-codigo-pct').value = '';
+        document.getElementById('admin-codigo-motivo').value = '';
+        recargarCodigosAdmin();
+      } else {
+        mostrarMsgAdmin(msg, info.mensaje);
+      }
+    }
+
+    async function toggleCodigoAdmin(codigo) {
+      await fetch(CATALOGO_WEBAPP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'adminToggleCodigo', pin: adminPin, codigo }),
+      });
+      recargarCodigosAdmin();
+    }
+
+    /* ---- Venta manual: mismas reglas que el sidebar de Sheets (Sidebar_Venta.html) —
+     * nivel de mayoreo por cantidad total del carrito, salvo que se ponga un % manual,
+     * que requiere razón. El backend usa el mismo registrarVentaDesdeSidebar de siempre. */
+    function adminVmActualizarDatalist() {
+      let dl = document.getElementById('admin-vm-datalist');
+      if (!dl) {
+        dl = document.createElement('datalist');
+        dl.id = 'admin-vm-datalist';
+        document.body.appendChild(dl);
+      }
+      dl.innerHTML = allProducts.map(p => `<option value="${p.id}">${p.marca} ${p.perfume} ${p.tamano}ml</option>`).join('');
+    }
+
+    function adminVmAgregarFila() {
+      const cont = document.getElementById('admin-vm-items');
+      const div = document.createElement('div');
+      div.className = 'flex gap-2 admin-vm-fila';
+      div.innerHTML = `
+        <input list="admin-vm-datalist" class="admin-vm-id flex-1 border-2 border-gray-200 rounded-xl px-2 py-1.5 text-xs font-semibold" placeholder="ID producto" oninput="adminVmRecalcular()">
+        <input type="number" min="1" value="1" class="admin-vm-cant w-16 border-2 border-gray-200 rounded-xl px-2 py-1.5 text-xs font-semibold" oninput="adminVmRecalcular()">
+        <button onclick="this.parentElement.remove(); adminVmRecalcular()" class="text-red-500 font-black px-2">✕</button>
+      `;
+      cont.appendChild(div);
+    }
+
+    function adminVmDescuentoManualActivo() {
+      const val = document.getElementById('admin-vm-descuento').value;
+      return val !== '' && val !== null && !isNaN(Number(val));
+    }
+
+    function adminVmRecalcular() {
+      const filas = document.querySelectorAll('.admin-vm-fila');
+      let totalPiezas = 0;
+      filas.forEach(f => { totalPiezas += Number(f.querySelector('.admin-vm-cant').value) || 0; });
+
+      const manual = adminVmDescuentoManualActivo();
+      document.getElementById('admin-vm-razon').classList.toggle('hidden', !manual);
+
+      let disc, label;
+      if (manual) {
+        disc = Number(document.getElementById('admin-vm-descuento').value) / 100;
+        label = 'Manual (−' + document.getElementById('admin-vm-descuento').value + '%)';
+      } else {
+        const tier = TIERS.find(t => totalPiezas >= t.min && totalPiezas <= t.max) || TIERS[0];
+        disc = tier.disc;
+        label = tier.tag + ' (' + tier.label + ')';
+      }
+
+      let total = 0;
+      filas.forEach(f => {
+        const id = f.querySelector('.admin-vm-id').value.trim();
+        const cant = Number(f.querySelector('.admin-vm-cant').value) || 0;
+        const p = allProducts.find(x => x.id === id);
+        if (p) total += Math.round(p.p1 * (1 - disc)) * cant;
+      });
+
+      document.getElementById('admin-vm-piezas').textContent = totalPiezas;
+      document.getElementById('admin-vm-nivel').textContent = label;
+      document.getElementById('admin-vm-total').textContent = '$' + total.toLocaleString();
+    }
+
+    async function adminRegistrarVentaManual() {
+      const msg = document.getElementById('admin-vm-msg');
+      msg.classList.add('hidden');
+      const cliente = document.getElementById('admin-vm-cliente').value.trim();
+      const telefono = document.getElementById('admin-vm-telefono').value.trim();
+      const tipoPago = document.getElementById('admin-vm-tipopago').value;
+      const numPlazos = Number(document.getElementById('admin-vm-plazos').value);
+      const manual = adminVmDescuentoManualActivo();
+      const razonDescuento = document.getElementById('admin-vm-razon').value.trim();
+
+      if (!cliente) return mostrarMsgAdmin(msg, 'Falta el nombre del cliente.');
+      if (tipoPago === 'Abonos' && (!numPlazos || numPlazos < 2)) return mostrarMsgAdmin(msg, 'Pon en cuántos plazos (mínimo 2).');
+      if (manual && !razonDescuento) return mostrarMsgAdmin(msg, 'Pusiste un descuento adicional — falta la razón.');
+
+      const items = [];
+      document.querySelectorAll('.admin-vm-fila').forEach(f => {
+        const id = f.querySelector('.admin-vm-id').value.trim();
+        const cantidad = Number(f.querySelector('.admin-vm-cant').value) || 0;
+        if (id && cantidad > 0) items.push({ id, cantidad });
+      });
+      if (!items.length) return mostrarMsgAdmin(msg, 'Agrega al menos un producto.');
+
+      const btn = document.getElementById('admin-vm-btn');
+      btn.disabled = true; btn.textContent = 'Registrando...';
+      try {
+        const res = await fetch(CATALOGO_WEBAPP_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            accion: 'adminVentaManual', pin: adminPin,
+            cliente, telefono, tipoPago, numPlazos, items,
+            descuentoAdicional: manual ? Number(document.getElementById('admin-vm-descuento').value) / 100 : null,
+            razonDescuento: manual ? razonDescuento : '',
+          }),
+        });
+        const info = await res.json();
+        if (!info.ok) { mostrarMsgAdmin(msg, info.mensaje); return; }
+        msg.className = 'text-xs font-bold mt-2 text-green-600';
+        msg.textContent = `Venta registrada — Folio ${info.folio} — Total $${info.total.toLocaleString()}`;
+        msg.classList.remove('hidden');
+        document.getElementById('admin-vm-cliente').value = '';
+        document.getElementById('admin-vm-telefono').value = '';
+        document.getElementById('admin-vm-descuento').value = '';
+        document.getElementById('admin-vm-razon').value = '';
+        document.getElementById('admin-vm-items').innerHTML = '';
+        adminVmAgregarFila();
+        adminVmRecalcular();
+      } catch (e) {
+        mostrarMsgAdmin(msg, 'Error de conexión: ' + e.message);
+      } finally {
+        btn.disabled = false; btn.textContent = 'Registrar venta';
+      }
+    }
+
+    function mostrarMsgAdmin(msgEl, texto) {
+      msgEl.className = 'text-xs font-bold mt-2 text-red-500';
+      msgEl.textContent = texto;
+      msgEl.classList.remove('hidden');
+    }
   </script>
 </body>
 </html>
