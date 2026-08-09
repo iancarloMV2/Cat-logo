@@ -490,8 +490,14 @@
           </div>
         </div>
 
-        <div id="admin-vm-items" class="space-y-2 mb-2"></div>
-        <button onclick="adminVmAgregarFila()" class="text-xs font-bold text-blue-600 mb-3">+ Agregar producto</button>
+        <div class="relative mb-2">
+          <input id="admin-vm-buscar" type="text" placeholder="Buscar perfume por nombre o marca..."
+            oninput="adminVmBuscarProducto(this.value)"
+            onblur="setTimeout(()=>document.getElementById('admin-vm-resultados').classList.add('hidden'),200)"
+            class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-500">
+          <div id="admin-vm-resultados" class="hidden absolute z-20 left-0 right-0 bg-white border border-gray-200 rounded-xl mt-1 max-h-56 overflow-y-auto shadow-lg"></div>
+        </div>
+        <div id="admin-vm-carrito" class="space-y-1.5 mb-3"></div>
 
         <input id="admin-vm-descuento" type="number" min="0" max="100" step="0.5" placeholder="Descuento adicional % (opcional, reemplaza el nivel automático)"
           oninput="adminVmRecalcular()" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500">
@@ -1584,8 +1590,7 @@
     function abrirPanelAdmin() {
       document.getElementById('admin-modal').classList.remove('hidden');
       cambiarTabAdmin('codigos');
-      adminVmActualizarDatalist();
-      if (!document.getElementById('admin-vm-items').children.length) adminVmAgregarFila();
+      adminVmRenderCarrito();
     }
     function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
 
@@ -1658,27 +1663,76 @@
 
     /* ---- Venta manual: mismas reglas que el sidebar de Sheets (Sidebar_Venta.html) —
      * nivel de mayoreo por cantidad total del carrito, salvo que se ponga un % manual,
-     * que requiere razón. El backend usa el mismo registrarVentaDesdeSidebar de siempre. */
-    function adminVmActualizarDatalist() {
-      let dl = document.getElementById('admin-vm-datalist');
-      if (!dl) {
-        dl = document.createElement('datalist');
-        dl.id = 'admin-vm-datalist';
-        document.body.appendChild(dl);
+     * que requiere razón. El backend usa el mismo registrarVentaDesdeSidebar de siempre.
+     * El buscador reusa allProducts (ya cargado para el catálogo) — nada de pedir el ID
+     * a mano, se busca por nombre/marca y se agrega con un toque, como el carrito normal. */
+    let adminVmCart = {};
+
+    function adminVmBuscarProducto(texto) {
+      const val = texto.trim().toLowerCase();
+      const cont = document.getElementById('admin-vm-resultados');
+      if (!val) { cont.classList.add('hidden'); cont.innerHTML = ''; return; }
+      const matches = allProducts.filter(p =>
+        p.id.toLowerCase().includes(val) || p.marca.toLowerCase().includes(val) || p.perfume.toLowerCase().includes(val)
+      ).slice(0, 8);
+      if (!matches.length) {
+        cont.innerHTML = '<p class="text-xs text-gray-400 px-3 py-2">Sin resultados.</p>';
+        cont.classList.remove('hidden');
+        return;
       }
-      dl.innerHTML = allProducts.map(p => `<option value="${p.id}">${p.marca} ${p.perfume} ${p.tamano}ml</option>`).join('');
+      cont.innerHTML = matches.map(p => `
+        <div onclick="adminVmAgregarProducto('${p.id.replace(/'/g, "\\'")}')" class="px-3 py-2 border-b border-gray-50 last:border-0 cursor-pointer active:bg-blue-50">
+          <p class="text-xs font-black text-gray-900">${p.marca} ${p.perfume} <span class="text-gray-400 font-semibold">${p.tamano}ml</span></p>
+          <p class="text-[10px] text-gray-400">${p.id} · stock: ${p.stock} · $${p.p1.toLocaleString()}</p>
+        </div>
+      `).join('');
+      cont.classList.remove('hidden');
     }
 
-    function adminVmAgregarFila() {
-      const cont = document.getElementById('admin-vm-items');
-      const div = document.createElement('div');
-      div.className = 'flex gap-2 admin-vm-fila';
-      div.innerHTML = `
-        <input list="admin-vm-datalist" class="admin-vm-id flex-1 border-2 border-gray-200 rounded-xl px-2 py-1.5 text-xs font-semibold" placeholder="ID producto" oninput="adminVmRecalcular()">
-        <input type="number" min="1" value="1" class="admin-vm-cant w-16 border-2 border-gray-200 rounded-xl px-2 py-1.5 text-xs font-semibold" oninput="adminVmRecalcular()">
-        <button onclick="this.parentElement.remove(); adminVmRecalcular()" class="text-red-500 font-black px-2">✕</button>
-      `;
-      cont.appendChild(div);
+    function adminVmAgregarProducto(id) {
+      adminVmCart[id] = (adminVmCart[id] || 0) + 1;
+      document.getElementById('admin-vm-buscar').value = '';
+      document.getElementById('admin-vm-resultados').classList.add('hidden');
+      document.getElementById('admin-vm-resultados').innerHTML = '';
+      adminVmRenderCarrito();
+    }
+
+    function adminVmCambiarCantidad(id, delta) {
+      adminVmCart[id] = (adminVmCart[id] || 0) + delta;
+      if (adminVmCart[id] <= 0) delete adminVmCart[id];
+      adminVmRenderCarrito();
+    }
+
+    function adminVmQuitarProducto(id) {
+      delete adminVmCart[id];
+      adminVmRenderCarrito();
+    }
+
+    function adminVmRenderCarrito() {
+      const cont = document.getElementById('admin-vm-carrito');
+      const ids = Object.keys(adminVmCart);
+      if (!ids.length) {
+        cont.innerHTML = '<p class="text-xs text-gray-400">Busca arriba y toca un producto para agregarlo.</p>';
+        adminVmRecalcular();
+        return;
+      }
+      cont.innerHTML = ids.map(id => {
+        const p = allProducts.find(x => x.id === id);
+        const nombre = p ? `${p.marca} ${p.perfume} ${p.tamano}ml` : id;
+        const idEsc = id.replace(/'/g, "\\'");
+        return `
+          <div class="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2">
+            <p class="text-xs font-bold text-gray-800 flex-1 pr-2">${nombre}</p>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="adminVmCambiarCantidad('${idEsc}', -1)" class="w-6 h-6 rounded-lg bg-gray-200 text-gray-700 font-black text-sm">−</button>
+              <span class="text-xs font-black w-4 text-center">${adminVmCart[id]}</span>
+              <button onclick="adminVmCambiarCantidad('${idEsc}', 1)" class="w-6 h-6 rounded-lg bg-blue-700 text-white font-black text-sm">+</button>
+              <button onclick="adminVmQuitarProducto('${idEsc}')" class="text-red-500 font-black text-sm ml-1">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      adminVmRecalcular();
     }
 
     function adminVmDescuentoManualActivo() {
@@ -1687,9 +1741,8 @@
     }
 
     function adminVmRecalcular() {
-      const filas = document.querySelectorAll('.admin-vm-fila');
       let totalPiezas = 0;
-      filas.forEach(f => { totalPiezas += Number(f.querySelector('.admin-vm-cant').value) || 0; });
+      Object.values(adminVmCart).forEach(q => { totalPiezas += q; });
 
       const manual = adminVmDescuentoManualActivo();
       document.getElementById('admin-vm-razon').classList.toggle('hidden', !manual);
@@ -1705,9 +1758,7 @@
       }
 
       let total = 0;
-      filas.forEach(f => {
-        const id = f.querySelector('.admin-vm-id').value.trim();
-        const cant = Number(f.querySelector('.admin-vm-cant').value) || 0;
+      Object.entries(adminVmCart).forEach(([id, cant]) => {
         const p = allProducts.find(x => x.id === id);
         if (p) total += Math.round(p.p1 * (1 - disc)) * cant;
       });
@@ -1731,12 +1782,7 @@
       if (tipoPago === 'Abonos' && (!numPlazos || numPlazos < 2)) return mostrarMsgAdmin(msg, 'Pon en cuántos plazos (mínimo 2).');
       if (manual && !razonDescuento) return mostrarMsgAdmin(msg, 'Pusiste un descuento adicional — falta la razón.');
 
-      const items = [];
-      document.querySelectorAll('.admin-vm-fila').forEach(f => {
-        const id = f.querySelector('.admin-vm-id').value.trim();
-        const cantidad = Number(f.querySelector('.admin-vm-cant').value) || 0;
-        if (id && cantidad > 0) items.push({ id, cantidad });
-      });
+      const items = Object.entries(adminVmCart).map(([id, cantidad]) => ({ id, cantidad }));
       if (!items.length) return mostrarMsgAdmin(msg, 'Agrega al menos un producto.');
 
       const btn = document.getElementById('admin-vm-btn');
@@ -1754,15 +1800,17 @@
         const info = await res.json();
         if (!info.ok) { mostrarMsgAdmin(msg, info.mensaje); return; }
         msg.className = 'text-xs font-bold mt-2 text-green-600';
-        msg.textContent = `Venta registrada — Folio ${info.folio} — Total $${info.total.toLocaleString()}`;
+        let html = `Venta registrada — Folio ${info.folio} — Total $${info.total.toLocaleString()}`;
+        if (info.facturaUrl) html += ` — <a href="${info.facturaUrl}" target="_blank" class="underline">Ver nota</a>`;
+        if (info.avisoPdf) html += `<br><span class="text-orange-500">${info.avisoPdf}</span>`;
+        msg.innerHTML = html;
         msg.classList.remove('hidden');
         document.getElementById('admin-vm-cliente').value = '';
         document.getElementById('admin-vm-telefono').value = '';
         document.getElementById('admin-vm-descuento').value = '';
         document.getElementById('admin-vm-razon').value = '';
-        document.getElementById('admin-vm-items').innerHTML = '';
-        adminVmAgregarFila();
-        adminVmRecalcular();
+        adminVmCart = {};
+        adminVmRenderCarrito();
       } catch (e) {
         mostrarMsgAdmin(msg, 'Error de conexión: ' + e.message);
       } finally {
