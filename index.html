@@ -512,6 +512,10 @@
         </div>
         <div id="admin-vm-carrito" class="space-y-1.5 mb-3"></div>
 
+        <input id="admin-vm-codigo" type="text" placeholder="Código de descuento (opcional)" oninput="onAdminVmCodigoInput()"
+          class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold uppercase mb-1 focus:outline-none focus:border-blue-500">
+        <p id="admin-vm-codigo-msg" class="text-xs font-bold hidden mb-2"></p>
+
         <input id="admin-vm-descuento" type="number" min="0" max="100" step="0.5" placeholder="Descuento adicional % (opcional, reemplaza el nivel automático)"
           oninput="adminVmRecalcular()" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500">
         <input id="admin-vm-razon" type="text" placeholder="Razón del descuento adicional"
@@ -1799,15 +1803,58 @@
       return val !== '' && val !== null && !isNaN(Number(val));
     }
 
+    /* Código de descuento dentro de Venta manual — mismo endpoint y misma prioridad que
+     * el checkout normal del cliente (?accion=codigo): si el código es válido, manda
+     * sobre el % manual y sobre el nivel automático. */
+    let adminVmCodigoAplicado = null;
+    let adminVmCodigoTimeout = null;
+    function onAdminVmCodigoInput() {
+      const codigo = document.getElementById('admin-vm-codigo').value.trim();
+      const msgEl = document.getElementById('admin-vm-codigo-msg');
+      clearTimeout(adminVmCodigoTimeout);
+      if (adminVmCodigoAplicado && adminVmCodigoAplicado.codigo !== codigo) {
+        adminVmCodigoAplicado = null;
+        adminVmRecalcular();
+      }
+      if (!codigo) { msgEl.classList.add('hidden'); adminVmRecalcular(); return; }
+      if (!CATALOGO_WEBAPP_URL) return;
+
+      adminVmCodigoTimeout = setTimeout(async () => {
+        let info = { ok: false };
+        try {
+          const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=codigo&codigo=${encodeURIComponent(codigo)}`);
+          info = await res.json();
+        } catch (err) { console.warn('No se pudo verificar el código.', err); }
+
+        if (info.ok && info.valido) {
+          adminVmCodigoAplicado = { codigo, descuentoPct: info.descuentoPct, motivo: info.motivo || '' };
+          msgEl.className = 'text-xs font-bold text-green-600 mb-2';
+          msgEl.textContent = `✅ Código aplicado: −${Math.round(info.descuentoPct * 100)}%` + (info.motivo ? ` (${info.motivo})` : '');
+        } else {
+          adminVmCodigoAplicado = null;
+          msgEl.className = 'text-xs font-bold text-red-500 mb-2';
+          msgEl.textContent = info.motivoInvalido || '❌ Ese código no es válido.';
+        }
+        msgEl.classList.remove('hidden');
+        adminVmRecalcular();
+      }, 500);
+    }
+
     function adminVmRecalcular() {
       let totalPiezas = 0;
       Object.values(adminVmCart).forEach(q => { totalPiezas += q; });
 
       const manual = adminVmDescuentoManualActivo();
-      document.getElementById('admin-vm-razon').classList.toggle('hidden', !manual);
+      // El código, si es válido, manda sobre el % manual — mismo patrón que el checkout
+      // normal (código > nivel/manual). El campo de % se deshabilita mientras haya código.
+      document.getElementById('admin-vm-razon').classList.toggle('hidden', !manual || !!adminVmCodigoAplicado);
+      document.getElementById('admin-vm-descuento').disabled = !!adminVmCodigoAplicado;
 
       let disc, label;
-      if (manual) {
+      if (adminVmCodigoAplicado) {
+        disc = adminVmCodigoAplicado.descuentoPct;
+        label = `Código ${adminVmCodigoAplicado.codigo.toUpperCase()}`;
+      } else if (manual) {
         disc = Number(document.getElementById('admin-vm-descuento').value) / 100;
         label = 'Manual (−' + document.getElementById('admin-vm-descuento').value + '%)';
       } else {
@@ -1839,7 +1886,7 @@
 
       if (!cliente) return mostrarMsgAdmin(msg, 'Falta el nombre del cliente.');
       if (tipoPago === 'Abonos' && (!numPlazos || numPlazos < 2)) return mostrarMsgAdmin(msg, 'Pon en cuántos plazos (mínimo 2).');
-      if (manual && !razonDescuento) return mostrarMsgAdmin(msg, 'Pusiste un descuento adicional — falta la razón.');
+      if (manual && !adminVmCodigoAplicado && !razonDescuento) return mostrarMsgAdmin(msg, 'Pusiste un descuento adicional — falta la razón.');
 
       const items = Object.entries(adminVmCart).map(([id, cantidad]) => ({ id, cantidad }));
       if (!items.length) return mostrarMsgAdmin(msg, 'Agrega al menos un producto.');
@@ -1852,8 +1899,9 @@
           body: JSON.stringify({
             accion: 'adminVentaManual', pin: adminPin,
             cliente, telefono, tipoPago, numPlazos, items,
-            descuentoAdicional: manual ? Number(document.getElementById('admin-vm-descuento').value) / 100 : null,
-            razonDescuento: manual ? razonDescuento : '',
+            codigo: adminVmCodigoAplicado ? adminVmCodigoAplicado.codigo : '',
+            descuentoAdicional: (!adminVmCodigoAplicado && manual) ? Number(document.getElementById('admin-vm-descuento').value) / 100 : null,
+            razonDescuento: (!adminVmCodigoAplicado && manual) ? razonDescuento : '',
           }),
         });
         const info = await res.json();
@@ -1868,7 +1916,11 @@
         msg.classList.remove('hidden');
         document.getElementById('admin-vm-cliente').value = '';
         document.getElementById('admin-vm-telefono').value = '';
+        document.getElementById('admin-vm-codigo').value = '';
+        document.getElementById('admin-vm-codigo-msg').classList.add('hidden');
+        adminVmCodigoAplicado = null;
         document.getElementById('admin-vm-descuento').value = '';
+        document.getElementById('admin-vm-descuento').disabled = false;
         document.getElementById('admin-vm-razon').value = '';
         adminVmCart = {};
         adminVmRenderCarrito();
