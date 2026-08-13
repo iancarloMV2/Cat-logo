@@ -467,6 +467,19 @@
             class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500">
           <input id="admin-codigo-motivo" type="text" placeholder="Motivo (ej. Lanzamiento agosto)"
             class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold mb-2 focus:outline-none focus:border-blue-500">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">Vigencia (opcional — vacío = sin restricción)</p>
+          <div class="flex gap-2 mb-2">
+            <div class="flex-1">
+              <label class="text-[10px] text-gray-400">Desde</label>
+              <input id="admin-codigo-inicio" type="date"
+                class="w-full border-2 border-gray-200 rounded-xl px-2 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="flex-1">
+              <label class="text-[10px] text-gray-400">Hasta</label>
+              <input id="admin-codigo-fin" type="date"
+                class="w-full border-2 border-gray-200 rounded-xl px-2 py-2 text-xs font-semibold focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
           <button onclick="guardarCodigoAdmin()" class="w-full bg-green-500 text-white py-2.5 rounded-xl font-black text-sm">Guardar código</button>
           <p id="admin-codigo-msg" class="text-xs font-bold mt-2 hidden"></p>
         </div>
@@ -1639,18 +1652,26 @@
     function renderAdminCodigos(codigos) {
       const cont = document.getElementById('admin-codigos-lista');
       if (!codigos.length) { cont.innerHTML = '<p class="text-xs text-gray-400">No hay códigos todavía.</p>'; return; }
-      cont.innerHTML = codigos.map(c => `
+      cont.innerHTML = codigos.map(c => {
+        const funcionando = c.activo && c.vigente;
+        let vigenciaTxt = '';
+        if (c.fechaInicio || c.fechaFin) {
+          vigenciaTxt = `${c.fechaInicio || '…'} → ${c.fechaFin || '…'}`;
+        }
+        return `
         <div class="flex items-center justify-between border border-gray-100 rounded-xl px-3 py-2">
           <div>
             <p class="text-sm font-black text-gray-900">${c.codigo} <span class="text-blue-600">−${Math.round(c.descuentoPct * 100)}%</span></p>
             <p class="text-[10px] text-gray-400">${c.motivo || ''}</p>
+            ${vigenciaTxt ? `<p class="text-[10px] ${c.vigente ? 'text-gray-400' : 'text-red-500 font-bold'}">${vigenciaTxt}</p>` : ''}
           </div>
           <button onclick="toggleCodigoAdmin('${c.codigo.replace(/'/g, "\\'")}')"
-            class="text-xs font-black px-3 py-1.5 rounded-full ${c.activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}">
-            ${c.activo ? 'Activo' : 'Inactivo'}
+            class="text-xs font-black px-3 py-1.5 rounded-full ${funcionando ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}">
+            ${c.activo ? (c.vigente ? 'Activo' : 'Fuera de fecha') : 'Inactivo'}
           </button>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     async function recargarCodigosAdmin() {
@@ -1663,6 +1684,8 @@
       const codigo = document.getElementById('admin-codigo-texto').value.trim();
       const pct = Number(document.getElementById('admin-codigo-pct').value);
       const motivo = document.getElementById('admin-codigo-motivo').value.trim();
+      const fechaInicio = document.getElementById('admin-codigo-inicio').value;
+      const fechaFin = document.getElementById('admin-codigo-fin').value;
       const msg = document.getElementById('admin-codigo-msg');
       msg.classList.add('hidden');
       if (!codigo || !(pct > 0 && pct < 100)) {
@@ -1671,7 +1694,7 @@
       }
       const res = await fetch(CATALOGO_WEBAPP_URL, {
         method: 'POST',
-        body: JSON.stringify({ accion: 'adminGuardarCodigo', pin: adminPin, codigo, descuentoPct: pct / 100, motivo }),
+        body: JSON.stringify({ accion: 'adminGuardarCodigo', pin: adminPin, codigo, descuentoPct: pct / 100, motivo, fechaInicio, fechaFin }),
       });
       const info = await res.json();
       if (info.ok) {
@@ -1681,6 +1704,8 @@
         document.getElementById('admin-codigo-texto').value = '';
         document.getElementById('admin-codigo-pct').value = '';
         document.getElementById('admin-codigo-motivo').value = '';
+        document.getElementById('admin-codigo-inicio').value = '';
+        document.getElementById('admin-codigo-fin').value = '';
         recargarCodigosAdmin();
       } else {
         mostrarMsgAdmin(msg, info.mensaje);
