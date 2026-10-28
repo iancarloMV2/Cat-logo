@@ -850,6 +850,7 @@
     renderGrid();
     updateBar();
     if (!$('cart-modal').hidden) renderCartModal();
+    aplicarHashInicial();
   }
 
   /** Muestra al instante lo de la última visita y luego actualiza con lo de la hoja. */
@@ -1571,6 +1572,18 @@
   $('quitar-filtros').addEventListener('click', limpiarFiltros);
 
   if (MODO_PRUEBA) $('aviso-prueba').hidden = false;
+
+  // Link directo a la preventa: .../Cat-logo/#preventa abre el catálogo ya filtrado.
+  let hashAplicado = false;
+  function aplicarHashInicial() {
+    if (hashAplicado || location.hash !== '#preventa') return;
+    const b = document.querySelector('#chips [data-f="Preventa"]');
+    if (!b || b.hidden) return;
+    hashAplicado = true;
+    b.click();
+    $('catalogo').scrollIntoView();
+  }
+
   loadData();
   cargarPagos();
   initWelcome();
