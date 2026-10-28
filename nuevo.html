@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IanCarloMV — Perfumes originales al mayoreo</title>
+<meta name="description" content="Perfumes 100% originales a precio de mayoreo. Entre más piezas, menos pagas por cada una.">
+<meta name="theme-color" content="#0e1838">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://docs.google.com" crossorigin>
+<link rel="preconnect" href="https://drive.google.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap">
+<script>
+  // La página de prueba (nuevo.html) no manda estadísticas ni registra pedidos.
+  const MODO_PRUEBA = /nuevo\.html$/i.test(location.pathname);
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  if (!MODO_PRUEBA) {
+    const s = document.createElement('script');
+    s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=G-4JPVKX2JNN';
+    document.head.appendChild(s);
+    gtag('js', new Date());
+    gtag('config', 'G-4JPVKX2JNN');
+  }
+</script>
+<style>
+  :root {
+    --ink: #0e1838; --ink2: #39435f; --mute: #687190; --line: #e1e5ef;
+    --bg: #f3f5fa; --card: #ffffff;
+    --azul: #2141c9; --azul2: #172f99; --azul-t: #e8edfc;
+    --verde: #12773a; --verde-t: #e6f5eb;
+    --wa: #1da851; --wa2: #168a42;
+    --ambar: #9a5200; --ambar-t: #fff2df;
+    --rojo: #b93c0b;
+    --r: 14px;
+    color-scheme: light;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 500 15px/1.45 Manrope, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body.con-barra { padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px)); }
+  body.no-scroll { overflow: hidden; }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  img { max-width: 100%; }
+  h1, h2, h3 { text-wrap: balance; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding-inline: 16px; }
+
+  /* Aviso de página de prueba */
+  .aviso-prueba { background: #fde68a; color: #5a3b00; font-size: 13px; font-weight: 700; text-align: center; padding: 8px 16px; }
+
+  /* Encabezado */
+  .top { background: var(--ink); color: #fff; padding-top: env(safe-area-inset-top, 0px); }
+  .top .wrap { display: flex; align-items: center; gap: 12px; padding-block: 14px; }
+  .logo {
+    width: 42px; height: 42px; flex: none; border-radius: 12px; border: 0;
+    background: #fff; color: var(--ink); font-weight: 800; font-size: 15px;
+    user-select: none; -webkit-user-select: none;
+  }
+  .top h1 { font-size: 18px; margin: 0; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; }
+  .top p { margin: 0; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #a9b3d8; font-weight: 700; }
+  .ayuda {
+    margin-left: auto; flex: none; color: #fff; font-size: 13px; font-weight: 700; text-decoration: none;
+    border: 1px solid rgba(255,255,255,.3); padding: 7px 12px; border-radius: 999px; background: transparent;
+  }
+
+  /* Niveles de precio */
+  .niveles { background: #fff; border-bottom: 1px solid var(--line); }
+  .niveles .wrap { padding-block: 14px 14px; }
+  .niv-t { font-size: 15px; font-weight: 800; margin: 0 0 10px; }
+  .escala { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .escala li { border: 1px solid var(--line); border-radius: 10px; padding: 7px 2px; text-align: center; background: var(--bg); transition: background .2s, color .2s; }
+  .escala b { display: block; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .escala span { display: block; font-size: 11px; color: var(--mute); font-weight: 700; white-space: nowrap; }
+  .escala li.on { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .escala li.on span { color: #d9e1ff; }
+  .escala-pie { font-size: 12px; color: var(--mute); margin: 6px 0 0; text-align: center; }
+  .confianza { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 12px 0 0; padding: 0; list-style: none; font-size: 12.5px; color: var(--ink2); font-weight: 700; }
+  .confianza li::before { content: "✓ "; color: var(--verde); }
+  .emp-link { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 800; color: var(--azul); text-decoration: none; }
+
+  /* Buscador y filtros */
+  .filtros { position: sticky; top: 0; z-index: 20; background: rgba(243,245,250,.96); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .filtros .wrap { padding-block: 10px; display: grid; gap: 8px; }
+  .buscar { display: flex; gap: 8px; }
+  .buscar input {
+    flex: 1; min-width: 0; height: 44px; border: 1.5px solid var(--line); border-radius: 12px;
+    padding: 0 14px; font-size: 16px; background: #fff;
+  }
+  .buscar input:focus { outline: none; border-color: var(--azul); }
+  .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; height: 34px; padding: 0 13px; border-radius: 999px; border: 1.5px solid var(--line);
+    background: #fff; font-size: 13px; font-weight: 700; color: var(--ink2); white-space: nowrap;
+  }
+  .chip.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .chip.pre { color: var(--ambar); border-color: #f1d3a8; background: var(--ambar-t); }
+  .chip.pre.on { background: var(--ambar); border-color: var(--ambar); color: #fff; }
+  select.chip {
+    appearance: none; -webkit-appearance: none; padding-right: 30px; max-width: 220px;
+    background-color: #fff; background-repeat: no-repeat; background-position: right 11px center;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2339435f' stroke-width='2'/%3E%3C/svg%3E");
+  }
+  select.chip.on {
+    background-color: var(--ink); color: #fff; background-repeat: no-repeat; background-position: right 11px center;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ffffff' stroke-width='2'/%3E%3C/svg%3E");
+  }
+  .conteo { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--mute); font-weight: 700; padding-top: 12px; }
+  .conteo button { border: 0; background: none; color: var(--azul); font-weight: 800; font-size: 12.5px; padding: 0; }
+
+  /* Catálogo */
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-block: 10px 28px; }
+  @media (min-width: 560px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 860px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+  .card.sel { border-color: var(--azul); box-shadow: 0 0 0 1px var(--azul); }
+  .card.agot .ph img, .card.agot .sinfoto { opacity: .45; filter: grayscale(.6); }
+  .ph { position: relative; display: block; width: 100%; aspect-ratio: 1; border: 0; padding: 0; background: #fff; overflow: hidden; border-bottom: 1px solid var(--line); }
+  .ph img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .sinfoto { width: 100%; height: 100%; display: grid; place-items: center; font-size: 34px; font-weight: 800; color: #b9c2dc; }
+  .tag { position: absolute; left: 8px; top: 8px; max-width: calc(100% - 50px); font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 999px; background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(14,24,56,.12); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tag.pre { background: var(--ambar); color: #fff; }
+  .tag.ago { background: rgba(14,24,56,.82); color: #fff; }
+  .tag.poc { color: var(--rojo); }
+  .qb { position: absolute; right: 8px; top: 8px; min-width: 26px; height: 26px; padding: 0 7px; border-radius: 999px; background: var(--azul); color: #fff; font-weight: 800; font-size: 13px; display: grid; place-items: center; }
+  .cuerpo { padding: 10px 10px 12px; display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+  .marca { font-size: 11px; font-weight: 800; color: var(--azul); text-transform: uppercase; letter-spacing: .06em; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card h3 { font-size: 14px; font-weight: 800; line-height: 1.25; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .meta { font-size: 12px; color: var(--mute); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pr { margin-top: auto; padding-top: 8px; display: flex; align-items: baseline; gap: 2px 6px; flex-wrap: wrap; }
+  .pr b { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .pr s { font-size: 12px; color: var(--mute); }
+  .may { flex-basis: 100%; font-size: 12px; color: var(--verde); font-weight: 700; }
+  .cam { font-size: 11.5px; color: var(--ambar); font-weight: 700; margin: 4px 0 0; }
+  .add { width: 100%; margin-top: 8px; height: 40px; border-radius: 10px; border: 0; background: var(--azul); color: #fff; font-weight: 800; font-size: 14px; }
+  .add:active { background: var(--azul2); }
+  .step { margin-top: 8px; display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; height: 40px; border-radius: 10px; background: var(--azul-t); }
+  .step button { height: 40px; border: 0; background: transparent; font-size: 21px; font-weight: 800; color: var(--azul); line-height: 1; }
+  .step button:disabled { opacity: .28; cursor: default; }
+  .step output { text-align: center; font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; }
+  .tope { font-size: 11px; color: var(--rojo); font-weight: 700; text-align: center; margin: 4px 0 0; }
+  .nohay { margin: 8px 0 0; font-size: 12px; color: var(--mute); font-weight: 700; text-align: center; padding: 10px 0; border: 1px dashed var(--line); border-radius: 10px; }
+  .estado { text-align: center; color: var(--mute); padding: 48px 0; font-weight: 700; }
+  .estado button { margin-top: 12px; }
+  .girar { width: 26px; height: 26px; border: 3px solid var(--azul-t); border-top-color: var(--azul); border-radius: 50%; margin: 0 auto 12px; animation: g .8s linear infinite; }
+  @keyframes g { to { transform: rotate(360deg); } }
+
+  /* Barra de pedido */
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: #fff; border-top: 1px solid var(--line); box-shadow: 0 -8px 24px rgba(14,24,56,.08); padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); }
+  .bar-in { max-width: 1040px; margin: 0 auto; display: grid; gap: 8px; }
+  .prog { display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 700; color: var(--ink2); }
+  .prog span { flex: none; max-width: 70%; }
+  .track { flex: 1; height: 6px; border-radius: 99px; background: var(--azul-t); overflow: hidden; }
+  .track i { display: block; height: 100%; width: 0; background: var(--azul); border-radius: inherit; transition: width .3s; }
+  .fila { display: flex; gap: 10px; }
+  .resumen { flex: 1; min-width: 0; text-align: left; border: 1.5px solid var(--line); background: #fff; border-radius: 12px; padding: 6px 12px; }
+  .resumen b { display: block; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.25; }
+  .resumen span { font-size: 12px; color: var(--mute); font-weight: 700; }
+  .wa { flex: 1.25; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 12px; background: var(--wa); color: #fff; font-weight: 800; font-size: 15px; padding: 10px 12px; text-decoration: none; }
+  .wa:active { background: var(--wa2); }
+  .wa svg { width: 18px; height: 18px; flex: none; }
+
+  /* Hojas (ventanas desde abajo) */
+  .sheet-bg { position: fixed; inset: 0; z-index: 50; background: rgba(14,24,56,.48); display: flex; align-items: flex-end; justify-content: center; }
+  .sheet { background: #fff; width: 100%; max-width: 560px; max-height: 92vh; max-height: 92dvh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; overflow: hidden; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  @media (min-width: 700px) { .sheet-bg { align-items: center; padding: 24px; } .sheet { border-radius: 20px; } }
+  .sheet-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 10px; }
+  .sheet-h h2 { margin: 0; font-size: 19px; font-weight: 800; }
+  .x { flex: none; border: 0; background: var(--bg); width: 36px; height: 36px; border-radius: 999px; font-size: 17px; font-weight: 800; color: var(--ink2); }
+  .sheet-c { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 16px 18px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+
+  /* Detalle de perfume */
+  .m-foto { position: relative; aspect-ratio: 1; max-height: 46vh; width: 100%; background: #edf0f7; border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
+  .m-foto img { width: 100%; height: 100%; object-fit: contain; background: #fff; display: block; }
+  .m-nombre { font-size: 21px; font-weight: 800; margin: 2px 0 8px; line-height: 1.2; }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .pills span { font-size: 12.5px; font-weight: 700; background: var(--bg); border: 1px solid var(--line); padding: 4px 10px; border-radius: 999px; }
+  .m-notas { font-size: 14px; color: var(--ink2); margin: 0 0 10px; }
+  .aviso { font-size: 13.5px; border-radius: 12px; padding: 10px 12px; margin: 0 0 12px; line-height: 1.45; }
+  .aviso.pre { background: var(--ambar-t); color: #6b3a00; border: 1px solid #f1d3a8; }
+  .aviso.ok { background: var(--verde-t); color: var(--verde); border: 1px solid #c4e6cf; }
+  .aviso.no { background: var(--bg); color: var(--ink2); border: 1px solid var(--line); }
+  .sub { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); margin: 14px 0 8px; }
+  .tabla { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .tabla div { border: 1px solid var(--line); border-radius: 10px; padding: 7px 4px; text-align: center; background: var(--bg); }
+  .tabla div.on { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .tabla small { display: block; font-size: 11px; font-weight: 700; color: var(--mute); }
+  .tabla div.on small { color: #d9e1ff; }
+  .tabla b { display: block; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .m-cant { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; background: var(--bg); border-radius: 14px; padding: 12px; }
+  .m-cant small { display: block; font-size: 12px; color: var(--mute); font-weight: 700; }
+  .m-cant b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .m-cant .step { margin: 0; width: 150px; background: #fff; border: 1px solid var(--line); height: 46px; grid-template-columns: 46px 1fr 46px; }
+  .m-cant .step button { height: 46px; }
+  .btn { display: block; width: 100%; border: 0; border-radius: 14px; background: var(--azul); color: #fff; font-weight: 800; font-size: 15px; padding: 14px; margin-top: 12px; text-align: center; text-decoration: none; }
+  .btn:disabled { opacity: .6; }
+  .btn.verde { background: var(--wa); }
+  .btn.claro { background: var(--azul-t); color: var(--azul); }
+
+  /* Mi pedido */
+  .ci { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .ci-f { width: 52px; height: 52px; border-radius: 10px; overflow: hidden; background: #edf0f7; }
+  .ci-f img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ci-f .sinfoto { font-size: 18px; }
+  .ci-n { font-size: 14px; font-weight: 800; margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ci-p { font-size: 13px; color: var(--ink2); margin: 0; font-variant-numeric: tabular-nums; }
+  .ci-pre { font-size: 12px; color: var(--ambar); font-weight: 700; margin: 2px 0 0; }
+  .ci-acc { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .ci .step { margin: 0; width: 112px; height: 34px; grid-template-columns: 34px 1fr 34px; }
+  .ci .step button { height: 34px; font-size: 18px; }
+  .quitar { border: 0; background: none; color: var(--mute); font-size: 12px; font-weight: 700; padding: 2px 0; }
+  .vacio-c { text-align: center; color: var(--mute); padding: 28px 0; margin: 0; }
+  .totales { padding-top: 12px; display: grid; gap: 4px; }
+  .totales .t1 { display: flex; justify-content: space-between; align-items: baseline; }
+  .totales .t1 span { font-weight: 800; }
+  .totales .t1 b { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .totales p { margin: 0; font-size: 13px; }
+  .ahorro { color: var(--verde); font-weight: 800; }
+  .nivel-txt { color: var(--ink2); font-weight: 700; }
+  .campos { display: grid; gap: 8px; margin-top: 14px; }
+  .in { width: 100%; height: 46px; border: 1.5px solid var(--line); border-radius: 12px; padding: 0 14px; font-size: 16px; background: #fff; }
+  .in:focus { outline: none; border-color: var(--azul); }
+  .in.mayus { text-transform: uppercase; }
+  .in.mayus::placeholder { text-transform: none; }
+  .msg { font-size: 13px; font-weight: 700; margin: 0; }
+  .msg.ok { color: var(--verde); }
+  .msg.err { color: #c0261a; }
+  .msg.info { color: var(--azul); }
+  .nota-envio { font-size: 12px; color: var(--mute); text-align: center; margin: 8px 0 0; }
+
+  /* Emprender, paquetes, testimonio, preguntas */
+  .emp { background: #fff; border-top: 1px solid var(--line); scroll-margin-top: 110px; }
+  .emp .wrap { padding-block: 28px 24px; }
+  .emp h2 { font-size: 22px; font-weight: 800; margin: 0 0 6px; }
+  .emp .lead { color: var(--ink2); margin: 0 0 16px; max-width: 62ch; }
+  .historia { border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; margin-bottom: 18px; background: var(--bg); }
+  .historia summary { font-weight: 800; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 10px; }
+  .historia summary::-webkit-details-marker { display: none; }
+  .historia summary::after { content: "+"; color: var(--azul); font-size: 20px; line-height: 1; }
+  .historia[open] summary::after { content: "−"; }
+  .historia p { margin: 10px 0 0; color: var(--ink2); max-width: 62ch; }
+  .historia .grande { font-size: 19px; font-weight: 800; color: var(--ink); }
+  .si-no { display: grid; gap: 6px; margin-top: 12px; }
+  .si-no p { margin: 0; padding: 9px 12px; border-radius: 10px; font-weight: 800; font-size: 14px; }
+  .si-no .no { background: #fdecea; color: #a1241b; }
+  .si-no .si { background: var(--verde-t); color: var(--verde); }
+  .packs { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 560px) { .packs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .pack { border: 1.5px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; position: relative; }
+  .pack.pro { border-color: var(--ink); background: var(--ink); color: #fff; }
+  .pack .cinta { position: absolute; top: -10px; right: 14px; background: #ffd04a; color: var(--ink); font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; letter-spacing: .04em; }
+  .pack h3 { margin: 0; font-size: 17px; font-weight: 800; }
+  .pack .pz { font-size: 13px; font-weight: 700; color: var(--mute); }
+  .pack.pro .pz { color: #b9c3e6; }
+  .pack .precio { font-size: 28px; font-weight: 800; margin: 6px 0 10px; font-variant-numeric: tabular-nums; }
+  .pack ul { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 5px; font-size: 14px; }
+  .pack li::before { content: "✓ "; color: var(--verde); font-weight: 800; }
+  .pack li.vence::before { content: "⏳ "; }
+  .pack.pro li::before { color: #7ee2a0; }
+  .pack .vence { color: var(--rojo); font-weight: 700; }
+  .pack.pro .vence { color: #ffc27a; }
+  .pack .btn { margin-top: auto; }
+  .pack.pro .btn { background: #ffd04a; color: var(--ink); }
+  .presu { margin-top: 12px; border: 1.5px dashed #b8c4ec; border-radius: 16px; padding: 16px; background: var(--azul-t); }
+  .presu h3 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
+  .presu p { margin: 0 0 12px; font-size: 14px; color: var(--ink2); }
+  .presu-f { display: flex; gap: 8px; }
+  .presu-f .in { flex: 1; min-width: 0; }
+  .presu-f .btn { width: auto; margin: 0; padding: 0 18px; }
+  .prueba { margin-top: 26px; }
+  .testi { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: var(--bg); }
+  @media (min-width: 560px) { .testi { grid-template-columns: 220px minmax(0, 1fr); align-items: center; } }
+  .testi img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .testi blockquote { margin: 0; font-size: 15px; font-weight: 700; color: var(--ink2); }
+  .testi cite { display: block; margin-top: 6px; font-style: normal; font-size: 13px; color: var(--mute); }
+  .envios { display: flex; gap: 8px; overflow-x: auto; margin: 12px -16px 0; padding: 0 16px 4px; scrollbar-width: none; }
+  .envios::-webkit-scrollbar { display: none; }
+  .envios img { flex: none; width: 132px; height: 176px; object-fit: cover; border-radius: 12px; background: #edf0f7; }
+  .faq { margin-top: 26px; display: grid; gap: 8px; }
+  .faq details { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fff; }
+  .faq summary { font-weight: 800; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 10px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--azul); font-size: 20px; line-height: 1; }
+  .faq details[open] summary::after { content: "−"; }
+  .faq p { margin: 8px 0 0; color: var(--ink2); font-size: 14px; max-width: 62ch; }
+  .pie { text-align: center; color: var(--mute); font-size: 12.5px; padding-block: 18px 30px; }
+  .pie b { color: var(--ink); }
+
+  /* Saludo breve */
+  .toast { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); z-index: 200; background: var(--ink); color: #fff; font-size: 13px; font-weight: 800; padding: 9px 16px; border-radius: 999px; box-shadow: 0 6px 20px rgba(14,24,56,.25); white-space: nowrap; }
+
+  /* Panel administrador */
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tabs button { flex: 1; border: 0; border-radius: 10px; padding: 9px; font-weight: 800; font-size: 13px; background: var(--bg); color: var(--ink2); }
+  .tabs button.on { background: var(--azul); color: #fff; }
+  .adm-lista { display: grid; gap: 6px; margin-bottom: 14px; }
+  .cod { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+  .cod p { margin: 0; font-size: 12px; color: var(--mute); }
+  .cod .c1 { font-size: 14px; font-weight: 800; color: var(--ink); }
+  .cod .c1 span { color: var(--azul); }
+  .cod .vencido { color: #c0261a; font-weight: 700; }
+  .cod button { flex: none; border: 0; border-radius: 999px; padding: 6px 12px; font-size: 12px; font-weight: 800; background: var(--bg); color: var(--mute); }
+  .cod button.activo { background: var(--verde-t); color: var(--verde); }
+  .adm-form { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .dos label { font-size: 11px; color: var(--mute); font-weight: 700; }
+  .dos .in { font-size: 14px; padding: 0 8px; }
+  .rel { position: relative; }
+  .resultados { position: absolute; z-index: 5; left: 0; right: 0; top: 50px; background: #fff; border: 1px solid var(--line); border-radius: 12px; max-height: 240px; overflow-y: auto; box-shadow: 0 10px 24px rgba(14,24,56,.15); }
+  .resultados div { padding: 8px 12px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .resultados div:active { background: var(--azul-t); }
+  .resultados p { margin: 0; font-size: 13px; font-weight: 800; }
+  .resultados small { font-size: 11px; color: var(--mute); }
+  .vm-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--bg); border-radius: 10px; padding: 8px 10px; font-size: 13px; font-weight: 700; }
+  .vm-item .step { margin: 0; width: 104px; height: 32px; grid-template-columns: 32px 1fr 32px; background: #fff; }
+  .vm-item .step button { height: 32px; font-size: 17px; }
+  .vm-res { background: var(--bg); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div id="aviso-prueba" class="aviso-prueba" hidden>🧪 Página de prueba: los pedidos llegan a WhatsApp marcados como PRUEBA y no se registran.</div>
+
+<header class="top">
+  <div class="wrap">
+    <button class="logo" type="button" onclick="onLogoTapAdmin()" aria-label="IanCarloMV">IM</button>
+    <div>
+      <h1>IanCarloMV</h1>
+      <p>Mayoreo · Perfumería original</p>
+    </div>
+    <button class="ayuda" type="button" onclick="pedirAyuda()">¿Dudas?</button>
+  </div>
+</header>
+
+<section class="niveles">
+  <div class="wrap">
+    <p class="niv-t">Entre más piezas lleves, menos pagas por cada una</p>
+    <ol class="escala" id="escala"></ol>
+    <p class="escala-pie">Puedes combinar los perfumes que quieras. Cuentan todas las piezas de tu pedido.</p>
+    <ul class="confianza">
+      <li>100% originales</li>
+      <li>Envío seguro a todo México</li>
+      <li>+40 revendedores activos</li>
+    </ul>
+    <a class="emp-link" href="#emprender">💡 ¿Quieres emprender? Empieza aquí ↓</a>
+  </div>
+</section>
+
+<div class="filtros">
+  <div class="wrap">
+    <div class="buscar">
+      <input id="search" type="search" placeholder="Buscar perfume, marca o aroma…" autocomplete="off" enterkeyhint="search">
+    </div>
+    <div class="chips" id="chips">
+      <button class="chip on" data-f="Todos">Todos</button>
+      <button class="chip pre" data-f="Preventa" id="chip-preventa">🕓 Preventa</button>
+      <button class="chip" data-f="Mujer">Mujer</button>
+      <button class="chip" data-f="Hombre">Hombre</button>
+      <button class="chip" data-f="Unisex">Unisex</button>
+      <select class="chip" id="marca" aria-label="Marca"><option value="">Todas las marcas</option></select>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="conteo" id="conteo" hidden><span id="conteo-txt"></span><button id="quitar-filtros" type="button" hidden>Quitar filtros ✕</button></div>
+  <div id="estado" class="estado"><div class="girar"></div>Cargando catálogo…</div>
+  <div id="vacio" class="estado" hidden>No encontramos ese perfume.<br><button class="btn claro" type="button" onclick="limpiarFiltros()">Ver todo el catálogo</button></div>
+  <div id="grid" class="grid"></div>
+</main>
+
+<section class="emp" id="emprender">
+  <div class="wrap">
+    <h2>¿Quieres emprender?</h2>
+    <p class="lead">Empieza con un paquete armado con los perfumes que más se venden, o dime cuánto tienes y te armo uno a tu medida.</p>
+
+    <details class="historia">
+      <summary>Mi historia: de $1,000 a la semana a un negocio funcional</summary>
+      <p>Cuando inicié me estafaron con $10,000. Trabajé en más de 10 trabajos distintos por un salario de $1,000. Ahí me pregunté…</p>
+      <p class="grande">¿Es esto lo que quiero?</p>
+      <p>Ahora te lo pregunto a ti.</p>
+      <div class="si-no">
+        <p class="no">Si buscas algo fácil y de la noche a la mañana — vete.</p>
+        <p class="si">Si buscas algo real con trabajo duro — bienvenido.</p>
+      </div>
+    </details>
+
+    <div class="packs">
+      <article class="pack">
+        <h3>Pack Revendedor</h3>
+        <span class="pz">4 perfumes</span>
+        <p class="precio">$2,099</p>
+        <ul>
+          <li>4 perfumes de los que más se venden</li>
+          <li>2 muestras para que tus clientes prueben</li>
+          <li>Guía de ventas paso a paso</li>
+          <li>Grupo privado de revendedores</li>
+          <li>Envío gratis</li>
+          <li class="vence">Precio válido esta semana</li>
+        </ul>
+        <button class="btn" type="button" onclick="pedirPaquete(1)">Iniciemos hoy</button>
+      </article>
+      <article class="pack pro">
+        <span class="cinta">MÁS ELEGIDO</span>
+        <h3>Pack Pro</h3>
+        <span class="pz">8 perfumes</span>
+        <p class="precio">$4,499</p>
+        <ul>
+          <li>8 perfumes de los que más se venden</li>
+          <li>6 muestras para que tus clientes prueben</li>
+          <li>Guía de ventas completa</li>
+          <li>Acceso prioritario al grupo</li>
+          <li>Envío gratis incluido</li>
+          <li class="vence">Precio válido esta semana</li>
+        </ul>
+        <button class="btn" type="button" onclick="pedirPaquete(2)">Iniciemos hoy</button>
+      </article>
+    </div>
+
+    <div class="presu">
+      <h3>¿Tienes otro presupuesto?</h3>
+      <p>Dime cuánto tienes y te armo un paquete a tu medida con los perfumes que más se venden en este momento.</p>
+      <div class="presu-f">
+        <input id="custom-budget" class="in" type="number" inputmode="numeric" placeholder="$ Ej: 3000">
+        <button class="btn" type="button" onclick="pedirPresupuesto()">Lo quiero</button>
+      </div>
+      <p id="presu-msg" class="msg err" hidden style="margin-top:8px"></p>
+    </div>
+
+    <div class="prueba">
+      <p class="sub">Revendedores reales</p>
+      <div class="testi">
+        <img src="foto-hugo.jpg" alt="Mensaje de Hugo por WhatsApp" loading="lazy" decoding="async" width="480" height="343" onerror="this.hidden=true">
+        <div>
+          <blockquote>“Ya vendí dos perfumes, ya tengo más clientes esperando. Muchas gracias Ian.”</blockquote>
+          <cite>Hugo · revendedor</cite>
+        </div>
+      </div>
+      <p class="sub">Envíos de esta semana</p>
+      <div class="envios">
+        <img src="foto-envio-1.jpg" alt="Paquete listo para envío" loading="lazy" decoding="async" width="480" height="640" onerror="this.hidden=true">
+        <img src="foto-envio-2.jpg" alt="Paquete listo para envío" loading="lazy" decoding="async" width="480" height="640" onerror="this.hidden=true">
+        <img src="foto-envio-3.jpg" alt="Caja con guía de envío" loading="lazy" decoding="async" width="480" height="853" onerror="this.hidden=true">
+      </div>
+    </div>
+
+    <div class="faq">
+      <p class="sub">Antes de que lo pienses…</p>
+      <details>
+        <summary>¿Son realmente originales?</summary>
+        <p>Sí. Compramos directamente a distribuidores certificados. Son los mismos perfumes que encuentras en Liverpool o El Palacio de Hierro — solo que a precio de mayoreo porque compramos en volumen.</p>
+      </details>
+      <details>
+        <summary>¿Cuánto tarda el envío?</summary>
+        <p>Entre 2 y 5 días hábiles dependiendo de tu estado. Te mando tu número de guía el mismo día que hago el envío para que lo rastrees en tiempo real.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa si no vendo nada?</summary>
+        <p>No existe ese escenario si sigues el proceso. Pero si en los primeros días sientes que no avanzas, me escribes y buscamos solución juntos. No te dejo solo — para eso existe el grupo privado de revendedores.</p>
+      </details>
+      <details>
+        <summary>¿Qué es la preventa?</summary>
+        <p>Son perfumes que ya vienen en camino. Los apartas hoy al precio de hoy y te los entrego en cuanto llegan. Si el pedido se retrasa, esperas un poco más o te regreso tu dinero si no llega a tiempo.</p>
+      </details>
+    </div>
+  </div>
+  <p class="pie"><b>IanCarloMV</b> · Perfumería original al mayoreo<br>WhatsApp 476 160 4759</p>
+</section>
+
+<!-- Barra de pedido -->
+<div class="bar" id="bar" hidden>
+  <div class="bar-in">
+    <div class="prog"><span id="prog-txt"></span><div class="track"><i id="prog-bar"></i></div></div>
+    <div class="fila">
+      <button class="resumen" type="button" onclick="openCartModal()"><b id="bar-total">$0</b><span id="bar-count"></span></button>
+      <button class="wa" type="button" onclick="enviarPedidoRapido()">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.847L.057 23.882l6.207-1.456A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.853 0-3.587-.5-5.084-1.37l-.363-.214-3.767.884.933-3.667-.235-.375A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Enviar pedido
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Detalle de perfume -->
+<div class="sheet-bg" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="m-nombre">
+    <div class="sheet-h"><span class="marca" id="m-marca"></span><button class="x" type="button" data-cerrar aria-label="Cerrar">✕</button></div>
+    <div class="sheet-c">
+      <div class="m-foto" id="m-foto"></div>
+      <h2 class="m-nombre" id="m-nombre"></h2>
+      <div class="pills" id="m-pills"></div>
+      <p class="m-notas" id="m-notas"></p>
+      <p class="aviso" id="m-aviso" hidden></p>
+      <p class="sub">Precio por pieza según tu pedido</p>
+      <div class="tabla" id="m-tabla"></div>
+      <div class="m-cant">
+        <div><small>Tu precio</small><b id="m-precio"></b></div>
+        <div class="step"><button type="button" id="m-menos" onclick="modalQty(-1)" aria-label="Quitar uno">−</button><output id="m-qty">0</output><button type="button" id="m-mas" onclick="modalQty(1)" aria-label="Agregar uno">+</button></div>
+      </div>
+      <button class="btn" type="button" data-cerrar>✓ Listo — seguir viendo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mi pedido -->
+<div class="sheet-bg" id="cart-modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cart-titulo">
+    <div class="sheet-h"><h2 id="cart-titulo">Tu pedido</h2><button class="x" type="button" data-cerrar aria-label="Cerrar">✕</button></div>
+    <div class="sheet-c">
+      <div id="cart-items"></div>
+      <div class="totales" id="cart-totales">
+        <div class="t1"><span id="cart-count"></span><b id="cart-total">$0</b></div>
+        <p class="ahorro" id="cart-saving"></p>
+        <p class="nivel-txt" id="cart-nivel"></p>
+      </div>
+      <div class="campos">
+        <input id="nc-cliente" class="in" type="text" placeholder="Tu nombre" autocomplete="name">
+        <input id="nc-telefono" class="in" type="tel" inputmode="numeric" placeholder="Tu WhatsApp (10 dígitos)" autocomplete="tel" oninput="onTelefonoInput()">
+        <p id="nc-saludo" class="msg info" hidden></p>
+        <input id="nc-codigo" class="in mayus" type="text" placeholder="Código de descuento (opcional)" autocomplete="off" oninput="onCodigoInput()">
+        <p id="nc-codigo-msg" class="msg" hidden></p>
+        <p id="nc-error" class="msg err" hidden></p>
+      </div>
+      <button class="btn verde" type="button" id="nc-btn-enviar" onclick="confirmarPedido()">Enviar pedido por WhatsApp</button>
+      <p class="nota-envio">Se abre WhatsApp con tu pedido listo. Ahí confirmamos pago y envío.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PIN administrador (5 toques en el logo) -->
+<div class="sheet-bg" id="admin-pin-modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-h"><h2>🔒 Acceso administrador</h2><button class="x" type="button" data-cerrar aria-label="Cerrar">✕</button></div>
+    <div class="sheet-c">
+      <input id="admin-pin-input" class="in" type="password" inputmode="numeric" placeholder="PIN" style="text-align:center;letter-spacing:.3em">
+      <p id="admin-pin-error" class="msg err" hidden style="margin-top:8px"></p>
+      <button id="admin-pin-btn" class="btn" type="button" onclick="intentarLoginAdmin()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel administrador -->
+<div class="sheet-bg" id="admin-modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-h"><h2>Panel administrador</h2><button class="x" type="button" data-cerrar aria-label="Cerrar">✕</button></div>
+    <div class="sheet-c">
+      <div class="tabs">
+        <button id="admin-tab-btn-codigos" type="button" class="on" onclick="cambiarTabAdmin('codigos')">Códigos</button>
+        <button id="admin-tab-btn-venta" type="button" onclick="cambiarTabAdmin('venta')">Venta manual</button>
+      </div>
+
+      <div id="admin-tab-codigos">
+        <div id="admin-codigos-lista" class="adm-lista"></div>
+        <div class="adm-form">
+          <p class="sub" style="margin:0">Nuevo código / editar existente</p>
+          <input id="admin-codigo-texto" class="in mayus" type="text" placeholder="Código (ej. LANZAMIENTO20)">
+          <input id="admin-codigo-pct" class="in" type="number" min="1" max="99" step="1" placeholder="% de descuento (ej. 15)">
+          <input id="admin-codigo-motivo" class="in" type="text" placeholder="Motivo (ej. Lanzamiento agosto)">
+          <p class="sub" style="margin:4px 0 0">Vigencia (opcional — vacío = sin restricción)</p>
+          <div class="dos">
+            <div><label for="admin-codigo-inicio">Desde</label><input id="admin-codigo-inicio" class="in" type="date"></div>
+            <div><label for="admin-codigo-fin">Hasta</label><input id="admin-codigo-fin" class="in" type="date"></div>
+          </div>
+          <button class="btn verde" type="button" onclick="guardarCodigoAdmin()">Guardar código</button>
+          <p id="admin-codigo-msg" class="msg" hidden></p>
+        </div>
+      </div>
+
+      <div id="admin-tab-venta" hidden>
+        <div class="campos" style="margin-top:0">
+          <input id="admin-vm-cliente" class="in" type="text" placeholder="Nombre del cliente">
+          <input id="admin-vm-telefono" class="in" type="tel" placeholder="Teléfono">
+          <div class="dos">
+            <select id="admin-vm-tipopago" class="in" onchange="document.getElementById('admin-vm-plazos-wrap').hidden = this.value !== 'Abonos'">
+              <option value="Contado">Contado</option>
+              <option value="Abonos">Abonos</option>
+            </select>
+            <div id="admin-vm-plazos-wrap" hidden><input id="admin-vm-plazos" class="in" type="number" min="2" value="3" placeholder="Plazos"></div>
+          </div>
+          <div class="rel">
+            <input id="admin-vm-buscar" class="in" type="text" placeholder="Buscar perfume por nombre o marca…" oninput="adminVmBuscarProducto(this.value)" onblur="setTimeout(() => { document.getElementById('admin-vm-resultados').hidden = true; }, 200)">
+            <div id="admin-vm-resultados" class="resultados" hidden></div>
+          </div>
+          <div id="admin-vm-carrito" style="display:grid;gap:6px"></div>
+          <input id="admin-vm-codigo" class="in mayus" type="text" placeholder="Código de descuento (opcional)" oninput="onAdminVmCodigoInput()">
+          <p id="admin-vm-codigo-msg" class="msg" hidden></p>
+          <input id="admin-vm-descuento" class="in" type="number" min="0" max="100" step="0.5" placeholder="Descuento adicional % (reemplaza el nivel)" oninput="adminVmRecalcular()">
+          <input id="admin-vm-razon" class="in" type="text" placeholder="Razón del descuento adicional" hidden>
+          <div class="vm-res">Piezas: <b id="admin-vm-piezas">0</b> · Nivel: <b id="admin-vm-nivel">Público</b><br>Total: <b id="admin-vm-total" style="font-size:18px">$0</b></div>
+        </div>
+        <button id="admin-vm-btn" class="btn verde" type="button" onclick="adminRegistrarVentaManual()">Registrar venta</button>
+        <p id="admin-vm-msg" class="msg" hidden style="margin-top:8px"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SHEET_ID  = '19R5QP8YlFsJujsyJaUVIjaMQxzQRbsMPMNA5IvDl92M';
+  const WA_NUMBER = '524761604759';
+  // Web App de NotaCompra_WebApp.gs: registra el pedido en PEDIDOS_WEB, reconoce clientes,
+  // valida códigos y atiende el panel administrador.
+  const CATALOGO_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwWpvBUtItydbbkNFMWDMinZYdemuDujASLnSqAzJMInAmW__OPMJGhMYtjoCKr_CaLRw/exec';
+
+  const TIERS = [
+    { min: 1,   max: 4,    disc: 0,    label: '1–4 pz',   tag: 'Público' },
+    { min: 5,   max: 14,   disc: 0.10, label: '5–14 pz',  tag: '−10%' },
+    { min: 15,  max: 24,   disc: 0.15, label: '15–24 pz', tag: '−15%' },
+    { min: 25,  max: 49,   disc: 0.18, label: '25–49 pz', tag: '−18%' },
+    { min: 50,  max: 99,   disc: 0.20, label: '50–99 pz', tag: '−20%' },
+    { min: 100, max: 9999, disc: 0.22, label: '100+ pz',  tag: '−22%' },
+  ];
+
+  // Solo las columnas que usa la página (sin costos). Si algún día se mueven las columnas
+  // de MASTER, se vuelve a pedir la hoja completa y se buscan por nombre de encabezado.
+  const COLUMNAS = 'A,B,C,D,E,F,G,H,J,T,U,W';
+  const CACHE_KEY = 'nobile_catalogo_v1';
+
+  let allProducts = [];
+  let byId = {};
+  let cart = {};
+  let filtroTipo = 'Todos';
+  let filtroMarca = '';
+  let busqueda = '';
+  let codigoAplicado = null; // { codigo, descuentoPct, motivo } — reemplaza el nivel por cantidad
+
+  /* ===== Utilidades ===== */
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const dinero = n => '$' + Math.round(n).toLocaleString('es-MX');
+  const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const ls = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  };
+
+  /* ===== Catálogo (MASTER vía gviz) ===== */
+  function fotoId(url) {
+    if (!url) return '';
+    const m = String(url).match(/id=([^&]+)/) || String(url).match(/\/d\/([^/]+)/);
+    return m ? m[1] : String(url);
+  }
+  function fotoURL(foto, w) {
+    if (!foto) return '';
+    return /^https?:/.test(foto) ? foto : `https://drive.google.com/thumbnail?id=${foto}&sz=w${w}`;
+  }
+
+  /** PREVENTA_FECHA viene como "Date(y,m,d)" (mes desde 0). Las celdas vacías llegan como
+   *  1899 — esas no son fecha. Se toma el mediodía para no brincar de día por zona horaria. */
+  function fechaPreventa(raw, mes) {
+    if (!raw) return null;
+    const m = String(raw).match(/^Date\((\d+),(\d+),(\d+)/);
+    if (!m) return String(raw);
+    if (+m[1] < 2000) return null;
+    const d = new Date(+m[1], +m[2], +m[3], 12);
+    return d.toLocaleDateString('es-MX', { day: 'numeric', month: mes });
+  }
+
+  async function pedirMaster(select) {
+    const tq = select ? '&tq=' + encodeURIComponent('select ' + select) : '';
+    const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MASTER${tq}`);
+    const text = await res.text();
+    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+    if (json.status === 'error') throw new Error('gviz: ' + JSON.stringify(json.errors));
+    return json;
+  }
+
+  function parsear(json) {
+    const cols = json.table.cols.map(c => String(c.label || '').trim());
+    const ci = n => cols.indexOf(n);
+    if (['ID', 'MARCA', 'PERFUME', 'STOCK', 'PRECIO_PUBLICO'].some(n => ci(n) < 0)) return null;
+    const v = (r, n) => { const i = ci(n); return i < 0 || !r.c[i] ? null : r.c[i].v; };
+    return json.table.rows
+      .filter(r => v(r, 'ID'))
+      .filter(r => String(v(r, 'EN_CATALOGO') || '').trim().toUpperCase() !== 'NO')
+      .map(r => ({
+        id:      String(v(r, 'ID')),
+        foto:    fotoId(v(r, 'FOTO')),
+        marca:   String(v(r, 'MARCA') || '').trim(),
+        perfume: String(v(r, 'PERFUME') || '').trim(),
+        tamano:  v(r, 'TAMAÑO') || '',
+        tipo:    String(v(r, 'TIPO') || '').trim(),
+        notas:   String(v(r, 'NOTAS') || '').trim(),
+        stock:   parseInt(v(r, 'STOCK')) || 0,
+        p1:      parseFloat(v(r, 'PRECIO_PUBLICO')) || 0,
+        preventaFecha: fechaPreventa(v(r, 'PREVENTA_FECHA'), 'long'),
+        preventaCorta: fechaPreventa(v(r, 'PREVENTA_FECHA'), 'short'),
+        preventaDisponible: parseInt(v(r, 'PREVENTA_DISPONIBLE')) || 0,
+      }))
+      .filter(p => p.p1 > 0);
+  }
+
+  async function traerCatalogo() {
+    let lista = null;
+    try { lista = parsear(await pedirMaster(COLUMNAS)); } catch (e) { console.warn('Consulta corta falló, pido la hoja completa.', e); }
+    if (!lista) lista = parsear(await pedirMaster(''));
+    if (!lista) throw new Error('MASTER no trae los encabezados esperados.');
+    return lista;
+  }
+
+  function ordenar(lista) {
+    const hay = p => maxAddable(p) > 0 ? 1 : 0;
+    return lista.sort((a, b) => (hay(b) - hay(a)) || a.marca.localeCompare(b.marca, 'es') || a.perfume.localeCompare(b.perfume, 'es'));
+  }
+
+  function ponerProductos(lista) {
+    allProducts = ordenar(lista);
+    byId = {};
+    allProducts.forEach(p => { byId[p.id] = p; });
+    // Si cambió el stock desde la última carga, el carrito no puede pasarse de lo disponible.
+    for (const id of Object.keys(cart)) {
+      const p = byId[id];
+      const max = p ? maxAddable(p) : 0;
+      if (!max) delete cart[id];
+      else if (cart[id] > max) cart[id] = max;
+    }
+    $('estado').hidden = true;
+    llenarMarcas();
+    const nPre = allProducts.filter(p => cupoPreventa(p) > 0).length;
+    $('chip-preventa').textContent = `🕓 Preventa (${nPre})`;
+    $('chip-preventa').hidden = nPre === 0;
+    renderGrid();
+    updateBar();
+    if (!$('cart-modal').hidden) renderCartModal();
+  }
+
+  /** Muestra al instante lo de la última visita y luego actualiza con lo de la hoja. */
+  async function loadData() {
+    let cache = null;
+    try {
+      const c = JSON.parse(ls.get(CACHE_KEY) || 'null');
+      if (c && Array.isArray(c.p) && Date.now() - c.t < 3 * 24 * 3600 * 1000) cache = c.p;
+    } catch (e) {}
+    if (cache) ponerProductos(cache);
+    try {
+      const lista = await traerCatalogo();
+      ponerProductos(lista);
+      ls.set(CACHE_KEY, JSON.stringify({ t: Date.now(), p: lista }));
+    } catch (e) {
+      console.error(e);
+      if (!cache) {
+        $('estado').hidden = false;
+        $('estado').innerHTML = 'No se pudo cargar el catálogo.<br><button class="btn claro" type="button" onclick="location.reload()">Reintentar</button>';
+      }
+    }
+  }
+
+  /* ===== Precios y niveles ===== */
+  function totalQty() { return Object.values(cart).reduce((a, b) => a + b, 0); }
+
+  /** Nivel real según la cantidad total del carrito. */
+  function tierRealIdx() {
+    const q = totalQty();
+    for (let i = TIERS.length - 1; i >= 0; i--) if (q >= TIERS[i].min) return i;
+    return 0;
+  }
+  /** Lo que de verdad se cobra: el código de descuento, si hay, manda sobre el nivel. */
+  function tierReal() {
+    if (codigoAplicado) {
+      return { disc: codigoAplicado.descuentoPct, label: `Código ${codigoAplicado.codigo}`, tag: `−${Math.round(codigoAplicado.descuentoPct * 100)}%` };
+    }
+    return TIERS[tierRealIdx()];
+  }
+  function getPrice(p) {
+    const disc = tierReal().disc;
+    return disc > 0 ? Math.round(p.p1 * (1 - disc)) : p.p1;
+  }
+  const precioNivel = (p, t) => t.disc > 0 ? Math.round(p.p1 * (1 - t.disc)) : p.p1;
+  const claveNivel = () => codigoAplicado ? 'c' + codigoAplicado.descuentoPct : 't' + tierRealIdx();
+
+  /* ===== Preventa: piezas que vienen en camino (MASTER!U, ya descontadas las apartadas) ===== */
+  function cupoPreventa(p) { return p.preventaFecha && p.preventaDisponible > 0 ? p.preventaDisponible : 0; }
+  /** Agotado, pero con pedido en camino. */
+  function enPreventa(p) { return p.stock <= 0 && cupoPreventa(p) > 0; }
+  /** Lo que hay en existencia más lo que viene en camino. */
+  function maxAddable(p) { return Math.max(0, p.stock) + cupoPreventa(p); }
+  /** De las q piezas en el carrito, cuántas son de preventa (las que pasan de la existencia). */
+  function piezasPreventa(p, q) { return Math.max(0, q - Math.max(0, p.stock)); }
+
+  /* ===== Escala de niveles (arriba) ===== */
+  function pintarEscala() {
+    const qty = totalQty(), idx = tierRealIdx();
+    $('escala').innerHTML = TIERS.map((t, i) => {
+      const on = qty > 0 && !codigoAplicado && i === idx;
+      return `<li class="${on ? 'on' : ''}"><b>${t.max > 999 ? t.min + '+' : t.min + '–' + t.max}</b><span>${t.tag}</span></li>`;
+    }).join('');
+  }
+
+  /* ===== Filtros ===== */
+  function llenarMarcas() {
+    const cuenta = {};
+    allProducts.forEach(p => { if (p.marca && p.marca !== 'Legend EDP') cuenta[p.marca] = (cuenta[p.marca] || 0) + 1; });
+    const sel = $('marca');
+    sel.innerHTML = '<option value="">Todas las marcas</option>' + Object.keys(cuenta)
+      .sort((a, b) => a.localeCompare(b, 'es'))
+      .map(m => `<option value="${esc(m)}">${esc(m)} (${cuenta[m]})</option>`).join('');
+    sel.value = filtroMarca;
+    if (sel.value !== filtroMarca) filtroMarca = '';
+    sel.classList.toggle('on', !!filtroMarca);
+  }
+
+  function filtrados() {
+    const palabras = norm(busqueda).split(/\s+/).filter(Boolean);
+    return allProducts.filter(p => {
+      if (filtroTipo === 'Preventa') { if (!cupoPreventa(p)) return false; }
+      else if (filtroTipo !== 'Todos' && p.tipo !== filtroTipo) return false;
+      if (filtroMarca && p.marca !== filtroMarca) return false;
+      if (palabras.length) {
+        const texto = norm(`${p.marca} ${p.perfume} ${p.notas} ${p.tipo}`);
+        if (!palabras.every(w => texto.includes(w))) return false;
+      }
+      return true;
+    });
+  }
+
+  function limpiarFiltros() {
+    filtroTipo = 'Todos'; filtroMarca = ''; busqueda = '';
+    $('search').value = '';
+    $('marca').value = ''; $('marca').classList.remove('on');
+    document.querySelectorAll('#chips [data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === 'Todos'));
+    renderGrid();
+  }
+
+  /* ===== Tarjetas ===== */
+  function imgHTML(p, w) {
+    if (!p.foto) return `<span class="sinfoto">${esc((p.marca || '?')[0])}</span>`;
+    return `<img src="${esc(fotoURL(p.foto, w))}" alt="" loading="lazy" decoding="async" width="${w}" height="${w}" onerror="this.style.visibility='hidden'">`;
+  }
+
+  function precioHTML(p) {
+    const pr = getPrice(p);
+    let h = (pr < p.p1 ? `<s>${dinero(p.p1)}</s>` : '') + `<b>${dinero(pr)}</b>`;
+    if (!codigoAplicado && tierRealIdx() === 0) h += `<span class="may">Desde 5 pzas: ${dinero(precioNivel(p, TIERS[1]))}</span>`;
+    return h;
+  }
+
+  function ctlHTML(p) {
+    const q = cart[p.id] || 0, max = maxAddable(p);
+    if (max <= 0) return '<p class="nohay">Agotado por ahora</p>';
+    if (!q) return '<button class="add" type="button" data-act="mas">Agregar</button>';
+    return `<div class="step"><button type="button" data-act="menos" aria-label="Quitar uno">−</button><output>${q}</output><button type="button" data-act="mas" aria-label="Agregar uno"${q >= max ? ' disabled' : ''}>+</button></div>` +
+      (q >= max ? '<p class="tope">Es todo lo disponible</p>' : '');
+  }
+
+  function cardHTML(p) {
+    const q = cart[p.id] || 0, max = maxAddable(p), pre = enPreventa(p);
+    let tag = '';
+    if (max <= 0) tag = '<span class="tag ago">Agotado</span>';
+    else if (pre) tag = `<span class="tag pre">Preventa · ${esc(p.preventaCorta)}</span>`;
+    else if (p.stock <= 3 && !cupoPreventa(p)) tag = `<span class="tag poc">Quedan ${p.stock}</span>`;
+    const cam = !pre && p.stock > 0 && cupoPreventa(p) > 0
+      ? `<p class="cam">🕓 +${cupoPreventa(p)} llegan el ${esc(p.preventaCorta)}</p>` : '';
+    return `<article class="card${q ? ' sel' : ''}${max <= 0 ? ' agot' : ''}" data-id="${esc(p.id)}">` +
+      `<button class="ph" type="button" data-act="ver" aria-label="Ver ${esc(p.perfume)}">${imgHTML(p, 400)}${tag}<span class="qb"${q ? '' : ' hidden'}>${q}</span></button>` +
+      `<div class="cuerpo"><p class="marca">${esc(p.marca)}</p><h3>${esc(p.perfume)}</h3>` +
+      `<p class="meta">${esc(p.tamano)} ml${p.notas ? ' · ' + esc(p.notas) : ''}</p>` +
+      `<div class="pr">${precioHTML(p)}</div>${cam}<div class="ctl">${ctlHTML(p)}</div></div></article>`;
+  }
+
+  function renderGrid() {
+    if (!allProducts.length) return;
+    const lista = filtrados();
+    $('grid').innerHTML = lista.map(cardHTML).join('');
+    $('vacio').hidden = lista.length > 0;
+    const hayFiltro = filtroTipo !== 'Todos' || filtroMarca || busqueda.trim();
+    $('conteo').hidden = false;
+    $('conteo-txt').textContent = `${lista.length} perfume${lista.length === 1 ? '' : 's'}` + (hayFiltro ? '' : ` · ${allProducts.filter(p => maxAddable(p) > 0).length} disponibles`);
+    $('quitar-filtros').hidden = !hayFiltro;
+    pintarEscala();
+  }
+
+  /** Al cambiar la cantidad solo se toca esa tarjeta (antes se redibujaba todo el catálogo). */
+  function actualizarCard(id) {
+    const el = $('grid').querySelector(`[data-id="${CSS.escape(id)}"]`);
+    const p = byId[id];
+    if (!el || !p) return;
+    const q = cart[id] || 0;
+    el.classList.toggle('sel', q > 0);
+    const qb = el.querySelector('.qb');
+    qb.textContent = q; qb.hidden = !q;
+    el.querySelector('.ctl').innerHTML = ctlHTML(p);
+  }
+
+  /** Cuando cambia el nivel (o se aplica un código) cambian todos los precios — solo el texto. */
+  function actualizarPrecios() {
+    $('grid').querySelectorAll('.card').forEach(el => {
+      const p = byId[el.dataset.id];
+      if (p) el.querySelector('.pr').innerHTML = precioHTML(p);
+    });
+    pintarEscala();
+  }
+
+  /* ===== Carrito ===== */
+  function setQty(id, q) {
+    const p = byId[id];
+    if (!p) return;
+    const antes = claveNivel();
+    q = Math.max(0, Math.min(q, maxAddable(p)));
+    if (q > 0) cart[id] = q; else delete cart[id];
+    if (claveNivel() !== antes) actualizarPrecios();
+    actualizarCard(id);
+    updateBar();
+    if (!$('cart-modal').hidden) renderCartModal();
+    if (modalProductId === id) pintarModal();
+  }
+  const cambiarQty = (id, delta) => setQty(id, (cart[id] || 0) + delta);
+  function updateQty(id, delta) { cambiarQty(id, delta); }
+
+  function progreso() {
+    if (codigoAplicado) return { texto: `Código ${codigoAplicado.codigo}: −${Math.round(codigoAplicado.descuentoPct * 100)}% en todo`, pct: 100 };
+    const qty = totalQty(), i = tierRealIdx(), next = TIERS[i + 1];
+    if (!next) return { texto: `💎 Tienes el mejor precio: ${TIERS[i].tag}`, pct: 100 };
+    const desde = i === 0 ? 0 : TIERS[i].min;
+    const pct = Math.round((qty - desde) / (next.min - desde) * 100);
+    const need = next.min - qty;
+    return { texto: `Agrega ${need} más y pagas ${next.tag.replace('−', '')} menos`, pct };
+  }
+
+  function totales() {
+    let total = 0, saved = 0;
+    for (const [id, q] of Object.entries(cart)) {
+      const p = byId[id];
+      if (!p) continue;
+      const pr = getPrice(p);
+      total += q * pr; saved += q * (p.p1 - pr);
+    }
+    return { total, saved };
+  }
+
+  function updateBar() {
+    const qty = totalQty();
+    $('bar').hidden = qty === 0;
+    document.body.classList.toggle('con-barra', qty > 0);
+    if (!qty) return;
+    $('bar-total').textContent = dinero(totales().total);
+    $('bar-count').textContent = `${qty} pieza${qty === 1 ? '' : 's'} · Ver pedido`;
+    const pr = progreso();
+    $('prog-txt').textContent = pr.texto;
+    $('prog-bar').style.width = Math.min(100, Math.max(4, pr.pct)) + '%';
+  }
+
+  function renderCartModal() {
+    const entries = Object.entries(cart).filter(([id]) => byId[id]);
+    const cont = $('cart-items');
+    $('cart-totales').hidden = !entries.length;
+    if (!entries.length) {
+      cont.innerHTML = '<p class="vacio-c">Todavía no agregas perfumes.<br>Toca <b>Agregar</b> en cualquier perfume.</p>';
+      return;
+    }
+    cont.innerHTML = entries.map(([id, q]) => {
+      const p = byId[id], pr = getPrice(p), npre = piezasPreventa(p, q);
+      const pre = npre ? `<p class="ci-pre">🕓 ${npre === q ? 'Preventa' : npre + ' de preventa'} · llega ~${esc(p.preventaFecha)}</p>` : '';
+      return `<div class="ci" data-id="${esc(id)}"><span class="ci-f">${imgHTML(p, 120)}</span>` +
+        `<div><p class="marca">${esc(p.marca)}</p><p class="ci-n">${esc(p.perfume)} ${esc(p.tamano)} ml</p>` +
+        `<p class="ci-p">${dinero(pr)} c/u · <b>${dinero(q * pr)}</b></p>${pre}</div>` +
+        `<div class="ci-acc"><div class="step"><button type="button" data-act="menos" aria-label="Quitar uno">−</button><output>${q}</output>` +
+        `<button type="button" data-act="mas" aria-label="Agregar uno"${q >= maxAddable(p) ? ' disabled' : ''}>+</button></div>` +
+        `<button class="quitar" type="button" data-act="quitar">Quitar</button></div></div>`;
+    }).join('');
+    const qty = totalQty(), t = totales(), real = tierReal();
+    $('cart-count').textContent = `${qty} pieza${qty === 1 ? '' : 's'}`;
+    $('cart-total').textContent = dinero(t.total);
+    $('cart-saving').textContent = t.saved > 0 ? `Ahorras ${dinero(t.saved)} contra precio público` : '';
+    const pr = progreso();
+    $('cart-nivel').textContent = codigoAplicado ? pr.texto : `Tu nivel: ${real.label} (${real.tag})` + (TIERS[tierRealIdx() + 1] ? ` · ${pr.texto}` : '');
+  }
+
+  function openCartModal() {
+    renderCartModal();
+    prefillClienteFields();
+    $('nc-error').hidden = true;
+    abrirSheet('cart-modal');
+  }
+  function closeCartModal() { cerrarSheet('cart-modal'); }
+
+  /* ===== Detalle de perfume ===== */
+  let modalProductId = null;
+
+  function openModal(id) {
+    const p = byId[id];
+    if (!p) return;
+    modalProductId = id;
+    $('m-foto').innerHTML = imgHTML(p, 600);
+    $('m-marca').textContent = p.marca;
+    $('m-nombre').textContent = p.perfume;
+    $('m-pills').innerHTML = `<span>${esc(p.tamano)} ml</span>` + (p.tipo ? `<span>${esc(p.tipo)}</span>` : '');
+    $('m-notas').textContent = p.notas ? '🌿 ' + p.notas : '';
+    $('m-notas').hidden = !p.notas;
+    const av = $('m-aviso'), cupo = cupoPreventa(p);
+    av.hidden = false;
+    if (enPreventa(p)) {
+      av.className = 'aviso pre';
+      av.innerHTML = `🕓 <b>Preventa</b> — este perfume ya se agotó pero viene un pedido en camino, llega aprox. el <b>${esc(p.preventaFecha)}</b>. Quedan ${cupo} pieza(s) para apartar. Si el pedido se retrasa, esperas un poco más o te regresamos tu dinero si no llega a tiempo.`;
+    } else if (p.stock > 0 && cupo > 0) {
+      av.className = 'aviso ok';
+      av.innerHTML = `Hay <b>${p.stock}</b> en existencia y llegan <b>${cupo}</b> más el ${esc(p.preventaFecha)}. Si pides más de ${p.stock}, las demás van en preventa.`;
+    } else if (p.stock > 0) {
+      av.className = 'aviso ok';
+      av.innerHTML = p.stock <= 3 ? `Quedan <b>${p.stock}</b> en existencia.` : `<b>${p.stock}</b> en existencia.`;
+    } else {
+      av.className = 'aviso no';
+      av.textContent = 'Agotado por ahora. Escríbeme y te aviso cuando vuelva.';
+    }
+    pintarModal();
+    abrirSheet('modal');
+  }
+
+  function pintarModal() {
+    const p = byId[modalProductId];
+    if (!p) return;
+    const q = cart[p.id] || 0, idx = tierRealIdx();
+    $('m-tabla').innerHTML = TIERS.map((t, i) =>
+      `<div class="${!codigoAplicado && q > 0 && i === idx ? 'on' : ''}"><small>${t.label}</small><b>${dinero(precioNivel(p, t))}</b><small>${t.tag}</small></div>`
+    ).join('');
+    $('m-qty').textContent = q;
+    $('m-precio').textContent = dinero(getPrice(p));
+    $('m-mas').disabled = q >= maxAddable(p);
+    $('m-menos').disabled = q <= 0;
+  }
+
+  function modalQty(delta) { if (modalProductId) cambiarQty(modalProductId, delta); }
+
+  /* ===== Hojas: abrir/cerrar con el botón "atrás" del celular ===== */
+  let pila = [], ignorarPop = 0;
+  function mostrar(id) {
+    $(id).hidden = false;
+    pila.push(id);
+    document.body.classList.add('no-scroll');
+  }
+  function ocultar(id) {
+    $(id).hidden = true;
+    pila = pila.filter(x => x !== id);
+    if (!pila.length) document.body.classList.remove('no-scroll');
+    if (id === 'modal') modalProductId = null;
+  }
+  function abrirSheet(id) {
+    if (!$(id).hidden) return;
+    mostrar(id);
+    try { history.pushState({ sheet: id }, ''); } catch (e) {}
+  }
+  function cerrarSheet(id) {
+    if ($(id).hidden) return;
+    ocultar(id);
+    try { if (history.state && history.state.sheet === id) { ignorarPop++; history.back(); } } catch (e) {}
+  }
+  /** Pasa de una hoja a otra sin dejar entradas de más en el historial. */
+  function cambiarSheet(de, a) {
+    ocultar(de); mostrar(a);
+    try { history.replaceState({ sheet: a }, ''); } catch (e) {}
+  }
+  window.addEventListener('popstate', () => {
+    if (ignorarPop > 0) { ignorarPop--; return; }
+    const top = pila[pila.length - 1];
+    if (top) ocultar(top);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && pila.length) cerrarSheet(pila[pila.length - 1]);
+  });
+  document.querySelectorAll('.sheet-bg').forEach(bg => {
+    bg.addEventListener('click', e => {
+      if (e.target === bg || e.target.closest('[data-cerrar]')) cerrarSheet(bg.id);
+    });
+  });
+
+  /* ===== Enviar pedido ===== */
+  /** Botón verde de la barra: si ya lo conocemos (nombre y teléfono guardados), manda el
+   *  pedido directo; si no, abre "Tu pedido" para que llene sus datos. */
+  function enviarPedidoRapido() {
+    const stored = getStoredCliente();
+    if (!stored.nombre || !stored.telefono) { openCartModal(); return; }
+    prefillClienteFields();
+    confirmarPedido();
+  }
+
+  function errorPedido(texto, campo) {
+    if ($('cart-modal').hidden) openCartModal();
+    const err = $('nc-error');
+    err.textContent = texto; err.hidden = false;
+    if (campo) $(campo).focus();
+  }
+
+  /** Manda a WhatsApp DE INMEDIATO y registra el pedido pendiente en segundo plano. Si el
+   *  registro falla, el cliente ya tiene su WhatsApp — nunca se bloquea la venta. */
+  function confirmarPedido() {
+    const cliente  = $('nc-cliente').value.trim();
+    const telefono = $('nc-telefono').value.trim().replace(/\D/g, '');
+    const tipoPago = 'Contado'; // los pedidos de la web siempre se registran de contado
+    const numPlazos = null;
+    $('nc-error').hidden = true;
+
+    if (!totalQty()) return errorPedido('Agrega al menos un perfume.');
+    if (!cliente) return errorPedido('Escribe tu nombre antes de enviar tu pedido.', 'nc-cliente');
+    if (telefono.length < 10) return errorPedido('Escribe tu WhatsApp (10 dígitos) antes de enviar tu pedido.', 'nc-telefono');
+
+    saveStoredCliente(cliente, telefono);
+
+    // Se abre YA, mientras el toque todavía cuenta como "gesto directo"; si se abriera
+    // después, Safari/Chrome bloquean la ventana en silencio.
+    const waWin = window.open('', '_blank');
+
+    const items = Object.entries(cart).filter(([id]) => byId[id]).map(([id, cantidad]) => ({
+      id, cantidad, precioUnitario: getPrice(byId[id]),
+    }));
+
+    closeCartModal();
+    sendWhatsApp(cliente, tipoPago, numPlazos, waWin);
+
+    const motivoDescuento = codigoAplicado
+      ? `Código ${codigoAplicado.codigo}` + (codigoAplicado.motivo ? ` — ${codigoAplicado.motivo}` : '')
+      : '';
+
+    // Sin header Content-Type a propósito (evita el preflight OPTIONS que Apps Script no contesta).
+    if (CATALOGO_WEBAPP_URL && !MODO_PRUEBA) {
+      fetch(CATALOGO_WEBAPP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ cliente, telefono, tipoPago, numPlazos, items, motivoDescuento }),
+      }).catch(err => console.warn('No se pudo registrar el pedido pendiente en el Sheet.', err));
+    }
+  }
+
+  function sendWhatsApp(cliente, tipoPago, numPlazos, waWin) {
+    const qty = totalQty();
+    const tier = tierReal();
+    let total = 0, saved = 0, hayPreventa = false;
+    const lines = [];
+    if (MODO_PRUEBA) lines.push('🧪 *PRUEBA — no registrar*');
+    lines.push('🛍️ *Pedido Mayoreo — IanCarloMV*', '⏳ Pendiente de confirmar pago');
+    lines.push(`📦 Tier: ${tier.label}`, '─────────────────');
+    for (const [id, q] of Object.entries(cart)) {
+      const p = byId[id];
+      if (!p) continue;
+      const price = getPrice(p), sub = q * price;
+      total += sub; saved += q * (p.p1 - price);
+      const npre = piezasPreventa(p, q);
+      if (npre) hayPreventa = true;
+      const etiqueta = npre === q ? ' 🕓 PREVENTA' : npre ? ` (🕓 ${npre} de preventa)` : '';
+      lines.push(`• *${p.marca} ${p.perfume}* ${p.tamano}ml${etiqueta}`);
+      lines.push(`  ${q} pz × ${dinero(price)} = ${dinero(sub)}`);
+      if (npre) lines.push(`  Llega aprox. ${p.preventaFecha}`);
+    }
+    lines.push('─────────────────');
+    lines.push(`*Total: ${dinero(total)} (${qty} pzas)*`);
+    if (saved > 0) lines.push(`✅ Ahorro vs precio público: ${dinero(saved)}`);
+    if (tipoPago === 'Abonos' && numPlazos) lines.push(`💳 Pago a abonos en ${numPlazos} plazos`);
+    if (hayPreventa) lines.push('🕓 Este pedido incluye producto(s) en preventa — si se retrasa el envío del proveedor, esperas un poco más o te regreso tu dinero si no llega a tiempo.');
+    if (cliente) lines.push(`👤 ${cliente}`);
+    gtag('event', 'whatsapp_click', { event_category: 'conversion', event_label: `${qty} piezas · ${dinero(total)}` });
+    const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`;
+    if (waWin && !waWin.closed) waWin.location.href = waUrl;
+    else window.open(waUrl, '_blank'); // respaldo si el navegador bloqueó la ventana pre-abierta
+  }
+
+  /* ===== Identificación por teléfono ===== */
+  const LS_TEL = 'nobile_cliente_telefono';
+  const LS_NOMBRE = 'nobile_cliente_nombre';
+  let clienteLookupTimeout = null;
+
+  function getStoredCliente() { return { telefono: ls.get(LS_TEL) || '', nombre: ls.get(LS_NOMBRE) || '' }; }
+  function saveStoredCliente(nombre, telefono) { ls.set(LS_NOMBRE, nombre); ls.set(LS_TEL, telefono); }
+
+  function prefillClienteFields() {
+    const stored = getStoredCliente();
+    if (stored.nombre && !$('nc-cliente').value) $('nc-cliente').value = stored.nombre;
+    if (stored.telefono && !$('nc-telefono').value) $('nc-telefono').value = stored.telefono;
+    if (stored.nombre) { $('nc-saludo').textContent = `👋 Hola de nuevo, ${stored.nombre}`; $('nc-saludo').hidden = false; }
+  }
+
+  function mostrarSaludoBreve(nombre) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = `👋 Hola de nuevo, ${nombre}`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+  }
+  function initWelcome() {
+    const stored = getStoredCliente();
+    if (stored.telefono && stored.nombre) mostrarSaludoBreve(stored.nombre);
+  }
+
+  /** Con 10 dígitos busca si ese número ya compró antes y, si sí, pone su nombre. */
+  function onTelefonoInput() {
+    const saludoEl = $('nc-saludo');
+    const telefono = $('nc-telefono').value.trim().replace(/\D/g, '');
+    saludoEl.hidden = true;
+    clearTimeout(clienteLookupTimeout);
+    if (telefono.length < 10 || !CATALOGO_WEBAPP_URL) return;
+    clienteLookupTimeout = setTimeout(async () => {
+      let info = { ok: false };
+      try {
+        const controller = new AbortController();
+        const aviso = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=cliente&telefono=${encodeURIComponent(telefono)}`, { signal: controller.signal });
+        clearTimeout(aviso);
+        info = await res.json();
+      } catch (err) { console.warn('No se pudo verificar el cliente.', err); }
+      if (info.ok && info.existe) {
+        if (!$('nc-cliente').value.trim()) $('nc-cliente').value = info.nombre;
+        saludoEl.textContent = `👋 Hola de nuevo, ${info.nombre}` +
+          (info.totalPedidos > 0 ? ` — llevas ${info.totalPedidos} pedido${info.totalPedidos === 1 ? '' : 's'}` : '');
+        saludoEl.hidden = false;
+      }
+    }, 600);
+  }
+
+  /* ===== Código de descuento (hoja CODIGOS_DESCUENTO vía el Web App) ===== */
+  let codigoLookupTimeout = null;
+
+  function onCodigoInput() {
+    const msgEl = $('nc-codigo-msg');
+    const codigo = $('nc-codigo').value.trim().toUpperCase();
+    clearTimeout(codigoLookupTimeout);
+    msgEl.hidden = true;
+    if (codigoAplicado && codigoAplicado.codigo !== codigo) {
+      codigoAplicado = null;
+      aplicarCambioDeCodigo();
+    }
+    if (!codigo || !CATALOGO_WEBAPP_URL) return;
+    codigoLookupTimeout = setTimeout(async () => {
+      let info = { ok: false };
+      try {
+        const controller = new AbortController();
+        const aviso = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=codigo&codigo=${encodeURIComponent(codigo)}`, { signal: controller.signal });
+        clearTimeout(aviso);
+        info = await res.json();
+      } catch (err) { console.warn('No se pudo verificar el código.', err); }
+      if (info.ok && info.valido) {
+        codigoAplicado = { codigo, descuentoPct: info.descuentoPct, motivo: info.motivo || '' };
+        msgEl.className = 'msg ok';
+        msgEl.textContent = `✅ Código aplicado: −${Math.round(info.descuentoPct * 100)}%` + (info.motivo ? ` (${info.motivo})` : '');
+      } else {
+        codigoAplicado = null;
+        msgEl.className = 'msg err';
+        msgEl.textContent = '❌ Ese código no es válido.';
+      }
+      msgEl.hidden = false;
+      aplicarCambioDeCodigo();
+    }, 500);
+  }
+
+  function aplicarCambioDeCodigo() {
+    actualizarPrecios();
+    updateBar();
+    renderCartModal();
+    if (modalProductId) pintarModal();
+  }
+
+  /* ===== Paquetes y ayuda ===== */
+  function abrirWhatsApp(msg) { window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank'); }
+
+  function pedirPresupuesto() {
+    const budget = $('custom-budget').value;
+    const msg = $('presu-msg');
+    if (!budget || isNaN(budget) || budget <= 0) { msg.textContent = 'Escribe una cantidad para continuar.'; msg.hidden = false; return; }
+    msg.hidden = true;
+    abrirWhatsApp(`Hola, tengo $${Number(budget).toLocaleString('es-MX')} para invertir. ¿Me ayudas a armar mi paquete con los perfumes que más se venden?`);
+  }
+
+  function pedirAyuda() {
+    abrirWhatsApp('Hola, me gustaría que me ayudes a armar mi pedido. No sé bien en qué invertir.');
+  }
+
+  function pedirPaquete(num) {
+    const packs = {
+      1: `🎁 *Quiero el Pack Revendedor — $2,099*\n\nHola, me interesa el paquete de 4 perfumes top ventas.\n¿Puedes confirmarme la disponibilidad y los detalles?`,
+      2: `🎁 *Quiero el Pack Pro — $4,499*\n\nHola, me interesa el paquete de 8 perfumes top ventas.\n¿Puedes confirmarme la disponibilidad y los detalles?`,
+    };
+    gtag('event', 'paquete_click', { event_category: 'conversion', event_label: `Pack ${num}` });
+    abrirWhatsApp(packs[num]);
+  }
+
+  /* ===== Eventos ===== */
+  $('grid').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]');
+    const card = b && b.closest('.card');
+    if (!card) return;
+    const id = card.dataset.id, act = b.dataset.act;
+    if (act === 'ver') openModal(id);
+    else if (act === 'mas') cambiarQty(id, 1);
+    else if (act === 'menos') cambiarQty(id, -1);
+  });
+  $('cart-items').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]');
+    const fila = b && b.closest('.ci');
+    if (!fila) return;
+    const id = fila.dataset.id, act = b.dataset.act;
+    if (act === 'mas') cambiarQty(id, 1);
+    else if (act === 'menos') cambiarQty(id, -1);
+    else if (act === 'quitar') setQty(id, 0);
+  });
+  $('chips').addEventListener('click', e => {
+    const b = e.target.closest('[data-f]');
+    if (!b) return;
+    filtroTipo = b.dataset.f;
+    document.querySelectorAll('#chips [data-f]').forEach(x => x.classList.toggle('on', x === b));
+    renderGrid();
+  });
+  $('marca').addEventListener('change', e => {
+    filtroMarca = e.target.value;
+    e.target.classList.toggle('on', !!filtroMarca);
+    renderGrid();
+  });
+  let busquedaTimer = null;
+  $('search').addEventListener('input', e => {
+    clearTimeout(busquedaTimer);
+    busquedaTimer = setTimeout(() => { busqueda = e.target.value; renderGrid(); }, 150);
+  });
+  $('quitar-filtros').addEventListener('click', limpiarFiltros);
+
+  if (MODO_PRUEBA) $('aviso-prueba').hidden = false;
+  pintarEscala();
+  loadData();
+  initWelcome();
+
+  /* ===== Panel administrador (oculto — 5 toques en el logo + PIN) =====
+   * El PIN nunca se guarda en este archivo público: vive en memoria mientras la pestaña está
+   * abierta y se manda con cada petición al Web App, que es quien lo valida. */
+  let logoTapCount = 0, logoTapTimer = null;
+  function onLogoTapAdmin() {
+    logoTapCount++;
+    clearTimeout(logoTapTimer);
+    logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 2000);
+    if (logoTapCount >= 5) {
+      logoTapCount = 0;
+      $('admin-pin-input').value = '';
+      $('admin-pin-error').hidden = true;
+      abrirSheet('admin-pin-modal');
+    }
+  }
+
+  let adminPin = '';
+  async function intentarLoginAdmin() {
+    const pin = $('admin-pin-input').value.trim();
+    const btn = $('admin-pin-btn');
+    const err = $('admin-pin-error');
+    err.hidden = true;
+    if (!pin) return;
+    btn.disabled = true; btn.textContent = 'Verificando...';
+    try {
+      const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=admincodigos&pin=${encodeURIComponent(pin)}`);
+      const info = await res.json();
+      if (!info.ok) { err.textContent = info.mensaje || 'PIN incorrecto.'; err.hidden = false; return; }
+      adminPin = pin;
+      renderAdminCodigos(info.codigos);
+      cambiarSheet('admin-pin-modal', 'admin-modal');
+      cambiarTabAdmin('codigos');
+      adminVmRenderCarrito();
+    } catch (e) {
+      err.textContent = 'No se pudo verificar el PIN. Revisa tu conexión.';
+      err.hidden = false;
+    } finally {
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+  }
+  $('admin-pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') intentarLoginAdmin(); });
+
+  function cambiarTabAdmin(tab) {
+    const esCodigos = tab === 'codigos';
+    $('admin-tab-codigos').hidden = !esCodigos;
+    $('admin-tab-venta').hidden = esCodigos;
+    $('admin-tab-btn-codigos').classList.toggle('on', esCodigos);
+    $('admin-tab-btn-venta').classList.toggle('on', !esCodigos);
+  }
+
+  function mostrarMsgAdmin(msgEl, texto, ok) {
+    msgEl.className = 'msg ' + (ok ? 'ok' : 'err');
+    msgEl.textContent = texto;
+    msgEl.hidden = false;
+  }
+
+  function renderAdminCodigos(codigos) {
+    const cont = $('admin-codigos-lista');
+    if (!codigos || !codigos.length) { cont.innerHTML = '<p class="msg" style="color:var(--mute)">No hay códigos todavía.</p>'; return; }
+    cont.innerHTML = codigos.map(c => {
+      const funcionando = c.activo && c.vigente;
+      const vigencia = (c.fechaInicio || c.fechaFin) ? `${esc(c.fechaInicio || '…')} → ${esc(c.fechaFin || '…')}` : '';
+      return `<div class="cod"><div><p class="c1">${esc(c.codigo)} <span>−${Math.round(c.descuentoPct * 100)}%</span></p>` +
+        `<p>${esc(c.motivo || '')}</p>${vigencia ? `<p class="${c.vigente ? '' : 'vencido'}">${vigencia}</p>` : ''}</div>` +
+        `<button type="button" class="${funcionando ? 'activo' : ''}" data-codigo="${esc(c.codigo)}">${c.activo ? (c.vigente ? 'Activo' : 'Fuera de fecha') : 'Inactivo'}</button></div>`;
+    }).join('');
+  }
+  $('admin-codigos-lista').addEventListener('click', e => {
+    const b = e.target.closest('[data-codigo]');
+    if (b) toggleCodigoAdmin(b.dataset.codigo);
+  });
+
+  async function recargarCodigosAdmin() {
+    const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=admincodigos&pin=${encodeURIComponent(adminPin)}`);
+    const info = await res.json();
+    if (info.ok) renderAdminCodigos(info.codigos);
+  }
+
+  async function guardarCodigoAdmin() {
+    const codigo = $('admin-codigo-texto').value.trim();
+    const pct = Number($('admin-codigo-pct').value);
+    const motivo = $('admin-codigo-motivo').value.trim();
+    const fechaInicio = $('admin-codigo-inicio').value;
+    const fechaFin = $('admin-codigo-fin').value;
+    const msg = $('admin-codigo-msg');
+    msg.hidden = true;
+    if (!codigo || !(pct > 0 && pct < 100)) return mostrarMsgAdmin(msg, 'Falta el código o el % (1-99).');
+    try {
+      const res = await fetch(CATALOGO_WEBAPP_URL, {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'adminGuardarCodigo', pin: adminPin, codigo, descuentoPct: pct / 100, motivo, fechaInicio, fechaFin }),
+      });
+      const info = await res.json();
+      if (!info.ok) return mostrarMsgAdmin(msg, info.mensaje);
+      mostrarMsgAdmin(msg, info.actualizado ? 'Código actualizado.' : 'Código creado.', true);
+      ['admin-codigo-texto', 'admin-codigo-pct', 'admin-codigo-motivo', 'admin-codigo-inicio', 'admin-codigo-fin'].forEach(id => { $(id).value = ''; });
+      recargarCodigosAdmin();
+    } catch (e) {
+      mostrarMsgAdmin(msg, 'Error de conexión: ' + e.message);
+    }
+  }
+
+  async function toggleCodigoAdmin(codigo) {
+    await fetch(CATALOGO_WEBAPP_URL, {
+      method: 'POST',
+      body: JSON.stringify({ accion: 'adminToggleCodigo', pin: adminPin, codigo }),
+    });
+    recargarCodigosAdmin();
+  }
+
+  /* ---- Venta manual: nivel por cantidad total, salvo código o % manual (que pide razón).
+   * Queda Pendiente en PEDIDOS_WEB igual que un pedido normal del catálogo. */
+  let adminVmCart = {};
+
+  function adminVmBuscarProducto(texto) {
+    const val = norm(texto.trim());
+    const cont = $('admin-vm-resultados');
+    if (!val) { cont.hidden = true; cont.innerHTML = ''; return; }
+    const matches = allProducts.filter(p => norm(`${p.id} ${p.marca} ${p.perfume}`).includes(val)).slice(0, 8);
+    cont.innerHTML = matches.length
+      ? matches.map(p => `<div data-id="${esc(p.id)}"><p>${esc(p.marca)} ${esc(p.perfume)} <small>${esc(p.tamano)}ml</small></p><small>${esc(p.id)} · stock: ${p.stock} · ${dinero(p.p1)}</small></div>`).join('')
+      : '<div><small>Sin resultados.</small></div>';
+    cont.hidden = false;
+  }
+  $('admin-vm-resultados').addEventListener('mousedown', e => e.preventDefault());
+  $('admin-vm-resultados').addEventListener('click', e => {
+    const d = e.target.closest('[data-id]');
+    if (d) adminVmAgregarProducto(d.dataset.id);
+  });
+
+  function adminVmAgregarProducto(id) {
+    adminVmCart[id] = (adminVmCart[id] || 0) + 1;
+    $('admin-vm-buscar').value = '';
+    $('admin-vm-resultados').hidden = true;
+    $('admin-vm-resultados').innerHTML = '';
+    adminVmRenderCarrito();
+  }
+
+  function adminVmCambiarCantidad(id, delta) {
+    adminVmCart[id] = (adminVmCart[id] || 0) + delta;
+    if (adminVmCart[id] <= 0) delete adminVmCart[id];
+    adminVmRenderCarrito();
+  }
+
+  function adminVmRenderCarrito() {
+    const cont = $('admin-vm-carrito');
+    const ids = Object.keys(adminVmCart);
+    cont.innerHTML = ids.length
+      ? ids.map(id => {
+          const p = byId[id];
+          const nombre = p ? `${p.marca} ${p.perfume} ${p.tamano}ml` : id;
+          return `<div class="vm-item" data-id="${esc(id)}"><span>${esc(nombre)}</span><div class="step"><button type="button" data-d="-1">−</button><output>${adminVmCart[id]}</output><button type="button" data-d="1">+</button></div></div>`;
+        }).join('')
+      : '<p class="msg" style="color:var(--mute)">Busca arriba y toca un producto para agregarlo.</p>';
+    adminVmRecalcular();
+  }
+  $('admin-vm-carrito').addEventListener('click', e => {
+    const b = e.target.closest('[data-d]');
+    const fila = b && b.closest('[data-id]');
+    if (fila) adminVmCambiarCantidad(fila.dataset.id, Number(b.dataset.d));
+  });
+
+  function adminVmDescuentoManualActivo() {
+    const val = $('admin-vm-descuento').value;
+    return val !== '' && val !== null && !isNaN(Number(val));
+  }
+
+  /* Código dentro de Venta manual: mismo endpoint que el checkout; si es válido manda
+   * sobre el % manual y sobre el nivel automático. */
+  let adminVmCodigoAplicado = null;
+  let adminVmCodigoTimeout = null;
+  function onAdminVmCodigoInput() {
+    const codigo = $('admin-vm-codigo').value.trim();
+    const msgEl = $('admin-vm-codigo-msg');
+    clearTimeout(adminVmCodigoTimeout);
+    if (adminVmCodigoAplicado && adminVmCodigoAplicado.codigo !== codigo) { adminVmCodigoAplicado = null; adminVmRecalcular(); }
+    if (!codigo) { msgEl.hidden = true; adminVmRecalcular(); return; }
+    if (!CATALOGO_WEBAPP_URL) return;
+    adminVmCodigoTimeout = setTimeout(async () => {
+      let info = { ok: false };
+      try {
+        const res = await fetch(`${CATALOGO_WEBAPP_URL}?accion=codigo&codigo=${encodeURIComponent(codigo)}`);
+        info = await res.json();
+      } catch (err) { console.warn('No se pudo verificar el código.', err); }
+      if (info.ok && info.valido) {
+        adminVmCodigoAplicado = { codigo, descuentoPct: info.descuentoPct, motivo: info.motivo || '' };
+        mostrarMsgAdmin(msgEl, `✅ Código aplicado: −${Math.round(info.descuentoPct * 100)}%` + (info.motivo ? ` (${info.motivo})` : ''), true);
+      } else {
+        adminVmCodigoAplicado = null;
+        mostrarMsgAdmin(msgEl, info.motivoInvalido || '❌ Ese código no es válido.');
+      }
+      adminVmRecalcular();
+    }, 500);
+  }
+
+  function adminVmRecalcular() {
+    let totalPiezas = 0;
+    Object.values(adminVmCart).forEach(q => { totalPiezas += q; });
+    const manual = adminVmDescuentoManualActivo();
+    $('admin-vm-razon').hidden = !manual || !!adminVmCodigoAplicado;
+    $('admin-vm-descuento').disabled = !!adminVmCodigoAplicado;
+    let disc, label;
+    if (adminVmCodigoAplicado) {
+      disc = adminVmCodigoAplicado.descuentoPct;
+      label = `Código ${adminVmCodigoAplicado.codigo.toUpperCase()}`;
+    } else if (manual) {
+      disc = Number($('admin-vm-descuento').value) / 100;
+      label = 'Manual (−' + $('admin-vm-descuento').value + '%)';
+    } else {
+      const tier = TIERS.find(t => totalPiezas >= t.min && totalPiezas <= t.max) || TIERS[0];
+      disc = tier.disc;
+      label = tier.tag + ' (' + tier.label + ')';
+    }
+    let total = 0;
+    Object.entries(adminVmCart).forEach(([id, cant]) => {
+      const p = byId[id];
+      if (p) total += Math.round(p.p1 * (1 - disc)) * cant;
+    });
+    $('admin-vm-piezas').textContent = totalPiezas;
+    $('admin-vm-nivel').textContent = label;
+    $('admin-vm-total').textContent = dinero(total);
+  }
+
+  async function adminRegistrarVentaManual() {
+    const msg = $('admin-vm-msg');
+    msg.hidden = true;
+    const cliente = $('admin-vm-cliente').value.trim();
+    const telefono = $('admin-vm-telefono').value.trim();
+    const tipoPago = $('admin-vm-tipopago').value;
+    const numPlazos = Number($('admin-vm-plazos').value);
+    const manual = adminVmDescuentoManualActivo();
+    const razonDescuento = $('admin-vm-razon').value.trim();
+
+    if (!cliente) return mostrarMsgAdmin(msg, 'Falta el nombre del cliente.');
+    if (tipoPago === 'Abonos' && (!numPlazos || numPlazos < 2)) return mostrarMsgAdmin(msg, 'Pon en cuántos plazos (mínimo 2).');
+    if (manual && !adminVmCodigoAplicado && !razonDescuento) return mostrarMsgAdmin(msg, 'Pusiste un descuento adicional — falta la razón.');
+    const items = Object.entries(adminVmCart).map(([id, cantidad]) => ({ id, cantidad }));
+    if (!items.length) return mostrarMsgAdmin(msg, 'Agrega al menos un producto.');
+
+    const btn = $('admin-vm-btn');
+    btn.disabled = true; btn.textContent = 'Registrando...';
+    try {
+      const res = await fetch(CATALOGO_WEBAPP_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          accion: 'adminVentaManual', pin: adminPin,
+          cliente, telefono, tipoPago, numPlazos, items,
+          codigo: adminVmCodigoAplicado ? adminVmCodigoAplicado.codigo : '',
+          descuentoAdicional: (!adminVmCodigoAplicado && manual) ? Number($('admin-vm-descuento').value) / 100 : null,
+          razonDescuento: (!adminVmCodigoAplicado && manual) ? razonDescuento : '',
+        }),
+      });
+      const info = await res.json();
+      if (!info.ok) return mostrarMsgAdmin(msg, info.mensaje);
+      // Queda Pendiente: falta confirmar el pago en PEDIDOS_WEB (Estado = Pagado).
+      msg.className = 'msg ok';
+      msg.innerHTML = `Pedido registrado como Pendiente — Folio ${esc(info.folio)} — Total ${dinero(info.total)}. Confírmalo en PEDIDOS_WEB (Estado = Pagado) para cerrarlo.` +
+        (info.facturaUrl ? ` — <a href="${esc(info.facturaUrl)}" target="_blank" rel="noopener">Ver nota</a>` : '');
+      msg.hidden = false;
+      ['admin-vm-cliente', 'admin-vm-telefono', 'admin-vm-codigo', 'admin-vm-descuento', 'admin-vm-razon'].forEach(id => { $(id).value = ''; });
+      $('admin-vm-codigo-msg').hidden = true;
+      adminVmCodigoAplicado = null;
+      $('admin-vm-descuento').disabled = false;
+      adminVmCart = {};
+      adminVmRenderCarrito();
+    } catch (e) {
+      mostrarMsgAdmin(msg, 'Error de conexión: ' + e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Registrar venta';
+    }
+  }
+</script>
+</body>
+</html>
