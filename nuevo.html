@@ -140,6 +140,9 @@
   .pk-n b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 800; }
   .pk-n small { display: block; color: var(--mute); font-weight: 700; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pk-n small.llega { color: var(--ambar); }
+  .pk-bono { margin: 10px 0 0; font-size: 13.5px; font-weight: 800; color: var(--azul); background: var(--azul-t); border-radius: 10px; padding: 8px 10px; }
+  .chk { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ink2); }
+  .chk input { width: 18px; height: 18px; }
   .pk-inc { margin: 12px 0 0; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 13.5px; color: var(--ink2); }
   .pk-valor { margin-top: 14px; background: var(--bg); border-radius: 14px; padding: 12px 14px; display: grid; gap: 4px; font-size: 14px; }
   .fv { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
@@ -404,7 +407,7 @@
 <section id="ofertas" hidden>
   <div class="wrap seccion">
     <h2>Ofertas en paquete</h2>
-    <p class="lead">Hasta 20% menos. Solo lo que queda en existencia.</p>
+    <p class="lead">Hasta 20% menos y, de regalo, en tu próximo pedido (preventa o restock) pagas un nivel de mayoreo arriba.</p>
     <div class="packs" id="ofertas-lista"></div>
   </div>
 </section>
@@ -598,6 +601,7 @@
         <div class="adm-form">
           <p class="sub" style="margin:0">Nuevo código / editar existente</p>
           <input id="admin-codigo-texto" class="in mayus" type="text" placeholder="Código (ej. LANZAMIENTO20)">
+          <label class="chk"><input type="checkbox" id="admin-codigo-bono" onchange="document.getElementById('admin-codigo-pct').disabled = this.checked"> Bono de paquete: +1 nivel de mayoreo (en lugar de %)</label>
           <input id="admin-codigo-pct" class="in" type="number" min="1" max="99" step="1" placeholder="% de descuento (ej. 15)">
           <input id="admin-codigo-motivo" class="in" type="text" placeholder="Motivo (ej. Lanzamiento agosto)">
           <p class="sub" style="margin:4px 0 0">Vigencia (opcional — vacío = sin restricción)</p>
@@ -929,8 +933,20 @@
     for (let i = TIERS.length - 1; i >= 0; i--) if (q >= TIERS[i].min) return i;
     return 0;
   }
+  /** Códigos de bono (premio por comprar un paquete de oferta): en la hoja se guardan con
+   *  motivo "+1 nivel …" y en vez de un % fijo suben un nivel de mayoreo según las piezas. */
+  const esBonoNivel = info => /^\s*\+\s*1\s*nivel/i.test(String((info && info.motivo) || ''));
+  const nivelConBono = piezas => {
+    const t = TIERS.find(x => piezas >= x.min && piezas <= x.max) || TIERS[0];
+    return TIERS[Math.min(TIERS.indexOf(t) + 1, TIERS.length - 1)];
+  };
+
   /** Lo que de verdad se cobra: el código de descuento, si hay, manda sobre el nivel. */
   function tierReal() {
+    if (codigoAplicado && codigoAplicado.nivelExtra) {
+      const t = TIERS[Math.min(tierRealIdx() + 1, TIERS.length - 1)];
+      return { disc: t.disc, label: `Bono +1 nivel (${codigoAplicado.codigo})`, tag: t.tag };
+    }
     if (codigoAplicado) {
       return { disc: codigoAplicado.descuentoPct, label: `Código ${codigoAplicado.codigo}`, tag: `−${Math.round(codigoAplicado.descuentoPct * 100)}%` };
     }
@@ -941,7 +957,7 @@
     return disc > 0 ? Math.round(p.p1 * (1 - disc)) : p.p1;
   }
   const precioNivel = (p, t) => t.disc > 0 ? Math.round(p.p1 * (1 - t.disc)) : p.p1;
-  const claveNivel = () => codigoAplicado ? 'c' + codigoAplicado.descuentoPct : 't' + tierRealIdx();
+  const claveNivel = () => codigoAplicado && !codigoAplicado.nivelExtra ? 'c' + codigoAplicado.descuentoPct : 't' + tierRealIdx();
 
   /* ===== Preventa: piezas que vienen en camino (MASTER!U, ya descontadas las apartadas) ===== */
   function cupoPreventa(p) { return p.preventaFecha && p.preventaDisponible > 0 ? p.preventaDisponible : 0; }
@@ -1004,6 +1020,7 @@
         `<div class="fv total"><span>Tú pagas</span><b>${dinero(pk.precio)}</b></div>` +
         (ahorro > 0 ? `<p class="pk-ahorro">Ahorras ${dinero(ahorro)}${pk.envioGratis ? ' + el envío' : ''}</p>` : '') +
       `</div>` +
+      (pk.oferta ? '<p class="pk-bono">🎁 Bono: en tu próximo pedido pagas un nivel de mayoreo arriba</p>' : '') +
       `<p class="pk-pie"><span class="vence">${pk.oferta ? `Quedan ${a.quedan} paquete${a.quedan === 1 ? '' : 's'}` : '⏳ Precio válido esta semana'}</span></p>` +
       `<button class="btn${!pk.oferta && pk.badge ? ' oro' : ''}" type="button" data-pack="${pk.id}">Quiero el ${esc(pk.nombre)}</button>` +
       `</article>`;
@@ -1153,6 +1170,12 @@
   }
 
   function progreso() {
+    if (codigoAplicado && codigoAplicado.nivelExtra) {
+      const i = tierRealIdx(), next = TIERS[i + 1], eff = tierReal();
+      if (!next || !TIERS[i + 2]) return { texto: `🎁 Bono +1 nivel: pagas ${eff.tag}`, pct: 100, ok: true };
+      const desde = i === 0 ? 0 : TIERS[i].min, need = next.min - totalQty();
+      return { texto: `🎁 Bono: pagas ${eff.tag} · agrega ${need} y pagas ${TIERS[i + 2].tag}`, pct: Math.round((totalQty() - desde) / (next.min - desde) * 100), ok: false };
+    }
     if (codigoAplicado) return { texto: `Código ${codigoAplicado.codigo}: −${Math.round(codigoAplicado.descuentoPct * 100)}% en todo`, pct: 100, ok: true };
     const qty = totalQty(), i = tierRealIdx(), next = TIERS[i + 1];
     if (!next) return { texto: `💎 Tienes el mejor precio: ${TIERS[i].tag}`, pct: 100, ok: true };
@@ -1488,9 +1511,11 @@
         info = await res.json();
       } catch (err) { console.warn('No se pudo verificar el código.', err); }
       if (info.ok && info.valido) {
-        codigoAplicado = { codigo, descuentoPct: info.descuentoPct, motivo: info.motivo || '' };
+        const bono = esBonoNivel(info);
+        codigoAplicado = { codigo, descuentoPct: info.descuentoPct, motivo: info.motivo || '', nivelExtra: bono ? 1 : 0 };
         msgEl.className = 'msg ok';
-        msgEl.textContent = `✅ Código aplicado: −${Math.round(info.descuentoPct * 100)}%` + (info.motivo ? ` (${info.motivo})` : '');
+        msgEl.textContent = bono ? '🎁 Bono aplicado: pagas un nivel de mayoreo arriba.'
+          : `✅ Código aplicado: −${Math.round(info.descuentoPct * 100)}%` + (info.motivo ? ` (${info.motivo})` : '');
       } else {
         codigoAplicado = null;
         msgEl.className = 'msg err';
@@ -1527,6 +1552,7 @@
     lines.push(`🎁 *Quiero el ${pk.nombre}${pk.oferta ? ' (oferta)' : ''} — ${dinero(pk.precio)}*`, '', 'Incluye:');
     a.items.forEach(p => lines.push(`• ${p.marca} ${p.perfume} ${p.tamano}ml` + (enPreventa(p) ? ` 🕓 llega ${p.preventaFecha}` : '')));
     if (pk.incluye) lines.push(`+ ${pk.incluye}${pk.envioGratis ? ' y envío gratis' : ''}`);
+    if (pk.oferta) lines.push('🎁 Con el bono: un nivel de mayoreo arriba en mi siguiente pedido');
     lines.push('', '¿Me confirmas para apartarlo?');
     gtag('event', 'paquete_click', { event_category: 'conversion', event_label: pk.nombre });
     const url = waLink(lines.join('\n'));
@@ -1594,11 +1620,13 @@
     return true;
   }
 
-  // Link directo a la preventa: .../Cat-logo/#preventa abre el catálogo ya filtrado.
+  // Links directos: .../Cat-logo/#preventa abre el catálogo ya filtrado; #ofertas lleva a los
+  // paquetes de oferta (la sección aparece hasta que cargan los productos).
   let hashAplicado = false;
   function aplicarHashInicial() {
-    if (hashAplicado || location.hash !== '#preventa') return;
-    if (irAPreventa()) hashAplicado = true;
+    if (hashAplicado) return;
+    if (location.hash === '#preventa') { if (irAPreventa()) hashAplicado = true; }
+    else if (location.hash === '#ofertas' && !$('ofertas').hidden) { $('ofertas').scrollIntoView(); hashAplicado = true; }
   }
   window.addEventListener('hashchange', () => { if (location.hash === '#preventa') irAPreventa(); });
 
@@ -1669,7 +1697,7 @@
     cont.innerHTML = codigos.map(c => {
       const funcionando = c.activo && c.vigente;
       const vigencia = (c.fechaInicio || c.fechaFin) ? `${esc(c.fechaInicio || '…')} → ${esc(c.fechaFin || '…')}` : '';
-      return `<div class="cod"><div><p class="c1">${esc(c.codigo)} <span>−${Math.round(c.descuentoPct * 100)}%</span></p>` +
+      return `<div class="cod"><div><p class="c1">${esc(c.codigo)} <span>${esBonoNivel(c) ? '+1 nivel' : '−' + Math.round(c.descuentoPct * 100) + '%'}</span></p>` +
         `<p>${esc(c.motivo || '')}</p>${vigencia ? `<p class="${c.vigente ? '' : 'vencido'}">${vigencia}</p>` : ''}</div>` +
         `<button type="button" class="${funcionando ? 'activo' : ''}" data-codigo="${esc(c.codigo)}">${c.activo ? (c.vigente ? 'Activo' : 'Fuera de fecha') : 'Inactivo'}</button></div>`;
     }).join('');
@@ -1687,8 +1715,11 @@
 
   async function guardarCodigoAdmin() {
     const codigo = $('admin-codigo-texto').value.trim();
-    const pct = Number($('admin-codigo-pct').value);
-    const motivo = $('admin-codigo-motivo').value.trim();
+    const bono = $('admin-codigo-bono').checked;
+    const pct = bono ? 1 : Number($('admin-codigo-pct').value);
+    const motivoEscrito = $('admin-codigo-motivo').value.trim();
+    // El bono se guarda como 1% con motivo "+1 nivel …": la página lo reconoce por el motivo.
+    const motivo = bono ? '+1 nivel · ' + (motivoEscrito || 'bono de paquete') : motivoEscrito;
     const fechaInicio = $('admin-codigo-inicio').value;
     const fechaFin = $('admin-codigo-fin').value;
     const msg = $('admin-codigo-msg');
@@ -1703,6 +1734,7 @@
       if (!info.ok) return mostrarMsgAdmin(msg, info.mensaje);
       mostrarMsgAdmin(msg, info.actualizado ? 'Código actualizado.' : 'Código creado.', true);
       ['admin-codigo-texto', 'admin-codigo-pct', 'admin-codigo-motivo', 'admin-codigo-inicio', 'admin-codigo-fin'].forEach(id => { $(id).value = ''; });
+      $('admin-codigo-bono').checked = false; $('admin-codigo-pct').disabled = false;
       recargarCodigosAdmin();
     } catch (e) {
       mostrarMsgAdmin(msg, 'Error de conexión: ' + e.message);
@@ -1792,8 +1824,9 @@
         info = await res.json();
       } catch (err) { console.warn('No se pudo verificar el código.', err); }
       if (info.ok && info.valido) {
-        adminVmCodigoAplicado = { codigo, descuentoPct: info.descuentoPct, motivo: info.motivo || '' };
-        mostrarMsgAdmin(msgEl, `✅ Código aplicado: −${Math.round(info.descuentoPct * 100)}%` + (info.motivo ? ` (${info.motivo})` : ''), true);
+        const bono = esBonoNivel(info);
+        adminVmCodigoAplicado = { codigo, descuentoPct: info.descuentoPct, motivo: info.motivo || '', nivelExtra: bono ? 1 : 0 };
+        mostrarMsgAdmin(msgEl, bono ? '🎁 Bono aplicado: un nivel de mayoreo arriba.' : `✅ Código aplicado: −${Math.round(info.descuentoPct * 100)}%` + (info.motivo ? ` (${info.motivo})` : ''), true);
       } else {
         adminVmCodigoAplicado = null;
         mostrarMsgAdmin(msgEl, info.motivoInvalido || '❌ Ese código no es válido.');
@@ -1809,7 +1842,11 @@
     $('admin-vm-razon').hidden = !manual || !!adminVmCodigoAplicado;
     $('admin-vm-descuento').disabled = !!adminVmCodigoAplicado;
     let disc, label;
-    if (adminVmCodigoAplicado) {
+    if (adminVmCodigoAplicado && adminVmCodigoAplicado.nivelExtra) {
+      const t = nivelConBono(totalPiezas);
+      disc = t.disc;
+      label = `Bono +1 nivel: ${t.tag}`;
+    } else if (adminVmCodigoAplicado) {
       disc = adminVmCodigoAplicado.descuentoPct;
       label = `Código ${adminVmCodigoAplicado.codigo.toUpperCase()}`;
     } else if (manual) {
@@ -1846,6 +1883,10 @@
     const items = Object.entries(adminVmCart).map(([id, cantidad]) => ({ id, cantidad }));
     if (!items.length) return mostrarMsgAdmin(msg, 'Agrega al menos un producto.');
 
+    // El servidor solo sabe de códigos con % fijo: el bono +1 nivel se manda como descuento
+    // adicional ya calculado, con la razón anotada.
+    const bonoVm = adminVmCodigoAplicado && adminVmCodigoAplicado.nivelExtra;
+    const piezasVm = items.reduce((s, it) => s + it.cantidad, 0);
     const btn = $('admin-vm-btn');
     btn.disabled = true; btn.textContent = 'Registrando...';
     try {
@@ -1854,9 +1895,9 @@
         body: JSON.stringify({
           accion: 'adminVentaManual', pin: adminPin,
           cliente, telefono, tipoPago, numPlazos, items,
-          codigo: adminVmCodigoAplicado ? adminVmCodigoAplicado.codigo : '',
-          descuentoAdicional: (!adminVmCodigoAplicado && manual) ? Number($('admin-vm-descuento').value) / 100 : null,
-          razonDescuento: (!adminVmCodigoAplicado && manual) ? razonDescuento : '',
+          codigo: adminVmCodigoAplicado && !bonoVm ? adminVmCodigoAplicado.codigo : '',
+          descuentoAdicional: bonoVm ? nivelConBono(piezasVm).disc : (!adminVmCodigoAplicado && manual) ? Number($('admin-vm-descuento').value) / 100 : null,
+          razonDescuento: bonoVm ? `Bono +1 nivel (código ${adminVmCodigoAplicado.codigo})` : (!adminVmCodigoAplicado && manual) ? razonDescuento : '',
         }),
       });
       const info = await res.json();
