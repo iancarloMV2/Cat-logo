@@ -120,11 +120,15 @@
   .top-pie a { text-decoration: none; }
 
   /* ---------- Paquetes ---------- */
-  .packs { display: grid; grid-auto-flow: column; grid-auto-columns: min(88%, 420px); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; margin-inline: -16px; padding: 10px 16px 6px; scrollbar-width: none; }
+  .packs { display: grid; align-items: start; grid-auto-flow: column; grid-auto-columns: min(88%, 420px); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; margin-inline: -16px; padding: 10px 16px 6px; scrollbar-width: none; }
   .packs::-webkit-scrollbar { display: none; }
   @media (min-width: 860px) { .packs { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 10px 0 0; } }
   .pack { scroll-snap-align: start; position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: 20px; padding: 18px 16px 16px; display: flex; flex-direction: column; box-shadow: var(--sombra); }
   .pack.pro { border: 2px solid var(--oro); }
+  .pack.grande { border: 2px solid var(--ink); }
+  .pack.grande .cinta { background: var(--ink); color: var(--oro); }
+  .pk-mas summary { cursor: pointer; list-style: none; font-size: 13px; font-weight: 800; color: var(--azul); margin-top: 10px; }
+  .pk-mas summary::-webkit-details-marker { display: none; }
   .pack.oferta { border: 2px solid var(--rojo); }
   .pack.oferta .cinta { background: var(--rojo); color: #fff; }
   .pack.oferta .btn { background: var(--rojo); }
@@ -425,7 +429,8 @@
 
 <section id="paquetes">
   <div class="wrap seccion">
-    <h2>Paquetes para empezar</h2>
+    <h2>Paquetes</h2>
+    <p class="lead">Entre más grande el paquete, más ahorras.</p>
     <div class="packs" id="packs"><p class="estado"><span class="girar"></span>Cargando paquetes…</p></div>
     <div class="top-pie"><a href="#" onclick="pedirPresupuesto(); return false;">¿Tienes otro presupuesto? Te armo uno →</a></div>
   </div>
@@ -673,6 +678,23 @@
       ids: ['ODSS-MND', 'AFN-9AM', 'LTF-YTO-EDP', 'RAS-HAWAS-EDP', 'ODSS-MEGA', 'BHA-ROM-PH', 'LTF-KHD-EDP', 'RAS-HMAL-EDP'],
       respaldo: ['ARM-SILL', 'ODSS-ART', 'ARM-MSKY', 'LTF-YELX-EDP', 'ODSS-BHM', 'ODSS-WHT'],
       incluye: '6 muestras para tus clientes, guía de ventas completa y acceso prioritario al grupo', envioGratis: true,
+    },
+    // Paquetes grandes para subir el ticket: mitad más vendidos, mitad mercancía que no se mueve.
+    // "ID*n" = n piezas de ese perfume. Máximo 20% abajo del valor; margen arriba de 25%.
+    {
+      id: 3, nombre: 'Pack Mayorista', precio: 10999, piezas: 20, grande: true, bono: true, envioGratis: true,
+      ids: ['ODSS-MND*2', 'AFN-9AM*2', 'ODSS-MEGA*2', 'BHA-ROM-PH', 'RAS-HMAL-EDP', 'LTFF-KHWAHA-EDP', 'LTF-YELX-EDP',
+        'RAS-HATL', 'MB-EXPL-EDP', 'MB-STAR-EDT', 'HOL-CS', 'LAT-FGEX', 'PH-PH-EDT', 'EMP-9T9-MINI', 'ODSS-WILD', 'PH-CCB-EDP', 'CKL-ETER-EDP'],
+      respaldo: [],
+      incluye: '10 de los más vendidos + 10 modelos para variar tu catálogo',
+    },
+    {
+      id: 4, nombre: 'Pack Distribuidor', precio: 17599, piezas: 30, grande: true, bono: true, envioGratis: true,
+      ids: ['ODSS-MND*3', 'AFN-9AM*3', 'ODSS-MEGA*3', 'BHA-ROM-PH*2', 'RAS-HMAL-EDP*2', 'EMP-ST53*2',
+        'RAS-HATL*2', 'HB-SCENT-EDT', 'LAC-RED-EDT', 'LAT-ECL', 'LAT-GLORY', 'CH-212VIP-W-EDP', 'LAT-ATH', 'ARM-SILL',
+        'MB-EMB-EDT', 'YUM', 'DK-BD', 'PH-CC-EDP', 'JDP-HERO', 'ODSS-WHT-MINI'],
+      respaldo: [],
+      incluye: '15 de los más vendidos + 15 modelos para variar tu catálogo',
     },
     // Ofertas: perfumes con existencia que casi no se venden (más de 6 meses de inventario al
     // ritmo de los últimos 90 días). Máximo 20% abajo del valor y siempre arriba del costo.
@@ -991,38 +1013,50 @@
     }).join('');
   }
 
-  /** Las ofertas solo usan lo que ya está en existencia; los paquetes normales aceptan preventa. */
+  /** Cada renglón de ids es "ID" o "ID*cantidad". Las ofertas solo usan lo que ya está en
+   *  existencia; los demás paquetes aceptan preventa. */
   function armarPaquete(pk) {
     const usados = new Set(), items = [];
-    const sirve = id => { const p = byId[id]; return p && !usados.has(id) && (pk.oferta ? p.stock > 0 : maxAddable(p) > 0); };
-    for (const id of pk.ids) {
-      const elegido = sirve(id) ? id : pk.respaldo.find(sirve);
-      if (elegido) { usados.add(elegido); items.push(byId[elegido]); }
+    const cupo = p => pk.oferta ? Math.max(0, p.stock) : maxAddable(p);
+    const sirve = (id, n) => { const p = byId[id]; return p && !usados.has(id) && cupo(p) >= n; };
+    for (const renglon of pk.ids) {
+      const [id0, cant] = renglon.split('*'), n = Number(cant) || 1;
+      const id = sirve(id0, n) ? id0 : pk.respaldo.find(r => sirve(r, n));
+      if (id) { usados.add(id); items.push({ p: byId[id], n }); }
     }
-    return { items, valor: items.reduce((s, p) => s + p.p1, 0), quedan: Math.min(...items.map(p => Math.max(0, p.stock))) };
+    return {
+      items,
+      piezas: items.reduce((s, x) => s + x.n, 0),
+      valor: items.reduce((s, x) => s + x.p.p1 * x.n, 0),
+      quedan: items.length ? Math.min(...items.map(x => Math.floor(cupo(x.p) / x.n))) : 0,
+    };
   }
 
   function packHTML(pk) {
     const a = armarPaquete(pk);
-    if (a.items.length < pk.piezas) return '';
+    if (a.piezas < pk.piezas) return '';
     const ahorro = a.valor - pk.precio;
     const pct = Math.round(ahorro / a.valor * 100);
-    const lista = a.items.map(p => `<li><span class="pk-f">${imgHTML(p, 120)}</span><span class="pk-n"><b>${esc(p.perfume)}</b>` +
-      `<small class="${enPreventa(p) ? 'llega' : ''}">${enPreventa(p) ? 'Llega ' + esc(p.preventaCorta) : esc(p.marca)}</small></span></li>`).join('');
-    const cinta = pk.oferta ? (pct > 0 ? `−${pct}%` : '') : pk.badge;
-    return `<article class="pack${pk.oferta ? ' oferta' : pk.badge ? ' pro' : ''}">` +
+    const li = ({ p, n }) => `<li><span class="pk-f">${imgHTML(p, 120)}</span><span class="pk-n"><b>${n > 1 ? n + ' × ' : ''}${esc(p.perfume)}</b>` +
+      `<small class="${enPreventa(p) ? 'llega' : ''}">${enPreventa(p) ? 'Llega ' + esc(p.preventaCorta) : esc(p.marca)}</small></span></li>`;
+    // Los paquetes grandes muestran 6 modelos y el resto se despliega.
+    const visibles = a.items.length > 8 ? a.items.slice(0, 6) : a.items;
+    const resto = a.items.slice(visibles.length);
+    const cinta = pk.oferta || pk.grande ? (pct > 0 ? `−${pct}%` : '') : pk.badge;
+    return `<article class="pack${pk.oferta ? ' oferta' : pk.grande ? ' grande' : pk.badge ? ' pro' : ''}">` +
       (cinta ? `<span class="cinta">${esc(cinta)}</span>` : '') +
       `<h3>${esc(pk.nombre)}</h3><span class="pz">${pk.piezas} perfumes</span>` +
-      `<ul class="pk-items">${lista}</ul>` +
+      `<ul class="pk-items">${visibles.map(li).join('')}</ul>` +
+      (resto.length ? `<details class="pk-mas"><summary>Ver ${resto.length} modelos más ▾</summary><ul class="pk-items">${resto.map(li).join('')}</ul></details>` : '') +
       (pk.incluye ? `<p class="pk-inc">Incluye ${esc(pk.incluye)}${pk.envioGratis ? ' y envío gratis' : ''}.</p>` : '') +
       `<div class="pk-valor">` +
         `<div class="fv"><span>Valor</span><s>${dinero(a.valor)}</s></div>` +
         `<div class="fv total"><span>Tú pagas</span><b>${dinero(pk.precio)}</b></div>` +
         (ahorro > 0 ? `<p class="pk-ahorro">Ahorras ${dinero(ahorro)}${pk.envioGratis ? ' + el envío' : ''}</p>` : '') +
       `</div>` +
-      (pk.oferta ? '<p class="pk-bono">🎁 Bono: en tu próximo pedido pagas un nivel de mayoreo arriba</p>' : '') +
-      `<p class="pk-pie"><span class="vence">${pk.oferta ? `Quedan ${a.quedan} paquete${a.quedan === 1 ? '' : 's'}` : '⏳ Precio válido esta semana'}</span></p>` +
-      `<button class="btn${!pk.oferta && pk.badge ? ' oro' : ''}" type="button" data-pack="${pk.id}">Quiero el ${esc(pk.nombre)}</button>` +
+      (pk.oferta || pk.bono ? '<p class="pk-bono">🎁 Bono: en tu próximo pedido pagas un nivel de mayoreo arriba</p>' : '') +
+      `<p class="pk-pie"><span class="vence">${pk.oferta || pk.grande ? `Quedan ${a.quedan} paquete${a.quedan === 1 ? '' : 's'}` : '⏳ Precio válido esta semana'}</span></p>` +
+      `<button class="btn${!pk.oferta && !pk.grande && pk.badge ? ' oro' : ''}" type="button" data-pack="${pk.id}">Quiero el ${esc(pk.nombre)}</button>` +
       `</article>`;
   }
 
@@ -1112,7 +1146,7 @@
   function renderGrid() {
     if (!allProducts.length) return;
     const lista = filtrados();
-    $('grid').innerHTML = lista.map(cardHTML).join('');
+    $('grid').innerHTML = lista.map(p => cardHTML(p)).join('');
     $('vacio').hidden = lista.length > 0;
     const hayFiltro = filtroTipo !== 'Todos' || filtroMarca || busqueda.trim();
     $('conteo').hidden = false;
@@ -1550,9 +1584,9 @@
     const lines = [];
     if (MODO_PRUEBA) lines.push('🧪 *PRUEBA — no registrar*');
     lines.push(`🎁 *Quiero el ${pk.nombre}${pk.oferta ? ' (oferta)' : ''} — ${dinero(pk.precio)}*`, '', 'Incluye:');
-    a.items.forEach(p => lines.push(`• ${p.marca} ${p.perfume} ${p.tamano}ml` + (enPreventa(p) ? ` 🕓 llega ${p.preventaFecha}` : '')));
+    a.items.forEach(({ p, n }) => lines.push(`• ${n > 1 ? n + ' × ' : ''}${p.marca} ${p.perfume} ${p.tamano}ml` + (enPreventa(p) ? ` 🕓 llega ${p.preventaFecha}` : '')));
     if (pk.incluye) lines.push(`+ ${pk.incluye}${pk.envioGratis ? ' y envío gratis' : ''}`);
-    if (pk.oferta) lines.push('🎁 Con el bono: un nivel de mayoreo arriba en mi siguiente pedido');
+    if (pk.oferta || pk.bono) lines.push('🎁 Con el bono: un nivel de mayoreo arriba en mi siguiente pedido');
     lines.push('', '¿Me confirmas para apartarlo?');
     gtag('event', 'paquete_click', { event_category: 'conversion', event_label: pk.nombre });
     const url = waLink(lines.join('\n'));
