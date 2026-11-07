@@ -623,11 +623,23 @@
           <input id="admin-vm-cliente" class="in" type="text" placeholder="Nombre del cliente">
           <input id="admin-vm-telefono" class="in" type="tel" placeholder="Teléfono">
           <div class="dos">
-            <select id="admin-vm-tipopago" class="in" onchange="document.getElementById('admin-vm-plazos-wrap').hidden = this.value !== 'Abonos'">
+            <select id="admin-vm-tipopago" class="in" onchange="adminVmTipoCambio()">
               <option value="Contado">Contado</option>
               <option value="Abonos">Abonos</option>
+              <option value="Preventa">Preventa (anticipo y resto)</option>
             </select>
-            <div id="admin-vm-plazos-wrap" hidden><input id="admin-vm-plazos" class="in" type="number" min="2" value="3" placeholder="Plazos"></div>
+            <div id="admin-vm-plazos-wrap" hidden><input id="admin-vm-plazos" class="in" type="number" min="1" value="3" placeholder="Plazos" oninput="adminVmResumen()"></div>
+          </div>
+          <div id="admin-vm-extra" hidden style="display:grid;gap:8px">
+            <div class="dos">
+              <input id="admin-vm-anticipo" class="in" type="number" min="0" step="1" placeholder="Pagó hoy $ (anticipo)" oninput="adminVmResumen()">
+              <select id="admin-vm-frec" class="in" onchange="adminVmResumen()">
+                <option value="Meses">Plazos cada mes</option>
+                <option value="Semanas">Plazos cada semana</option>
+              </select>
+            </div>
+            <label class="chk" style="display:grid;gap:4px">Fecha del primer pago del resto <input id="admin-vm-primer" class="in" type="date" oninput="adminVmResumen()"></label>
+            <p id="admin-vm-resumen" class="msg ok" style="margin:0"></p>
           </div>
           <div class="rel">
             <input id="admin-vm-buscar" class="in" type="text" placeholder="Buscar perfume por nombre o marca…" oninput="adminVmBuscarProducto(this.value)" onblur="setTimeout(() => { document.getElementById('admin-vm-resultados').hidden = true; }, 200)">
@@ -771,6 +783,7 @@
     const m = String(raw).match(/^Date\((\d+),(\d+),(\d+)/);
     if (!m) return String(raw);
     if (+m[1] < 2000) return null;
+    if (mes === 'iso') return `${m[1]}-${String(+m[2] + 1).padStart(2, '0')}-${String(+m[3]).padStart(2, '0')}`;
     return new Date(+m[1], +m[2], +m[3], 12).toLocaleDateString('es-MX', { day: 'numeric', month: mes });
   }
 
@@ -794,6 +807,7 @@
         p1:      parseFloat(v(r, 'PRECIO_PUBLICO')) || 0,
         preventaFecha: fechaPreventa(v(r, 'PREVENTA_FECHA'), 'long'),
         preventaCorta: fechaPreventa(v(r, 'PREVENTA_FECHA'), 'short'),
+        preventaISO: fechaPreventa(v(r, 'PREVENTA_FECHA'), 'iso'),
         preventaDisponible: parseInt(v(r, 'PREVENTA_DISPONIBLE')) || 0,
       }))
       .filter(p => p.p1 > 0);
@@ -1899,6 +1913,40 @@
     $('admin-vm-piezas').textContent = totalPiezas;
     $('admin-vm-nivel').textContent = label;
     $('admin-vm-total').textContent = dinero(total);
+    adminVmTotalActual = total;
+    adminVmResumen();
+  }
+
+  /** Total de la venta manual en pantalla (lo usa el resumen de pagos). */
+  let adminVmTotalActual = 0;
+
+  /** Muestra u oculta las opciones de pago según el tipo de venta; en Preventa propone
+   *  50% de anticipo, 1 solo pago y como fecha la de llegada de la mercancía. */
+  function adminVmTipoCambio() {
+    const tipo = $('admin-vm-tipopago').value;
+    $('admin-vm-plazos-wrap').hidden = tipo === 'Contado';
+    $('admin-vm-extra').hidden = tipo === 'Contado';
+    if (tipo === 'Preventa') {
+      $('admin-vm-plazos').value = 1;
+      if (!$('admin-vm-anticipo').value && adminVmTotalActual) $('admin-vm-anticipo').value = Math.round(adminVmTotalActual / 2);
+      const fechas = Object.keys(adminVmCart).map(id => byId[id]).filter(p => p && p.preventaISO && cupoPreventa(p)).map(p => p.preventaISO).sort();
+      if (fechas.length) $('admin-vm-primer').value = fechas[fechas.length - 1];
+    } else if (tipo === 'Abonos' && Number($('admin-vm-plazos').value) < 2) {
+      $('admin-vm-plazos').value = 3;
+    }
+    adminVmResumen();
+  }
+
+  /** Resumen en palabras de cómo se va a cobrar, para revisarlo antes de registrar. */
+  function adminVmResumen() {
+    const tipo = $('admin-vm-tipopago').value, el = $('admin-vm-resumen');
+    if (tipo === 'Contado') return;
+    const total = adminVmTotalActual, anticipo = Number($('admin-vm-anticipo').value) || 0;
+    const n = Math.max(Number($('admin-vm-plazos').value) || 1, 1), saldo = Math.max(total - anticipo, 0);
+    const semanas = $('admin-vm-frec').value === 'Semanas', primer = $('admin-vm-primer').value;
+    const f = primer ? new Date(primer + 'T12:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) : (semanas ? 'a la semana' : 'al mes');
+    el.textContent = `Hoy ${dinero(anticipo)} · resto ${dinero(saldo)} en ${n} pago${n === 1 ? '' : 's'} de ${dinero(Math.round(saldo / n))}` +
+      (n > 1 ? ` cada ${semanas ? 'semana' : 'mes'}` : '') + (primer ? `, el primero el ${f}` : `, el primero ${f} de hoy`) + '.';
   }
 
   async function adminRegistrarVentaManual() {
@@ -1908,11 +1956,16 @@
     const telefono = $('admin-vm-telefono').value.trim();
     const tipoPago = $('admin-vm-tipopago').value;
     const numPlazos = Number($('admin-vm-plazos').value);
+    const anticipo = tipoPago === 'Contado' ? 0 : Number($('admin-vm-anticipo').value) || 0;
+    const frecuencia = $('admin-vm-frec').value;
+    const primerPago = tipoPago === 'Contado' ? '' : $('admin-vm-primer').value;
     const manual = adminVmDescuentoManualActivo();
     const razonDescuento = $('admin-vm-razon').value.trim();
 
     if (!cliente) return mostrarMsgAdmin(msg, 'Falta el nombre del cliente.');
-    if (tipoPago === 'Abonos' && (!numPlazos || numPlazos < 2)) return mostrarMsgAdmin(msg, 'Pon en cuántos plazos (mínimo 2).');
+    if (tipoPago !== 'Contado' && (!numPlazos || numPlazos < (anticipo > 0 || tipoPago === 'Preventa' ? 1 : 2))) return mostrarMsgAdmin(msg, 'Pon en cuántos plazos (mínimo 2, o 1 si hay pago inicial).');
+    if (tipoPago !== 'Contado' && anticipo >= adminVmTotalActual && adminVmTotalActual > 0) return mostrarMsgAdmin(msg, 'El pago inicial es igual o mayor al total: mejor registra la venta de contado.');
+    if (tipoPago === 'Preventa' && !primerPago) return mostrarMsgAdmin(msg, 'Pon la fecha en que se cobra el resto (cuando llega la mercancía).');
     if (manual && !adminVmCodigoAplicado && !razonDescuento) return mostrarMsgAdmin(msg, 'Pusiste un descuento adicional — falta la razón.');
     const items = Object.entries(adminVmCart).map(([id, cantidad]) => ({ id, cantidad }));
     if (!items.length) return mostrarMsgAdmin(msg, 'Agrega al menos un producto.');
@@ -1928,7 +1981,7 @@
         method: 'POST',
         body: JSON.stringify({
           accion: 'adminVentaManual', pin: adminPin,
-          cliente, telefono, tipoPago, numPlazos, items,
+          cliente, telefono, tipoPago, numPlazos, items, anticipo, frecuencia, primerPago,
           codigo: adminVmCodigoAplicado && !bonoVm ? adminVmCodigoAplicado.codigo : '',
           descuentoAdicional: bonoVm ? nivelConBono(piezasVm).disc : (!adminVmCodigoAplicado && manual) ? Number($('admin-vm-descuento').value) / 100 : null,
           razonDescuento: bonoVm ? `Bono +1 nivel (código ${adminVmCodigoAplicado.codigo})` : (!adminVmCodigoAplicado && manual) ? razonDescuento : '',
@@ -1941,7 +1994,8 @@
       msg.innerHTML = `Pedido registrado como Pendiente — Folio ${esc(info.folio)} — Total ${dinero(info.total)}. Confírmalo en PEDIDOS_WEB (Estado = Pagado) para cerrarlo.` +
         (info.facturaUrl ? ` — <a href="${esc(info.facturaUrl)}" target="_blank" rel="noopener">Ver nota</a>` : '');
       msg.hidden = false;
-      ['admin-vm-cliente', 'admin-vm-telefono', 'admin-vm-codigo', 'admin-vm-descuento', 'admin-vm-razon'].forEach(id => { $(id).value = ''; });
+      ['admin-vm-cliente', 'admin-vm-telefono', 'admin-vm-codigo', 'admin-vm-descuento', 'admin-vm-razon', 'admin-vm-anticipo', 'admin-vm-primer'].forEach(id => { $(id).value = ''; });
+      $('admin-vm-tipopago').value = 'Contado'; adminVmTipoCambio();
       $('admin-vm-codigo-msg').hidden = true;
       adminVmCodigoAplicado = null;
       $('admin-vm-descuento').disabled = false;
